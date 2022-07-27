@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="nl">
+	<head>
+		<title>Cookbook</title>
+	</head>	
+	<body>
+		<h1>Recipes</h1>
+		<p>
+			<ul>
+				{{range .Recipes}}
+					<li><a href="recipe/{{.Id}}">{{.Name}}</a></li>
+				{{end}}
+			</ul>
+		</p>
+	</body>
+</html>

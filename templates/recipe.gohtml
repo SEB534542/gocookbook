@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Recipe for {{.Name}}</title>
+	</head>	
+	<body>
+		<p>
+			<a href="/">Return to all recipes</a> | <a href="/edit/{{.Id}}">Edit recipe</a>
+		</p>
+		<p>
+			<h1>{{.Name}}</h1>
+			<form method="POST">
+				<label for="Persons">Number of persons</label>
+				<input type="number" name="Persons" value="{{.Persons}}" required>
+				<input type="submit" value="Adjust"><br>
+			</form>
+			<h2>Ingredients</h2>
+			<ul>
+				{{range .Ingrs}}
+					<li>{{.Amount}} {{.Unit}} {{.Item}} {{.Notes}}</li>
+				{{end}}
+			</ul>
+			<h2>Steps</h2>
+			<ol>
+				{{range .Steps}}
+					<li>{{.}}</li>
+				{{end}}
+			</ol>
+			<br>
+			<i>Source of recipe: {{.Source}}</i>
+		</p>
+	</body>
+</html>
