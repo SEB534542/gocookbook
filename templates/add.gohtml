@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>New recipe</title>		
+		<style>
+			style="white-space:pre-wrap; word-wrap:break-word"
+		</style>
+	</head>	
+	<body>
+		<p>
+			<a href="/">Return to all recipes</a>
+		</p>
+		<p>
+			<h1>Add new recipe</h1>
+			<form method="POST">
+				<input type="submit" value="Save"><br>
+				<table>
+					<tr>
+						<td><label for="Name">Name</label></td>
+						<td><input type="text" name="Name" value="{{.Name}}" minlength="4" required></td>
+					</tr>
+					<tr>
+						<td><label for="Notes">Notes</label></td>
+						<td><textarea rows="3" cols="80" name="Notes">{{.Notes}}</textarea></td>
+					</tr>
+					<tr>	
+						<td><label for="Persons">Number of persons</label></td>
+						<td><input type="number" name="Persons" value="{{.Persons}}" min="1" required></td>
+					</tr>
+					<tr>
+						<td><label for="Source">Recipe source</label></td>
+						<td><input type="text" name="Source" value="{{.Source}}"></td>
+					</tr>
+				<table>
+					<h2>Ingredients</h2>
+					<table>
+						<tr>
+							<th>Amount</th>
+							<th>Unit of measure</th>
+							<th>Item</th>
+							<th>Notes</th>
+						</tr>
+						{{range $index, $element := .Ingrs}}
+							<tr>
+								<td><input type="number" step="any" name="Amount{{$index}}" value="{{$element.Amount}}"></td>
+								<td><input type="text" name="Unit{{$index}}" value="{{$element.Unit}}"></td>
+								<td><input type="text" name="Item{{$index}}" value="{{$element.Item}}"></td>
+								<td><input type="text" name="Notes{{$index}}" value="{{$element.Notes}}"></td>
+							</tr>
+						{{end}}
+						{{range .CountIngrs}}
+							<tr>
+								<td><input type="number" step="any" name="Amount{{.}}"></td>	
+								<td><input type="text" name="Unit{{.}}"></td>
+								<td><input type="text" name="Item{{.}}"></td>
+								<td><input type="text" name="Notes{{.}}"></td>
+							</tr>
+						{{end}}
+					</table>
+					<h2>Steps</h2>
+					<ol>
+						{{range $index, $element := .Steps}}
+							<li><textarea rows="3" cols="80" name="Step{{$index}}">{{$element}}</textarea></li>
+						{{end}}
+						{{range .CountSteps}}
+							<li><textarea rows="3" cols="80" name="Step{{.}}"></textarea></li>
+						{{end}}
+					</ol>
+				<br>
+				<input type="submit" value="Save"><br>
+			</form>
+		</p>
+	</body>
+</html>

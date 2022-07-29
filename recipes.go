@@ -14,6 +14,7 @@ type Recipe struct {
 	Ingrs   []Ingr   // Slice containing all ingredients.
 	Steps   []string // Steps for cooking the recipe.
 	Persons int      // Default number of persons for which this recipe is made.
+	Notes   string   // Notes and/or description on recipes.
 	Source  string   // Source of the recipe.
 }
 
@@ -31,38 +32,15 @@ var (
 	errorUnknownRecipe = fmt.Errorf("Recipe not found.")
 )
 
-var rcps = []Recipe{
-	{
-		Id:   1000,
-		Name: "Test1",
-		Ingrs: []Ingr{
-			{100, "grams", "banana", "sliced"},
-			{200, "grams", "oats", ""},
-		},
-		Steps: []string{
-			"First bblalfsa",
-			"Second jdsgfdlgjfdk",
-		},
-		Persons: 2,
-		Source:  "Test",
-	},
-	{
-		Id:   1001,
-		Name: "Test2",
-		Ingrs: []Ingr{
-			{200, "grams", "banana", "sliced"},
-			{300, "grams", "oats", ""},
-		},
-		Steps: []string{
-			"First bblalfsa",
-			"Second jdsgfdlgjfdk",
-		},
-		Persons: 4,
-		Source:  "Test2",
-	},
-}
+var fnameRcps = "recipes.json"
+
+var rcps []Recipe
 
 func main() {
+	err := readJSON(&rcps, fnameRcps)
+	if err != nil {
+		fmt.Println(err)
+	}
 	startServer(8081)
 }
 
@@ -75,17 +53,27 @@ func findRecipe(rcps []Recipe, id int) (Recipe, error) {
 	return Recipe{}, errorUnknownRecipe
 }
 
+func newId(rcps []Recipe) int {
+	var maxId int
+	for _, v := range rcps {
+		if v.Id > maxId {
+			maxId = v.Id
+		}
+	}
+	return maxId + 10
+}
+
 func findRecipeP(rcps []Recipe, id int) (*Recipe, error) {
-	for _, rcp := range rcps {
-		if rcp.Id == id {
-			return &rcp, nil
+	for i, _ := range rcps {
+		if rcps[i].Id == id {
+			return &rcps[i], nil
 		}
 	}
 	return &Recipe{}, errorUnknownRecipe
 }
 
 // updateRcp adjusts Ingrs in the recipe r to n persons and returns the new recipe.
-func updateRcp(rcp Recipe, newP int) Recipe {
+func adjustRcp(rcp Recipe, newP int) Recipe {
 	newIngrs := make([]Ingr, len(rcp.Ingrs))
 	copy(newIngrs, rcp.Ingrs)
 	newRcp := Recipe{

@@ -6,6 +6,9 @@
 	<body>
 		<h1>Recipes</h1>
 		<p>
+			<a href="add">Add new recipe</a>
+		</p>
+		<p>
 			<ul>
 				{{range .Recipes}}
 					<li><a href="recipe/{{.Id}}">{{.Name}}</a></li>

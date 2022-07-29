@@ -21,6 +21,11 @@ var (
 	dbSessions = map[string]string{}
 )
 
+var (
+	maxIngrs = 20 // Maximum amount of Ingredients that can be added.
+	maxSteps = 20 // Maximum amount of Steps that can be added.
+)
+
 func init() {
 	//Loading gohtml templates
 	tpl = template.Must(template.New("").Funcs(fm).ParseGlob("./templates/*"))
@@ -31,6 +36,7 @@ func startServer(port int) {
 		port = 8081
 		log.Printf("No port configured, using port %v", port)
 	}
+	// TODO: configure TSL?
 	cert := ""
 	key := ""
 	log.Printf("Launching website at localhost:%v", port)
@@ -38,6 +44,7 @@ func startServer(port int) {
 	http.Handle("/favicon.ico", http.NotFoundHandler())
 	http.HandleFunc("/recipe/", handlerRecipe)
 	http.HandleFunc("/edit/", handlerEditRcp)
+	http.HandleFunc("/add", handlerAddRcp)
 	// http.HandleFunc("/log/", handlerLog)
 	// http.HandleFunc("/login", handlerLogin)
 	// http.HandleFunc("/logout", handlerLogout)
@@ -344,10 +351,34 @@ func handlerRecipe(w http.ResponseWriter, req *http.Request) {
 	}
 	if req.Method == http.MethodPost {
 		if persons, err := strconv.Atoi(req.PostFormValue("Persons")); err == nil {
-			rcp = updateRcp(rcp, persons)
+			rcp = adjustRcp(rcp, persons)
 		}
 	}
 	err = tpl.ExecuteTemplate(w, "recipe.gohtml", rcp)
+	if err != nil {
+		log.Fatalln(err)
+	}
+}
+
+func handlerAddRcp(w http.ResponseWriter, req *http.Request) {
+	if req.Method == http.MethodPost {
+		rcp := processRcp(req)
+		rcp.Id = newId(rcps)
+		rcps = append(rcps, rcp)
+		SaveToGob(rcps, fnameRcps)
+		http.Redirect(w, req, fmt.Sprintf("recipe/%v", rcp.Id), http.StatusSeeOther)
+		return
+	}
+	data := struct {
+		Recipe
+		CountIngrs []int
+		CountSteps []int
+	}{
+		Recipe{},
+		rangeList(0, maxIngrs),
+		rangeList(0, maxSteps),
+	}
+	err := tpl.ExecuteTemplate(w, "add.gohtml", data)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -357,9 +388,6 @@ func handlerRecipe(w http.ResponseWriter, req *http.Request) {
 recipe and if no. of persons is send along (through post method), the recipe is
 adjusted to the new number of persons and it sends the response back.*/
 func handlerEditRcp(w http.ResponseWriter, req *http.Request) {
-	maxIngrs := 20
-	maxSteps := 20
-
 	id, err := strconv.Atoi(req.URL.Path[len("/edit/"):])
 	if err != nil {
 		http.Redirect(w, req, "/", http.StatusBadRequest)
@@ -370,56 +398,19 @@ func handlerEditRcp(w http.ResponseWriter, req *http.Request) {
 		http.Redirect(w, req, "/", http.StatusNotFound)
 		return
 	}
-
-	msgs := []string{}
 	if req.Method == http.MethodPost {
-		if name := req.PostFormValue("Name"); name != "" {
-			rcp.Name = req.PostFormValue("Name")
-		}
-		if persons, err := strconv.Atoi(req.PostFormValue("Persons")); err == nil && persons != 0 {
-			rcp.Persons = persons
-		}
-		// Ingredients
-		ingrs := []Ingr{}
-		for i := 0; i < maxIngrs; i++ {
-			amount, err := strconv.ParseFloat(req.PostFormValue(fmt.Sprintf("Amount%v", i)), 64)
-			if amount == 0.0 {
-				continue
-			}
-			if err != nil {
-				msgs = append(msgs, fmt.Sprintf("Incorrect amount '%v' entered (%v)", amount, err))
-				continue
-			}
-			ingr := Ingr{}
-			ingr.Amount = amount
-			ingr.Unit = req.PostFormValue(fmt.Sprintf("Unit%v", i)) // TODO check if UOM is known
-			ingr.Item = req.PostFormValue(fmt.Sprintf("Item%v", i))
-			ingr.Notes = req.PostFormValue(fmt.Sprintf("Notes%v", i))
-			ingrs = append(ingrs, ingr)
-		}
-		rcp.Ingrs = ingrs
-		// Steps
-		steps := []string{}
-		for i := 0; i < maxSteps; i++ {
-			step := req.PostFormValue(fmt.Sprintf("Step%v", i))
-			if step == "" {
-				continue
-			}
-			steps = append(steps, step)
-		}
-		rcp.Steps = steps
-		rcp.Source = req.PostFormValue("Source")
+		rcpNew := processRcp(req)
+		*rcp = rcpNew
+		SaveToJSON(rcps, fnameRcps)
 	}
 	data := struct {
 		Recipe
 		CountIngrs []int
 		CountSteps []int
-		Errors     []string
 	}{
 		*rcp,
 		rangeList(len(rcp.Ingrs), maxIngrs),
 		rangeList(len(rcp.Steps), maxSteps),
-		msgs,
 	}
 	err = tpl.ExecuteTemplate(w, "edit.gohtml", data)
 	if err != nil {
@@ -445,4 +436,36 @@ func rangeList(min, max int) []int {
 		x[i] = min + i
 	}
 	return x
+}
+
+func processRcp(req *http.Request) Recipe {
+	rcp := Recipe{}
+	rcp.Name = req.PostFormValue("Name")
+	rcp.Notes = req.PostFormValue("Notes")
+	rcp.Persons, _ = strconv.Atoi(req.PostFormValue("Persons"))
+	// Ingredients
+	rcp.Ingrs = []Ingr{}
+	for i := 0; i < maxIngrs; i++ {
+		ingr := Ingr{}
+		amount, _ := strconv.ParseFloat(req.PostFormValue(fmt.Sprintf("Amount%v", i)), 64)
+		if amount == 0.0 {
+			continue
+		}
+		ingr.Amount = amount
+		ingr.Unit = req.PostFormValue(fmt.Sprintf("Unit%v", i))
+		ingr.Item = req.PostFormValue(fmt.Sprintf("Item%v", i))
+		ingr.Notes = req.PostFormValue(fmt.Sprintf("Notes%v", i))
+		rcp.Ingrs = append(rcp.Ingrs, ingr)
+	}
+	// Steps
+	rcp.Steps = []string{}
+	for i := 0; i < maxSteps; i++ {
+		step := req.PostFormValue(fmt.Sprintf("Step%v", i))
+		if step == "" {
+			continue
+		}
+		rcp.Steps = append(rcp.Steps, step)
+	}
+	rcp.Source = req.PostFormValue("Source")
+	return rcp
 }
