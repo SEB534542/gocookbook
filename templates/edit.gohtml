@@ -12,6 +12,7 @@
 		</p>
 		<p>
 			<h1>Edit recipe {{.Name}}</h1>
+			{{define "edit_rcp"}}
 				<form method="POST">
 					<input type="submit" value="Save"><br>
 					<table>
@@ -69,6 +70,8 @@
 					<br>
 					<input type="submit" value="Save"><br>
 				</form>
+			{{end}}
+			{{template "edit_rcp" .}}
 		</p>
 	</body>
 </html>
