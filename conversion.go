@@ -45,7 +45,7 @@ func (i Ingr) uoms() string {
 		c := round(1 / cupToTbsp * i.Amount)
 		g := cupToGram(i.Item, c)
 		return fmt.Sprintf("%v %v / %v %v", c, cup, g, gram)
-	case tl:
+	case tsp:
 		c := round(1 / cupToTsp * i.Amount)
 		g := cupToGram(i.Item, c)
 		return fmt.Sprintf("%v %v / %v %v", c, cup, g, gram)
