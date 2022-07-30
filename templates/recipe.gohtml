@@ -31,7 +31,9 @@
 				{{end}}
 			</ol>
 			<br>
-			<i>Source of recipe: {{.Source}}</i>
+			{{if ne .Source ""}}
+				<i>Source of recipe: {{.Source}}</i>
+			{{end}}
 		</p>
 	</body>
 </html>

@@ -10,7 +10,7 @@ import (
 var convTable = map[string]float64{}
 
 const (
-	gram = "gr"
+	gram = "g"
 	cup  = "cup"
 	ml   = "ml"
 	tbsp = "el"
@@ -22,6 +22,7 @@ var units = []string{
 	gram, cup, ml, tbsp, tsp, pcs,
 }
 
+// TODO: review and update conversions
 var (
 	cupToMilliliter = 0.2841306 // fixed cup to milliliter ratio
 	cupToTbsp       = 16.0      // fixed cup to tablespoon ration
@@ -64,8 +65,10 @@ func (i *Ingrd) uoms() {
 	case tbsp:
 		c := round(1 / cupToTbsp * i.Amount)
 		if c != 0.0 {
-			xs = append(xs, fmt.Sprintf("%v %v", c, cup))
+			m := round(1 / cupToMilliliter * c)
+			xs = append(xs, fmt.Sprintf("%v %v", m, ml), fmt.Sprintf("%v %v", c, cup))
 		}
+
 		g := cupToGram(i.Item, c)
 		if g != 0.0 {
 			xs = append(xs, fmt.Sprintf("%v %v", g, gram))

@@ -229,7 +229,7 @@ func handlerAddRcp(w http.ResponseWriter, req *http.Request) {
 		rcp := processRcp(req)
 		rcp.Id = newRcpId(rcps)
 		rcps = append(rcps, rcp)
-		SaveToGob(rcps, fnameRcps)
+		SaveToJSON(rcps, fnameRcps)
 		http.Redirect(w, req, fmt.Sprintf("recipe/%v", rcp.Id), http.StatusSeeOther)
 		return
 	}
