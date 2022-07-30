@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>Edit recipe {{.Name}}</title>		
 		<style>
 			style="white-space:pre-wrap; word-wrap:break-word"
@@ -11,7 +12,7 @@
 			<a href="/">Return to all recipes</a> | <a href="/recipe/{{.Id}}">View recipe</a>
 		</p>
 		<p>
-			<h1>Edit recipe {{.Name}}</h1>
+			<h1 style="font-size:10vw">Edit recipe {{.Name}}</h1>
 			{{define "edit_rcp"}}
 				<form method="POST">
 					<table>

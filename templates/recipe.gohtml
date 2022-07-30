@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>Recipe for {{.Name}}</title>
 	</head>	
 	<body>
 		<p>
-			<a href="/">Return to all recipes</a> | <a href="/edit/{{.Id}}">Edit recipe</a>
+			<a href="/">Return to all recipes</a> | <a href="/edit/{{.Id}}">Edit recipe</a> | <a href="conv">Maintain conversion table</a>
 		</p>
 		<p>
-			<h1>{{.Name}}</h1>
+			<h1 style="font-size:10vw">{{.Name}}</h1>
 			<p><i>{{.Notes}}</i><p>
 			<form method="POST">
 				<label for="Persons">Number of persons</label>
