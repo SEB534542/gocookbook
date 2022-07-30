@@ -37,7 +37,7 @@ func startServer(port int) {
 		port = 8081
 		log.Printf("No port configured, using port %v", port)
 	}
-	// TODO: configure TSL?
+	// TODO: configure TSL
 	cert := ""
 	key := ""
 	log.Printf("Launching website at localhost:%v", port)
@@ -181,150 +181,8 @@ func stringToSlice(s string) []string {
 	return xs
 }
 
-func alreadyLoggedIn(req *http.Request) bool {
-	// TODO: update func
-	c, err := req.Cookie("session")
-	if err != nil {
-		// Error retrieving cookie
-		return false
-	}
-	un := dbSessions[c.Value]
-	username := "username"
-	if un != username {
-		// Unknown cookie
-		return false
-	}
-	return true
-}
-
-// TODO: review below func
-// func handlerLog(w http.ResponseWriter, req *http.Request) {
-// 	if !alreadyLoggedIn(req) {
-// 		http.Redirect(w, req, "/login", http.StatusSeeOther)
-// 		return
-// 	}
-
-// 	f, err := ioutil.ReadFile(fileLog)
-// 	if err != nil {
-// 		fmt.Println("File reading error", err)
-// 		return
-// 	}
-// 	lines := strings.Split(string(f), "\n")
-// 	var max = config.LogRecords
-// 	if len(lines) < max {
-// 		max = len(lines)
-// 	}
-// 	data := struct {
-// 		FileName  string
-// 		LogOutput []string
-// 	}{
-// 		fileLog,
-// 		reverseXS(lines)[:max],
-// 	}
-// 	err = tpl.ExecuteTemplate(w, "log.gohtml", data)
-// 	if err != nil {
-// 		log.Fatalln(err)
-// 	}
-// }
-
-// TODO: review login func
-// func handlerLogin(w http.ResponseWriter, req *http.Request) {
-// 	if alreadyLoggedIn(req) {
-// 		http.Redirect(w, req, "/", http.StatusSeeOther)
-// 		return
-// 	}
-
-// 	ip := getIP(req)
-
-// 	// Check if IP is on whitelist (true)
-// 	knownIp := func(ip string) bool {
-// 		for i, v := range ip {
-// 			if v == 58 {
-// 				ip = ip[:i]
-// 				break
-// 			}
-// 		}
-// 		// TODO: add/remove whitelisting below
-// 		// for _, v := range config.IpWhitelist {
-// 		// 	if ip == v {
-// 		// 		return true
-// 		// 	}
-// 		// }
-// 		return false
-// 	}
-
-// 	createSession := func() {
-// 		// create session
-// 		log.Printf("User (%v) logged in...", ip)
-// 		sID := uuid.NewV4()
-// 		c := &http.Cookie{
-// 			Name:  "session",
-// 			Value: sID.String(),
-// 		}
-// 		http.SetCookie(w, c)
-// 		dbSessions[c.Value] = config.Username
-// 		http.Redirect(w, req, "/", http.StatusSeeOther)
-// 	}
-
-// 	if knownIp(ip) {
-// 		createSession()
-// 		return
-// 	}
-
-// 	// process form submission
-// 	if req.Method == http.MethodPost {
-// 		u := req.FormValue("Username")
-// 		p := req.FormValue("Password")
-
-// 		if u != config.Username {
-// 			log.Printf("%v entered incorrect username...", ip)
-// 			http.Error(w, "Username and/or password do not match", http.StatusForbidden)
-// 			return
-// 		}
-// 		// does the entered password match the stored password?
-// 		err := bcrypt.CompareHashAndPassword(config.Password, []byte(p))
-// 		if err != nil {
-// 			log.Printf("%v entered incorrect password...", ip)
-// 			http.Error(w, "Username and/or password do not match", http.StatusForbidden)
-// 			return
-// 		}
-// 		createSession()
-// 		return
-// 	}
-
-// 	err := tpl.ExecuteTemplate(w, "login.gohtml", nil)
-// 	if err != nil {
-// 		log.Fatalln(err)
-// 	}
-// }
-
-// TODO review below
-// func handlerLogout(w http.ResponseWriter, req *http.Request) {
-// 	if !alreadyLoggedIn(req) {
-// 		http.Redirect(w, req, "/", http.StatusSeeOther)
-// 		return
-// 	}
-// 	c, _ := req.Cookie("session")
-// 	// delete the session
-// 	delete(dbSessions, c.Value)
-// 	// remove the cookie
-// 	c = &http.Cookie{
-// 		Name:   "session",
-// 		Value:  "",
-// 		MaxAge: -1,
-// 	}
-// 	http.SetCookie(w, c)
-
-// 	http.Redirect(w, req, "/login", http.StatusSeeOther)
-// }
-
 func handlerMain(w http.ResponseWriter, req *http.Request) {
-	// TODO: add login check?
-	// if !alreadyLoggedIn(req) {
-	// 	http.Redirect(w, req, "/login", http.StatusSeeOther)
-	// 	return
-	// }
-
+	// TODO: add login functionality?
 	data := struct {
 		Recipes []Recipe
 	}{
@@ -369,7 +227,7 @@ func handlerRecipe(w http.ResponseWriter, req *http.Request) {
 func handlerAddRcp(w http.ResponseWriter, req *http.Request) {
 	if req.Method == http.MethodPost {
 		rcp := processRcp(req)
-		rcp.Id = newId(rcps)
+		rcp.Id = newRcpId(rcps)
 		rcps = append(rcps, rcp)
 		SaveToGob(rcps, fnameRcps)
 		http.Redirect(w, req, fmt.Sprintf("recipe/%v", rcp.Id), http.StatusSeeOther)
@@ -410,6 +268,7 @@ func handlerEditRcp(w http.ResponseWriter, req *http.Request) {
 		rcpNew := processRcp(req)
 		*rcp = rcpNew
 		SaveToJSON(rcps, fnameRcps)
+		http.Redirect(w, req, fmt.Sprintf("/recipe/%v", rcp.Id), http.StatusSeeOther)
 	}
 	data := struct {
 		Recipe
@@ -428,16 +287,6 @@ func handlerEditRcp(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-// TODO review below
-// func handlerStop(w http.ResponseWriter, req *http.Request) {
-// 	if !alreadyLoggedIn(req) {
-// 		http.Redirect(w, req, "/login", http.StatusSeeOther)
-// 		return
-// 	}
-// 	log.Println("Shutting down")
-// 	os.Exit(3)
-// }
-
 /* rangeList takes a min and max and return the numbers in between as a
 slice of int*/
 func rangeList(min, max int) []int {
@@ -454,9 +303,9 @@ func processRcp(req *http.Request) Recipe {
 	rcp.Notes = req.PostFormValue("Notes")
 	rcp.Persons, _ = strconv.Atoi(req.PostFormValue("Persons"))
 	// Ingredients
-	rcp.Ingrs = []Ingr{}
+	rcp.Ingrs = []Ingrd{}
 	for i := 0; i < maxIngrs; i++ {
-		ingr := Ingr{}
+		ingr := Ingrd{}
 		amount, _ := strconv.ParseFloat(req.PostFormValue(fmt.Sprintf("Amount%v", i)), 64)
 		if amount == 0.0 {
 			continue

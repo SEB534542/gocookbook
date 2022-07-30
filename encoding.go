@@ -26,7 +26,7 @@ func SaveToJSON(i interface{}, fileName string) {
 location, stores in i and returns any error.*/
 func readJSON(i interface{}, fname string) error {
 	if _, err := os.Stat(fname); os.IsNotExist(err) {
-		return fmt.Errorf("File '%v' does not exist, creating blank", fname)
+		return fmt.Errorf("File '%v' does not exist, creating new", fname)
 		SaveToJSON(i, fname)
 	} else {
 		data, err := ioutil.ReadFile(fname)

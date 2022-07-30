@@ -16,11 +16,14 @@
 				<input type="submit" value="Adjust"><br>
 			</form>
 			<h2>Ingredients</h2>
-			<ul>
-				{{range .Ingrs}}
-					<li>{{.Amount}} {{.Unit}} {{.Item}} {{.Notes}} {{if .AltUnits}}({{.AltUnits}}){{end}}</li>
-				{{end}}
-			</ul>		
+				<table>
+					{{range .Ingrs}}
+						<tr>
+							<td><input type="checkbox"></td>
+							<td>{{.Amount}} {{.Unit}} {{.Item}} {{.Notes}} {{if .AltUnits}}({{.AltUnits}}){{end}}</td>
+						</tr>
+					{{end}}
+				</table>				
 			<h2>Steps</h2>
 			<ol>
 				{{range .Steps}}

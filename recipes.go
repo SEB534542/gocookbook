@@ -2,27 +2,21 @@ package main
 
 import (
 	"fmt"
-	"log"
 )
-
-// https://simoneskitchen.nl/wprm_print/recipe/43253
-// Recipemaker: https://simoneskitchen.nl/wp-content/plugins/wp-recipe-maker/dist/print.js?ver=8.3.0
 
 // Recipe represents an actual recipe for cooking.
 type Recipe struct {
 	Id      int      // Internal reference number for a recipe
 	Name    string   // Name of recipe.
-	Ingrs   []Ingr   // Slice containing all ingredients.
+	Ingrs   []Ingrd  // Slice containing all ingredients.
 	Steps   []string // Steps for cooking the recipe.
 	Persons int      // Default number of persons for which this recipe is made.
 	Notes   string   // Notes and/or description on recipes.
 	Source  string   // Source of the recipe.
 }
 
-// TODO: implement logic for tags
-
 // Ingr represents an ingredient for a recipe.
-type Ingr struct {
+type Ingrd struct {
 	Amount   float64 // Amount of units.
 	Unit     string  // Unit of Measurement (UOM), e.g. grams etc. TODO: make uom a tye?
 	Item     string  // Item itself, e.g. a banana.
@@ -34,26 +28,9 @@ var (
 	errorUnknownRecipe = fmt.Errorf("Recipe not found.")
 )
 
-var (
-	fnameRcps      = "./config/recipes.json"
-	fnameConvTable = "./config/conversion.json"
-)
-
 var rcps []Recipe
 
-func main() {
-	// Load recipes
-	err := readJSON(&rcps, fnameRcps)
-	if err != nil {
-		log.Println(err)
-	}
-	// Load conversion table
-	err = readJSON(&convTable, fnameConvTable)
-	if err != nil {
-		log.Println(err)
-	}
-	startServer(8081)
-}
+// TODO: implement logic for tags
 
 func findRecipe(rcps []Recipe, id int) (Recipe, error) {
 	for _, rcp := range rcps {
@@ -64,7 +41,7 @@ func findRecipe(rcps []Recipe, id int) (Recipe, error) {
 	return Recipe{}, errorUnknownRecipe
 }
 
-func newId(rcps []Recipe) int {
+func newRcpId(rcps []Recipe) int {
 	var maxId int
 	for _, v := range rcps {
 		if v.Id > maxId {
@@ -85,7 +62,7 @@ func findRecipeP(rcps []Recipe, id int) (*Recipe, error) {
 
 // updateRcp adjusts Ingrs in the recipe r to n persons and returns the new recipe.
 func adjustRcp(rcp Recipe, newP int) Recipe {
-	newIngrs := make([]Ingr, len(rcp.Ingrs))
+	newIngrs := make([]Ingrd, len(rcp.Ingrs))
 	copy(newIngrs, rcp.Ingrs)
 	newRcp := Recipe{
 		Id:      rcp.Id,
