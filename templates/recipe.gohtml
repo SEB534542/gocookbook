@@ -3,6 +3,34 @@
 	<head>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>Recipe for {{.Name}}</title>
+		<style>
+			body {  
+				background-color: white;
+				color: black;
+			}
+			.dark-mode {
+				background-color: black;
+				color: white;
+			}
+			.light-mode {
+				background-color: white;
+				color: black;
+			}
+		</style>
+		<script>
+			function darkMode() {
+				var element = document.body;
+				var content = document.getElementById("DarkModetext");
+				element.className = "dark-mode";
+				content.innerText = "Dark Mode is ON";
+			}
+			function lightMode() {
+				var element = document.body;
+				var content = document.getElementById("DarkModetext");
+				element.className = "light-mode";
+				content.innerText = "Dark Mode is OFF";
+			}
+			</script>
 	</head>	
 	<body>
 		<p>
@@ -35,6 +63,11 @@
 			{{if ne .Source ""}}
 				<i>Source of recipe: {{.Source}}</i>
 			{{end}}
+		</p>
+		<p>
+			<br><br><br><br><br><br>
+			<button onclick="darkMode()">Darkmode</button>
+			<button onclick="lightMode()">LightMode</button>
 		</p>
 	</body>
 </html>
