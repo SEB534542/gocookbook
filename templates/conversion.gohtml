@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="nl">
+	<head>
+		<title>Conversion table Weight-to-Volume</title>
+	</head>	
+	<body>
+		<h1>Conversion table Weight-to-Volume</h1>
+		<p>
+			<a href="/">Return to all recipes</a>
+		</p>
+		<p>
+			The table below contains the item conversion from 100 gram to a cup
+		</p>
+		<p>
+			<form method="POST">
+				<input type="submit" value="Save"><br>
+				<table>
+					<tr><th>Item</th><th>Cups for 100 gr</th></tr>
+					
+					{{range $index, $element := .ConvTable}}
+						<tr>
+							<td><label for="{{$index}}">{{$index}}</label></td>
+							<td><input type="number" step="any" name="{{$index}}" value="{{$element}}" min="0.001"></td>
+						</tr>
+					{{end}}
+					
+					{{range .AddRows}}
+						<tr>
+							<td><input type="text" name="{{.}}" minlenght="2"></td>
+							<td><input type="number" step="any" name="value-{{.}}" value="$element" min="0.001"></td>
+						</tr>
+					{{end}}
+				</table>
+				<br>
+				<input type="submit" value="Save"><br>
+			</form>
+		</p>
+	</body>
+</html>

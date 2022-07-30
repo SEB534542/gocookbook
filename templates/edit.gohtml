@@ -44,7 +44,13 @@
 							{{range $index, $element := .Ingrs}}
 								<tr>
 									<td><input type="number" step="any" name="Amount{{$index}}" value="{{$element.Amount}}" min="0.001"></td>
-									<td><input type="text" name="Unit{{$index}}" value="{{$element.Unit}}"></td>
+									<td>
+										<select name="Unit{{$index}}">
+											{{range $.Units}}
+												<option value="{{.}}" {{if eq $element.Unit .}} selected {{end}}>{{.}}</option>
+											{{end}}
+										</select>
+									</td>
 									<td><input type="text" name="Item{{$index}}" value="{{$element.Item}}"></td>
 									<td><input type="text" name="Notes{{$index}}" value="{{$element.Notes}}"></td>
 								</tr>
@@ -52,7 +58,13 @@
 							{{range .CountIngrs}}
 								<tr>
 									<td><input type="number" step="any" name="Amount{{.}}"></td>	
-									<td><input type="text" name="Unit{{.}}"></td>
+									<td>
+										<select name="Unit{{.}}">
+											{{range $.Units}}
+												<option value="{{.}}">{{.}}</option>
+											{{end}}
+										</select>
+									</td>
 									<td><input type="text" name="Item{{.}}"></td>
 									<td><input type="text" name="Notes{{.}}"></td>
 								</tr>

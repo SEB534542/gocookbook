@@ -22,8 +22,9 @@ var (
 )
 
 var (
-	maxIngrs = 20 // Maximum amount of Ingredients that can be added.
-	maxSteps = 20 // Maximum amount of Steps that can be added.
+	maxIngrs = 20 // Maximum amount of Ingredients that can be added on webpage.
+	maxSteps = 20 // Maximum amount of Steps that can be added on webpage.
+	convRows = 10 // Rows where additional conversion data can be added.
 )
 
 func init() {
@@ -45,6 +46,7 @@ func startServer(port int) {
 	http.HandleFunc("/recipe/", handlerRecipe)
 	http.HandleFunc("/edit/", handlerEditRcp)
 	http.HandleFunc("/add", handlerAddRcp)
+	http.HandleFunc("/conv", handlerConversion)
 	// http.HandleFunc("/log/", handlerLog)
 	// http.HandleFunc("/login", handlerLogin)
 	// http.HandleFunc("/logout", handlerLogout)
@@ -354,6 +356,10 @@ func handlerRecipe(w http.ResponseWriter, req *http.Request) {
 			rcp = adjustRcp(rcp, persons)
 		}
 	}
+	// Include/update alternate UOMs
+	for i, _ := range rcp.Ingrs {
+		rcp.Ingrs[i].uoms()
+	}
 	err = tpl.ExecuteTemplate(w, "recipe.gohtml", rcp)
 	if err != nil {
 		log.Fatalln(err)
@@ -373,10 +379,12 @@ func handlerAddRcp(w http.ResponseWriter, req *http.Request) {
 		Recipe
 		CountIngrs []int
 		CountSteps []int
+		Units      []string
 	}{
 		Recipe{},
 		rangeList(0, maxIngrs),
 		rangeList(0, maxSteps),
+		units,
 	}
 	err := tpl.ExecuteTemplate(w, "add.gohtml", data)
 	if err != nil {
@@ -407,10 +415,12 @@ func handlerEditRcp(w http.ResponseWriter, req *http.Request) {
 		Recipe
 		CountIngrs []int
 		CountSteps []int
+		Units      []string
 	}{
 		*rcp,
 		rangeList(len(rcp.Ingrs), maxIngrs),
 		rangeList(len(rcp.Steps), maxSteps),
+		units,
 	}
 	err = tpl.ExecuteTemplate(w, "edit.gohtml", data)
 	if err != nil {
@@ -453,7 +463,7 @@ func processRcp(req *http.Request) Recipe {
 		}
 		ingr.Amount = amount
 		ingr.Unit = req.PostFormValue(fmt.Sprintf("Unit%v", i))
-		ingr.Item = req.PostFormValue(fmt.Sprintf("Item%v", i))
+		ingr.Item = strings.ToLower(req.PostFormValue(fmt.Sprintf("Item%v", i))) // All items are stored in lowercase.
 		ingr.Notes = req.PostFormValue(fmt.Sprintf("Notes%v", i))
 		rcp.Ingrs = append(rcp.Ingrs, ingr)
 	}
@@ -468,4 +478,30 @@ func processRcp(req *http.Request) Recipe {
 	}
 	rcp.Source = req.PostFormValue("Source")
 	return rcp
+}
+
+func handlerConversion(w http.ResponseWriter, req *http.Request) {
+	if req.Method == http.MethodPost {
+		for k, _ := range convTable {
+			convTable[k], _ = strconv.ParseFloat(req.PostFormValue(k), 64)
+		}
+		for i := 0; i < convRows; i++ {
+			if k := strings.ToLower(req.PostFormValue(fmt.Sprint(i))); k != "" {
+				convTable[k], _ = strconv.ParseFloat(req.PostFormValue(fmt.Sprintf("value-%v", i)), 64)
+			}
+		}
+		// TODO: add option to remove an item from table
+	}
+
+	data := struct {
+		ConvTable map[string]float64
+		AddRows   []int
+	}{
+		convTable,
+		rangeList(0, convRows),
+	}
+	err := tpl.ExecuteTemplate(w, "conversion.gohtml", data)
+	if err != nil {
+		log.Fatalln(err)
+	}
 }

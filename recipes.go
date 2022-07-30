@@ -26,7 +26,7 @@ type Ingr struct {
 	Unit   string  // Unit of Measurement (UOM), e.g. grams etc. TODO: make uom a tye?
 	Item   string  // Item itself, e.g. a banana.
 	Notes  string  // Instruction for preparation, e.g. cooked.
-	Alts   string  // Alternative UOM and the required amount for that unit.
+	AltUnits   string  // Alternative UOM and the required amount for that unit.
 }
 
 var (
