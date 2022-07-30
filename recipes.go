@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 )
 
 // https://simoneskitchen.nl/wprm_print/recipe/43253
@@ -22,25 +23,34 @@ type Recipe struct {
 
 // Ingr represents an ingredient for a recipe.
 type Ingr struct {
-	Amount float64 // Amount of units.
-	Unit   string  // Unit of Measurement (UOM), e.g. grams etc. TODO: make uom a tye?
-	Item   string  // Item itself, e.g. a banana.
-	Notes  string  // Instruction for preparation, e.g. cooked.
-	AltUnits   string  // Alternative UOM and the required amount for that unit.
+	Amount   float64 // Amount of units.
+	Unit     string  // Unit of Measurement (UOM), e.g. grams etc. TODO: make uom a tye?
+	Item     string  // Item itself, e.g. a banana.
+	Notes    string  // Instruction for preparation, e.g. cooked.
+	AltUnits string  // Alternative UOM and the required amount for that unit.
 }
 
 var (
 	errorUnknownRecipe = fmt.Errorf("Recipe not found.")
 )
 
-var fnameRcps = "recipes.json"
+var (
+	fnameRcps      = "./config/recipes.json"
+	fnameConvTable = "./config/conversion.json"
+)
 
 var rcps []Recipe
 
 func main() {
+	// Load recipes
 	err := readJSON(&rcps, fnameRcps)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
+	}
+	// Load conversion table
+	err = readJSON(&convTable, fnameConvTable)
+	if err != nil {
+		log.Println(err)
 	}
 	startServer(8081)
 }

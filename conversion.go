@@ -7,9 +7,7 @@ import (
 )
 
 // Conv contains the item conversion from 100 gram to a cup
-var convTable = map[string]float64{
-	"quinoa": 0.555,
-}
+var convTable = map[string]float64{}
 
 const (
 	gram = "gr"

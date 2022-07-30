@@ -483,14 +483,18 @@ func processRcp(req *http.Request) Recipe {
 func handlerConversion(w http.ResponseWriter, req *http.Request) {
 	if req.Method == http.MethodPost {
 		for k, _ := range convTable {
-			convTable[k], _ = strconv.ParseFloat(req.PostFormValue(k), 64)
+			if req.PostFormValue(fmt.Sprintf("%v-delete", k)) != "" {
+				delete(convTable, k)
+			} else {
+				convTable[k], _ = strconv.ParseFloat(req.PostFormValue(k), 64)
+			}
 		}
 		for i := 0; i < convRows; i++ {
 			if k := strings.ToLower(req.PostFormValue(fmt.Sprint(i))); k != "" {
 				convTable[k], _ = strconv.ParseFloat(req.PostFormValue(fmt.Sprintf("value-%v", i)), 64)
 			}
 		}
-		// TODO: add option to remove an item from table
+		SaveToJSON(convTable, fnameConvTable)
 	}
 
 	data := struct {

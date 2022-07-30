@@ -9,18 +9,20 @@
 			<a href="/">Return to all recipes</a>
 		</p>
 		<p>
-			The table below contains the item conversion from 100 gram to a cup
+			The table below contains the item conversion from 100 gram to a cup.
 		</p>
 		<p>
 			<form method="POST">
 				<input type="submit" value="Save"><br>
 				<table>
-					<tr><th>Item</th><th>Cups for 100 gr</th></tr>
+					<tr><th>Item</th><th>Cups for 100 gr</th><th>Delete</th></tr>
 					
 					{{range $index, $element := .ConvTable}}
 						<tr>
 							<td><label for="{{$index}}">{{$index}}</label></td>
 							<td><input type="number" step="any" name="{{$index}}" value="{{$element}}" min="0.001"></td>
+							<td><input type="checkbox" name="{{$index}}-delete">
+
 						</tr>
 					{{end}}
 					
