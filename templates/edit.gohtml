@@ -12,6 +12,7 @@
 			<h1>Edit recipe {{.Name}}</h1>
 			{{define "edit_rcp"}}
 				<form method="POST">
+					<input type="hidden" name="Id" value="{{.Id}}">
 					<table>
 						<tr>
 							<td><label for="Name">Name</label></td>

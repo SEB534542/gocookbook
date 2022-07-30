@@ -299,6 +299,9 @@ func rangeList(min, max int) []int {
 
 func processRcp(req *http.Request) Recipe {
 	rcp := Recipe{}
+	if id := req.PostFormValue("Id"); id != "" {
+		rcp.Id, _ = strconv.Atoi(id)
+	}
 	rcp.Name = req.PostFormValue("Name")
 	rcp.Notes = req.PostFormValue("Notes")
 	rcp.Persons, _ = strconv.Atoi(req.PostFormValue("Persons"))
