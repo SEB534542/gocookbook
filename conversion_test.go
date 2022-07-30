@@ -10,9 +10,9 @@ func TestGramToCup(t *testing.T) {
 		Amount: 1,
 		Unit:   cup,
 		Item:   "Quinoa",
-		Notes:  "",
 	}
-	t.Log(i.uoms())
+	uoms(&i)
+	t.Log(i.Alts)
 	// want := fmt.Sprintf("0.2775 %v", gram)
 	// if got := i.uom(); got != want {
 	// 	t.Errorf("Error. Want: %v. Got: %v", want, got)

@@ -25,33 +25,34 @@ var (
 	cupToTsp        = 48.0      // fixed cup to teaspoon ratio
 )
 
-/*Uoms takes an ingredient and return the amount for two pre-determined
-alternative Unit of Measurements combined into one string.*/
-func (i Ingr) uoms() string {
+/*Uoms takes a pointer to an ingredient, determines the amount for two
+pre-determined alternative Unit of Measurements combined into one string,
+and updates this in the 'Alt' of the ingredient i.*/
+func uoms(i *Ingr) {
+	var s string
 	switch i.Unit {
 	case gram:
 		c := round(gramToCup(i.Item, i.Amount))
 		m := round(c * cupToMilliliter)
-		return fmt.Sprintf("%v %v / %v %v", c, cup, m, ml)
+		s = fmt.Sprintf("%v %v / %v %v", c, cup, m, ml)
 	case cup:
 		g := round(cupToGram(i.Item, i.Amount))
 		m := round(i.Amount * cupToMilliliter)
-		return fmt.Sprintf("%v %v / %v %v", g, gram, m, ml)
+		s = fmt.Sprintf("%v %v / %v %v", g, gram, m, ml)
 	case ml:
 		c := round(1 / cupToMilliliter * i.Amount)
 		g := round(cupToGram(i.Item, c))
-		return fmt.Sprintf("%v %v / %v %v", c, cup, g, gram)
+		s = fmt.Sprintf("%v %v / %v %v", c, cup, g, gram)
 	case tbsp:
 		c := round(1 / cupToTbsp * i.Amount)
 		g := cupToGram(i.Item, c)
-		return fmt.Sprintf("%v %v / %v %v", c, cup, g, gram)
+		s = fmt.Sprintf("%v %v / %v %v", c, cup, g, gram)
 	case tsp:
 		c := round(1 / cupToTsp * i.Amount)
 		g := cupToGram(i.Item, c)
-		return fmt.Sprintf("%v %v / %v %v", c, cup, g, gram)
-	default:
-		return ""
+		s = fmt.Sprintf("%v %v / %v %v", c, cup, g, gram)
 	}
+	i.Alts = s
 }
 
 func gramToCup(item string, x float64) float64 {

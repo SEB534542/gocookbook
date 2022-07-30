@@ -23,9 +23,10 @@ type Recipe struct {
 // Ingr represents an ingredient for a recipe.
 type Ingr struct {
 	Amount float64 // Amount of units.
-	Unit   string  // Unit of Measurement, e.g. grams etc. TODO: make uom a tye?
+	Unit   string  // Unit of Measurement (UOM), e.g. grams etc. TODO: make uom a tye?
 	Item   string  // Item itself, e.g. a banana.
-	Notes  string  // Instruction for preparation, e.g. cooked
+	Notes  string  // Instruction for preparation, e.g. cooked.
+	Alts   string  // Alternative UOM and the required amount for that unit.
 }
 
 var (
