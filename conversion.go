@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Conv contains the item conversion from 100 gram to a cup
+// Conv contains the item conversion from 1 gram to ml
 var convTable = map[string]float64{}
 
 const (
@@ -24,9 +24,9 @@ var units = []string{
 
 // TODO: review and update conversions
 var (
-	cupToMilliliter = 0.2841306 // fixed cup to milliliter ratio
-	cupToTbsp       = 16.0      // fixed cup to tablespoon ration
-	cupToTsp        = 48.0      // fixed cup to teaspoon ratio
+	tbspToMl = 14.7867648 // ml for 1 tablespoon.
+	tspToMl  = 4.92892159 // ml for 1 teaspoon.
+	cuptoMl  = 236.588237 // ml for 1 cup.
 )
 
 /*Uoms takes a pointer to an ingredient, determines the amount for two
@@ -36,49 +36,37 @@ func (i *Ingrd) uoms() {
 	var xs []string
 	switch i.Unit {
 	case gram:
-		c := round(gramToCup(i.Item, i.Amount))
-		if c != 0.0 {
-			xs = append(xs, fmt.Sprintf("%v %v", c, cup))
-		}
-		m := round(c * cupToMilliliter)
+		m := round(gramToMl(i.Item, i.Amount))
 		if m != 0.0 {
-			xs = append(xs, fmt.Sprintf("%v %v", m, ml))
+			c := round(m / cuptoMl)
+			xs = append(xs, fmt.Sprintf("%v %v", c, cup), fmt.Sprintf("%v %v", m, ml))
 		}
+		// c toevoegen?
 	case cup:
-		g := round(cupToGram(i.Item, i.Amount))
-		if g != 0.0 {
-			xs = append(xs, fmt.Sprintf("%v %v", g, gram))
-		}
-		m := round(i.Amount * cupToMilliliter)
+		m := round(i.Amount * cuptoMl)
 		if m != 0.0 {
 			xs = append(xs, fmt.Sprintf("%v %v", m, ml))
 		}
 	case ml:
-		c := round(1 / cupToMilliliter * i.Amount)
-		if c != 0.0 {
-			xs = append(xs, fmt.Sprintf("%v %v", c, cup))
-		}
-		g := round(cupToGram(i.Item, c))
+		c := round(i.Amount / cuptoMl)
+		xs = append(xs, fmt.Sprintf("%v %v", c, cup))
+		g := round(mlToGram(i.Item, i.Amount))
 		if g != 0.0 {
 			xs = append(xs, fmt.Sprintf("%v %v", g, gram))
 		}
 	case tbsp:
-		c := round(1 / cupToTbsp * i.Amount)
-		if c != 0.0 {
-			m := round(1 / cupToMilliliter * c)
-			xs = append(xs, fmt.Sprintf("%v %v", m, ml), fmt.Sprintf("%v %v", c, cup))
-		}
-
-		g := cupToGram(i.Item, c)
+		m := round(i.Amount * tbspToMl)
+		c := round(1 / cuptoMl * m)
+		xs = append(xs, fmt.Sprintf("%v %v", m, ml), fmt.Sprintf("%v %v", c, cup))
+		g := mlToGram(i.Item, m)
 		if g != 0.0 {
 			xs = append(xs, fmt.Sprintf("%v %v", g, gram))
 		}
 	case tsp:
-		c := round(1 / cupToTsp * i.Amount)
-		if c != 0.0 {
-			xs = append(xs, fmt.Sprintf("%v %v", c, cup))
-		}
-		g := cupToGram(i.Item, c)
+		m := round(i.Amount * tspToMl)
+		c := round(1 / cuptoMl * m)
+		xs = append(xs, fmt.Sprintf("%v %v", m, ml), fmt.Sprintf("%v %v", c, cup))
+		g := mlToGram(i.Item, m)
 		if g != 0.0 {
 			xs = append(xs, fmt.Sprintf("%v %v", g, gram))
 		}
@@ -86,16 +74,16 @@ func (i *Ingrd) uoms() {
 	i.AltUnits = strings.Join(xs, " / ")
 }
 
-func gramToCup(item string, x float64) float64 {
+func gramToMl(item string, x float64) float64 {
 	if f, ok := convTable[item]; ok {
-		return x / 100 * f
+		return x * f
 	}
 	return 0.0
 }
 
-func cupToGram(item string, x float64) float64 {
+func mlToGram(item string, x float64) float64 {
 	if f, ok := convTable[item]; ok {
-		return x * 1 / f * 100
+		return x / f
 	}
 	return 0.0
 }
