@@ -11,8 +11,8 @@
 		<p>
 			<a href="/">Return to all recipes</a> | <a href="/recipe/{{.Id}}">View recipe</a>
 		</p>
-		<p>
-			<h1 style="font-size:10vw">Edit recipe {{.Name}}</h1>
+		<p style="font-size:10vw">
+			<h1>Edit recipe {{.Name}}</h1>
 			{{define "edit_rcp"}}
 				<form method="POST">
 					<table>
@@ -22,7 +22,7 @@
 						</tr>
 						<tr>
 							<td><label for="Notes">Notes</label></td>
-							<td><textarea rows="3" cols="80" name="Notes">{{.Notes}}</textarea></td>
+							<td><textarea rows="3" name="Notes">{{.Notes}}</textarea></td>
 						</tr>
 						<tr>	
 							<td><label for="Persons">Number of persons</label></td>
@@ -38,7 +38,7 @@
 					<table>
 						<tr>
 							<th>Amount</th>
-							<th>Unit of measure</th>
+							<th>Unit</th>
 							<th>Item</th>
 							<th>Notes</th>
 						</tr>
