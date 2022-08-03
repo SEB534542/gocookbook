@@ -159,7 +159,9 @@ func strToInt(s string) (int, error) {
 func checkIp(ips map[string]bool, ip string) {
 	if _, ok := ips[ip]; !ok {
 		ips[ip] = true
-		log.Printf("New ip visited: '%v'", ip)
+		if ip[:3] != "192" {
+			log.Printf("New ip visited: '%v'", ip)
+		}
 	}
 }
 
