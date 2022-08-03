@@ -47,6 +47,8 @@ func startServer(port int) {
 	http.HandleFunc("/edit/", handlerEditRcp)
 	http.HandleFunc("/add", handlerAddRcp)
 	http.HandleFunc("/conv", handlerConversion)
+	http.HandleFunc("/export/recipes", handlerExportRcps)
+	http.HandleFunc("/export/table", handlerExportTable)
 	// http.HandleFunc("/log/", handlerLog)
 	// http.HandleFunc("/login", handlerLogin)
 	// http.HandleFunc("/logout", handlerLogout)
@@ -193,6 +195,24 @@ func handlerMain(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		log.Fatalln(err)
 	}
+}
+
+func handlerExportRcps(w http.ResponseWriter, req *http.Request) {
+	output, err := jsonString(rcps)
+	if err != nil {
+		msg := "Error saving:" + fmt.Sprint(err)
+		http.Error(w, msg, http.StatusExpectationFailed)
+	}
+	fmt.Fprintf(w, output)
+}
+
+func handlerExportTable(w http.ResponseWriter, req *http.Request) {
+	output, err := jsonString(convTable)
+	if err != nil {
+		msg := "Error saving:" + fmt.Sprint(err)
+		http.Error(w, msg, http.StatusExpectationFailed)
+	}
+	fmt.Fprintf(w, output)
 }
 
 /* handlerRecipe determines the recipe ID, gathers the coresponding recipe and

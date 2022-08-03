@@ -83,3 +83,16 @@ func SaveToGob(i interface{}, fname string) error {
 	}
 	return nil
 }
+
+func jsonString(i interface{}) (string, error) {
+	bs, err := json.Marshal(i)
+	if err != nil {
+		return "", err
+	}
+	// Use below and return prettyJSON if you want JSON pretty printed
+	// var prettyJSON bytes.Buffer
+	// if err := json.Indent(&prettyJSON, bs, "", "    "); err != nil {
+	// 	return "", err
+	// }
+	return string(bs), nil
+}
