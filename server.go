@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"html/template"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -19,6 +20,7 @@ var (
 	tpl        *template.Template
 	fm         = template.FuncMap{"fdateHM": hourMinute, "fsliceString": sliceToString, "fminutes": minutes, "fseconds": seconds}
 	dbSessions = map[string]string{}
+	dbIps      = map[string]bool{}
 )
 
 var (
@@ -49,7 +51,7 @@ func startServer(port int) {
 	http.HandleFunc("/conv", handlerConversion)
 	http.HandleFunc("/export/recipes", handlerExportRcps)
 	http.HandleFunc("/export/table", handlerExportTable)
-	// http.HandleFunc("/log/", handlerLog)
+	http.HandleFunc("/log/", handlerLog)
 	// http.HandleFunc("/login", handlerLogin)
 	// http.HandleFunc("/logout", handlerLogout)
 	// http.HandleFunc("/stop", handlerStop)
@@ -154,6 +156,13 @@ func strToInt(s string) (int, error) {
 	return i, err
 }
 
+func checkIp(ips map[string]bool, ip string) {
+	if _, ok := ips[ip]; !ok {
+		ips[ip] = true
+		log.Printf("New ip visited: '%v'", ip)
+	}
+}
+
 // GetIP gets a requests IP address by reading off the forwarded-for
 // header (for proxies) and falls back to use the remote address.
 func getIP(req *http.Request) string {
@@ -162,6 +171,22 @@ func getIP(req *http.Request) string {
 		return forwarded
 	}
 	return req.RemoteAddr
+}
+
+func handlerLog(w http.ResponseWriter, req *http.Request) {
+	checkIp(dbIps, getIP(req))
+	f, err := ioutil.ReadFile(fnameLog)
+	if err != nil {
+		fmt.Println("File reading error", err)
+		return
+	}
+	lines := strings.Split(string(f), "\n")
+
+	var output string
+	for _, v := range lines {
+		output += fmt.Sprintln(v)
+	}
+	fmt.Fprintf(w, output)
 }
 
 // MaxIntSlice receives variadic parameter of integers and return the highest integer
@@ -184,6 +209,7 @@ func stringToSlice(s string) []string {
 }
 
 func handlerMain(w http.ResponseWriter, req *http.Request) {
+	checkIp(dbIps, getIP(req))
 	// TODO: add login functionality?
 	data := struct {
 		Recipes []Recipe
@@ -198,6 +224,7 @@ func handlerMain(w http.ResponseWriter, req *http.Request) {
 }
 
 func handlerExportRcps(w http.ResponseWriter, req *http.Request) {
+	checkIp(dbIps, getIP(req))
 	output, err := jsonString(rcps)
 	if err != nil {
 		msg := "Error saving:" + fmt.Sprint(err)
@@ -207,6 +234,7 @@ func handlerExportRcps(w http.ResponseWriter, req *http.Request) {
 }
 
 func handlerExportTable(w http.ResponseWriter, req *http.Request) {
+	checkIp(dbIps, getIP(req))
 	output, err := jsonString(convTable)
 	if err != nil {
 		msg := "Error saving:" + fmt.Sprint(err)
@@ -219,6 +247,7 @@ func handlerExportTable(w http.ResponseWriter, req *http.Request) {
 if no. of persons is send along (through post method), the recipe is adjusted to
 the new number of persons and it sends the response back.*/
 func handlerRecipe(w http.ResponseWriter, req *http.Request) {
+	checkIp(dbIps, getIP(req))
 	id, err := strconv.Atoi(req.URL.Path[len("/recipe/"):])
 	if err != nil {
 		http.Redirect(w, req, "/", http.StatusBadRequest)
@@ -245,6 +274,7 @@ func handlerRecipe(w http.ResponseWriter, req *http.Request) {
 }
 
 func handlerAddRcp(w http.ResponseWriter, req *http.Request) {
+	checkIp(dbIps, getIP(req))
 	if req.Method == http.MethodPost {
 		rcp := processRcp(req)
 		rcp.Id = newRcpId(rcps)
@@ -274,6 +304,7 @@ func handlerAddRcp(w http.ResponseWriter, req *http.Request) {
 recipe and if no. of persons is send along (through post method), the recipe is
 adjusted to the new number of persons and it sends the response back.*/
 func handlerEditRcp(w http.ResponseWriter, req *http.Request) {
+	checkIp(dbIps, getIP(req))
 	id, err := strconv.Atoi(req.URL.Path[len("/edit/"):])
 	if err != nil {
 		http.Redirect(w, req, "/", http.StatusBadRequest)
@@ -353,6 +384,7 @@ func processRcp(req *http.Request) Recipe {
 }
 
 func handlerConversion(w http.ResponseWriter, req *http.Request) {
+	checkIp(dbIps, getIP(req))
 	if req.Method == http.MethodPost {
 		for k, _ := range convTable {
 			if req.PostFormValue(fmt.Sprintf("%v-delete", k)) != "" {
