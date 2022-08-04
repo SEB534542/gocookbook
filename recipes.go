@@ -18,7 +18,7 @@ type Recipe struct {
 // Ingr represents an ingredient for a recipe.
 type Ingrd struct {
 	Amount   float64 // Amount of units.
-	Unit     string  // Unit of Measurement (UOM), e.g. grams etc. TODO: make uom a tye?
+	Unit     string  // Unit of Measurement (UOM), e.g. grams etc.
 	Item     string  // Item itself, e.g. a banana.
 	Notes    string  // Instruction for preparation, e.g. cooked.
 	AltUnits string  // Alternative UOM and the required amount for that unit.
@@ -32,6 +32,8 @@ var rcps []Recipe
 
 // TODO: implement logic for tags
 
+/* findRecipe takes a slice of recipes and an id. It looks up the recipe with that
+id and returns the recipe.*/
 func findRecipe(rcps []Recipe, id int) (Recipe, error) {
 	for _, rcp := range rcps {
 		if rcp.Id == id {
@@ -41,6 +43,8 @@ func findRecipe(rcps []Recipe, id int) (Recipe, error) {
 	return Recipe{}, errorUnknownRecipe
 }
 
+/* newRcpId takes a slice of Recipes, looks up the highest recipe Id and
+returns a new recipe Id.*/
 func newRcpId(rcps []Recipe) int {
 	var maxId int
 	for _, v := range rcps {
@@ -51,6 +55,8 @@ func newRcpId(rcps []Recipe) int {
 	return maxId + 10
 }
 
+/* findRecipeP takes a slice of recipes and an id. It looks up the recipe with that
+id and returns a pointer to the recipe.*/
 func findRecipeP(rcps []Recipe, id int) (*Recipe, error) {
 	for i, _ := range rcps {
 		if rcps[i].Id == id {

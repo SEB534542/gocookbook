@@ -9,6 +9,9 @@ import (
 // Conv contains the item conversion from 1 gram to ml
 var convTable = map[string]float64{}
 
+/* different types of volumes and masses used for conversion. Note don't change
+the actual string without changing the existing data and adding it to the var
+units.*/
 const (
 	gram = "g"
 	cup  = "cup"
@@ -20,9 +23,8 @@ const (
 
 var units = []string{
 	gram, cup, ml, tbsp, tsp, pcs,
-}
+} // all considered volumes and masses that are used in the cookbook.
 
-// TODO: review and update conversions
 var (
 	tbspToMl = 14.7867648 // ml for 1 tablespoon.
 	tspToMl  = 4.92892159 // ml for 1 teaspoon.
@@ -74,6 +76,8 @@ func (i *Ingrd) uoms() {
 	i.AltUnits = strings.Join(xs, " / ")
 }
 
+/* gramToMl takes an item and number of grams, looks up the item in the
+conversion table and returns the number of milliliters for x grams of the item.*/
 func gramToMl(item string, x float64) float64 {
 	if f, ok := convTable[item]; ok {
 		return x * f
@@ -81,6 +85,8 @@ func gramToMl(item string, x float64) float64 {
 	return 0.0
 }
 
+/* mlToGram takes an item and number of milliliters, looks up the item in the
+conversion table and returns the number of grams for x milliliters of the item.*/
 func mlToGram(item string, x float64) float64 {
 	if f, ok := convTable[item]; ok {
 		return x / f
@@ -88,6 +94,8 @@ func mlToGram(item string, x float64) float64 {
 	return 0.0
 }
 
+/* toTitle takes a string, capitalizes the first value and sets the rest to lower
+case.*/
 func toTitle(s string) string {
 	if len(s) == 0 {
 		return ""
@@ -99,6 +107,8 @@ func toTitle(s string) string {
 	return newS
 }
 
+/* round takes a float and rounds it to three decimals. E.g. round(0.5555) returns
+0.555.*/
 func round(f float64) float64 {
 	return math.Round(f*1000) / 1000
 }

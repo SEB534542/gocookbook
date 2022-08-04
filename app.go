@@ -5,6 +5,7 @@ import (
 	"os"
 )
 
+/* All folders and file names used.*/
 var (
 	folderConfig   = "./config/"
 	fnameRcps      = folderConfig + "recipes.json"
