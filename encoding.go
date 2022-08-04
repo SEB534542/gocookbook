@@ -84,6 +84,8 @@ func SaveToGob(i interface{}, fname string) error {
 	return nil
 }
 
+/* jsonString takes an interface and returns it as a string containing the
+JSON structure for that interface.*/
 func jsonString(i interface{}) (string, error) {
 	bs, err := json.Marshal(i)
 	if err != nil {

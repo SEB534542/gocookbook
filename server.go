@@ -17,10 +17,9 @@ import (
 )
 
 var (
-	tpl        *template.Template
-	fm         = template.FuncMap{"fdateHM": hourMinute, "fsliceString": sliceToString, "fminutes": minutes, "fseconds": seconds}
-	dbSessions = map[string]string{}
-	dbIps      = map[string]bool{}
+	tpl   *template.Template
+	fm    = template.FuncMap{"fdateHM": hourMinute, "fsliceString": sliceToString, "fminutes": minutes, "fseconds": seconds} // Map with all functions that can be used within html.
+	dbIps = map[string]bool{}                                                                                                // Map containing all IPs that visited.
 )
 
 var (
@@ -34,6 +33,8 @@ func init() {
 	tpl = template.Must(template.New("").Funcs(fm).ParseGlob("./templates/*"))
 }
 
+/* startServer takes a port and launches a server. It tries to create a HTTPS
+server, but if that fails, it creates a HTTP server.*/
 func startServer(port int) {
 	if port == 0 {
 		port = 8081
@@ -63,22 +64,27 @@ func startServer(port int) {
 	}
 }
 
+// hourMinute takes a time.Time and returns it as a string.
 func hourMinute(t time.Time) string {
 	return t.Format("15:04")
 }
 
+// minutes takes a duration and returns the minutes as a string.
 func minutes(d time.Duration) string {
 	return fmt.Sprint(d.Minutes())
 }
 
+// seconds takes a duration and returns the seconds as a string.
 func seconds(d time.Duration) string {
 	return fmt.Sprint(d.Seconds())
 }
 
+// sliceToString takes a slice of string and returns it is a string.
 func sliceToString(xs []string) string {
 	return strings.Join(xs, ",")
 }
 
+// reverseXSS takes a slice of a slice of string and returns it in reversed order.
 func reverseXSS(xxs [][]string) [][]string {
 	r := [][]string{}
 	for i, _ := range xxs {
@@ -87,6 +93,7 @@ func reverseXSS(xxs [][]string) [][]string {
 	return r
 }
 
+// reverseXS takes a slice of string and reutnrs it in reversed order.
 func reverseXS(xs []string) []string {
 	r := []string{}
 	for i, _ := range xs {
@@ -95,7 +102,9 @@ func reverseXS(xs []string) []string {
 	return r
 }
 
-// StoTime receives a string of time (format hh:mm) and a day offset, and returns a type time with today's and the supplied hours and minutes + the offset in days
+/* StoTime receives a string of time (format hh:mm) and a day offset, and
+returns a type time with today's and the supplied hours and minutes + the offset
+in days.*/
 func stoTime(t string, days int) (time.Time, error) {
 	timeNow := time.Now()
 	timeHour, err := strconv.Atoi(t[:2])
@@ -110,6 +119,9 @@ func stoTime(t string, days int) (time.Time, error) {
 	return time.Date(timeNow.Year(), timeNow.Month(), timeNow.Day()+days, int(timeHour), int(timeMinute), 0, 0, time.Local), nil
 }
 
+/* readCSV takes a filename to a CSV file and returns the CSV as a [][]string,
+where the first slice represents each row and the second the comma separated
+text on that line.*/
 func readCSV(file string) [][]string {
 	// Read the file
 	f, err := os.Open(file)
@@ -130,7 +142,8 @@ func readCSV(file string) [][]string {
 	return lines
 }
 
-// Append CSV takes a filename and adds the new lines to the corresponding CSV file
+/* AppendCSV takes a filename and new lines and adds the new lines to the
+corresponding CSV file.*/
 func appendCSV(file string, newLines [][]string) {
 	lines := readCSV(file)
 	lines = append(lines, newLines...)
@@ -145,7 +158,7 @@ func appendCSV(file string, newLines [][]string) {
 	}
 }
 
-// strToInt transforms string to an int and returns a positive int or zero
+// strToInt transforms string to an int and returns a positive int or zero.
 func strToInt(s string) (int, error) {
 	i, err := strconv.Atoi(s)
 	if err != nil {
@@ -157,6 +170,9 @@ func strToInt(s string) (int, error) {
 	return i, err
 }
 
+/*CheckIp takes a map of IP addresses and an IP address, checks if the
+address is already present in the map and stores this in the log. If the address
+is local (i.e. starts with 192), it omits the address from the log.*/
 func checkIp(ips map[string]bool, ip string) {
 	if _, ok := ips[ip]; !ok {
 		ips[ip] = true
@@ -166,8 +182,8 @@ func checkIp(ips map[string]bool, ip string) {
 	}
 }
 
-// GetIP gets a requests IP address by reading off the forwarded-for
-// header (for proxies) and falls back to use the remote address.
+/* GetIP takes a request's IP address by reading off the forwarded-for
+header (for proxies) and returns the to use the remote address.*/
 func getIP(req *http.Request) string {
 	forwarded := req.Header.Get("X-FORWARDED-FOR")
 	if forwarded != "" {
@@ -176,6 +192,7 @@ func getIP(req *http.Request) string {
 	return req.RemoteAddr
 }
 
+/*handlerResetIps resets the map that stores all visited IP addresses.*/
 func handlerResetIps(w http.ResponseWriter, req *http.Request) {
 	checkIp(dbIps, getIP(req))
 	msg := "Ip tracking list reset..."
@@ -184,6 +201,7 @@ func handlerResetIps(w http.ResponseWriter, req *http.Request) {
 	fmt.Fprintf(w, msg)
 }
 
+/*handlerLog displays the complete log.*/
 func handlerLog(w http.ResponseWriter, req *http.Request) {
 	checkIp(dbIps, getIP(req))
 	f, err := ioutil.ReadFile(fnameLog)
@@ -200,8 +218,9 @@ func handlerLog(w http.ResponseWriter, req *http.Request) {
 	fmt.Fprintf(w, output)
 }
 
-// MaxIntSlice receives variadic parameter of integers and return the highest integer
-func MaxIntSlice(xi ...int) int {
+/* MaxIntSlice receives variadic parameter of integers and return the highest
+integer.*/
+func maxIntSlice(xi ...int) int {
 	var max int
 	for i, v := range xi {
 		if i == 0 || v > max {
@@ -211,6 +230,7 @@ func MaxIntSlice(xi ...int) int {
 	return max
 }
 
+/* stringToSlice takes a string and returns a slice of string, for each comma.*/
 func stringToSlice(s string) []string {
 	xs := strings.Split(s, ",")
 	for i, v := range xs {
@@ -234,6 +254,7 @@ func handlerMain(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
+/* handlerExportRcps prints all recipes in JSON on the webpage.*/
 func handlerExportRcps(w http.ResponseWriter, req *http.Request) {
 	checkIp(dbIps, getIP(req))
 	output, err := jsonString(rcps)
@@ -244,6 +265,7 @@ func handlerExportRcps(w http.ResponseWriter, req *http.Request) {
 	fmt.Fprintf(w, output)
 }
 
+/* handlerExportTable prints the conversion table in JSON on the webpage.*/
 func handlerExportTable(w http.ResponseWriter, req *http.Request) {
 	checkIp(dbIps, getIP(req))
 	output, err := jsonString(convTable)
@@ -284,6 +306,8 @@ func handlerRecipe(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
+/* handlerAddRcp generates the html page to enter a new recipe and processes and
+stores the new recipe.*/
 func handlerAddRcp(w http.ResponseWriter, req *http.Request) {
 	checkIp(dbIps, getIP(req))
 	if req.Method == http.MethodPost {
@@ -311,9 +335,8 @@ func handlerAddRcp(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-/* handlerEditRcp determines the recipe ID, gathers pointer to the coresponding
-recipe and if no. of persons is send along (through post method), the recipe is
-adjusted to the new number of persons and it sends the response back.*/
+/* handlerEditRcp lookus up the recipe ID from the path, generates the recipe
+on the html page and processes any updates.*/
 func handlerEditRcp(w http.ResponseWriter, req *http.Request) {
 	checkIp(dbIps, getIP(req))
 	id, err := strconv.Atoi(req.URL.Path[len("/edit/"):])
@@ -359,6 +382,8 @@ func rangeList(min, max int) []int {
 	return x
 }
 
+/* processRcp takes a *http.requested and extracts the form POST data into a
+recipe, which is returned.*/
 func processRcp(req *http.Request) Recipe {
 	rcp := Recipe{}
 	if id := req.PostFormValue("Id"); id != "" {
@@ -394,6 +419,8 @@ func processRcp(req *http.Request) Recipe {
 	return rcp
 }
 
+/* handlerConversion generates the html page to show and update the
+conversion table.*/
 func handlerConversion(w http.ResponseWriter, req *http.Request) {
 	checkIp(dbIps, getIP(req))
 	if req.Method == http.MethodPost {
