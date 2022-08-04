@@ -52,6 +52,7 @@ func startServer(port int) {
 	http.HandleFunc("/export/recipes", handlerExportRcps)
 	http.HandleFunc("/export/table", handlerExportTable)
 	http.HandleFunc("/log/", handlerLog)
+	http.HandleFunc("/reset", handlerResetIps)
 	// http.HandleFunc("/login", handlerLogin)
 	// http.HandleFunc("/logout", handlerLogout)
 	// http.HandleFunc("/stop", handlerStop)
@@ -173,6 +174,14 @@ func getIP(req *http.Request) string {
 		return forwarded
 	}
 	return req.RemoteAddr
+}
+
+func handlerResetIps(w http.ResponseWriter, req *http.Request) {
+	checkIp(dbIps, getIP(req))
+	msg := "Ip tracking list reset..."
+	log.Println(msg)
+	dbIps = map[string]bool{}
+	fmt.Fprintf(w, msg)
 }
 
 func handlerLog(w http.ResponseWriter, req *http.Request) {
