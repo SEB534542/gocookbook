@@ -16,11 +16,22 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+type user struct {
+	Username string
+	Password []byte
+}
+
+// Folders and file names used for storing users.
+var (
+	fnameUsers = folderConfig + "users.json"
+)
+
 var (
 	tpl        *template.Template
 	fm         = template.FuncMap{"fdateHM": hourMinute, "fsliceString": sliceToString, "fminutes": minutes, "fseconds": seconds} // Map with all functions that can be used within html.
-	dbSessions = map[string]string{}
-	dbIps      = map[string]bool{} // Map containing all IPs that visited.
+	dbUsers    = map[string]user{}                                                                                                // username, user
+	dbSessions = map[string]string{}                                                                                              // session ID, username
+	dbIps      = map[string]bool{}                                                                                                // Map containing all IPs that visited.
 )
 
 var (
@@ -43,6 +54,11 @@ func startServer(port int) {
 		port = 8081
 		log.Printf("No port configured, using port %v", port)
 	}
+	// load users
+	err := readJSON(&dbUsers, fnameUsers)
+	if err != nil {
+		log.Printf("Unable to load users from '%v': %v", fnameUsers, err)
+	}
 	// TODO: configure TSL
 	cert := ""
 	key := ""
@@ -59,7 +75,7 @@ func startServer(port int) {
 	http.HandleFunc("/reset", handlerResetIps)
 	http.HandleFunc("/login", handlerLogin)
 	http.HandleFunc("/logout", handlerLogout)
-	err := http.ListenAndServeTLS(":"+fmt.Sprint(port), cert, key, nil)
+	err = http.ListenAndServeTLS(":"+fmt.Sprint(port), cert, key, nil)
 	if err != nil {
 		log.Printf("Unable to launch TLS, launching without TLS (%v)", err)
 		log.Fatal(http.ListenAndServe(":"+fmt.Sprint(port), nil))
@@ -481,7 +497,25 @@ func handlerLogin(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	ip := getIP(req)
-	createSession := func() {
+	// process form submission
+	if req.Method == http.MethodPost {
+		un := req.FormValue("Username")
+		p := req.FormValue("Password")
+		// Lookup username
+		u, ok := dbUsers[un]
+		fmt.Println(dbUsers)
+		if !ok {
+			log.Printf("%v entered incorrect username %v..", un, ip)
+			http.Error(w, "Username and/or password do not match", http.StatusForbidden)
+			return
+		}
+		// Does the entered password match the stored password?
+		err := bcrypt.CompareHashAndPassword(u.Password, []byte(p))
+		if err != nil {
+			log.Printf("%v entered incorrect password...", ip)
+			http.Error(w, "Username and/or password do not match", http.StatusForbidden)
+			return
+		}
 		// create session
 		log.Printf("User (%v) logged in...", ip)
 		sID := uuid.NewV4()
@@ -491,30 +525,10 @@ func handlerLogin(w http.ResponseWriter, req *http.Request) {
 			MaxAge: 0,
 		}
 		http.SetCookie(w, c)
-		dbSessions[c.Value] = username
+		dbSessions[c.Value] = un
 		http.Redirect(w, req, "/", http.StatusSeeOther)
-	}
-	// process form submission
-	if req.Method == http.MethodPost {
-		u := req.FormValue("Username")
-		p := req.FormValue("Password")
-
-		if u != config.Username {
-			log.Printf("%v entered incorrect username...", ip)
-			http.Error(w, "Username and/or password do not match", http.StatusForbidden)
-			return
-		}
-		// Does the entered password match the stored password?
-		err := bcrypt.CompareHashAndPassword(config.Password, []byte(p))
-		if err != nil {
-			log.Printf("%v entered incorrect password...", ip)
-			http.Error(w, "Username and/or password do not match", http.StatusForbidden)
-			return
-		}
-		createSession()
 		return
 	}
-
 	err := tpl.ExecuteTemplate(w, "login.gohtml", nil)
 	if err != nil {
 		log.Fatalln(err)
@@ -547,11 +561,8 @@ func alreadyLoggedIn(req *http.Request) bool {
 		return false
 	}
 	un := dbSessions[c.Value]
-	muConf.Lock()
-	username := config.Username
-	muConf.Unlock()
-	if un != username {
-		// Unknown cookie
+	if _, ok := dbUsers[un]; !ok {
+		// Unknown cookie and/or user
 		return false
 	}
 	return true

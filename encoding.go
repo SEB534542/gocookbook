@@ -10,7 +10,7 @@ import (
 	"os"
 )
 
-/* SaveToJson should take an interface and stores it into the filename*/
+/* SaveToJson takes an interface and stores it into the filename*/
 func SaveToJSON(i interface{}, fileName string) {
 	bs, err := json.Marshal(i)
 	if err != nil {
