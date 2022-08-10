@@ -13,6 +13,7 @@ type Recipe struct {
 	Persons int      // Default number of persons for which this recipe is made.
 	Notes   string   // Notes and/or description on recipes.
 	Source  string   // Source of the recipe.
+	AddedBy string   // User that added the recipe.
 }
 
 // Ingr represents an ingredient for a recipe.
