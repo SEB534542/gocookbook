@@ -503,7 +503,6 @@ func handlerLogin(w http.ResponseWriter, req *http.Request) {
 		p := req.FormValue("Password")
 		// Lookup username
 		u, ok := dbUsers[un]
-		fmt.Println(dbUsers)
 		if !ok {
 			log.Printf("%v entered incorrect username %v..", un, ip)
 			http.Error(w, "Username and/or password do not match", http.StatusForbidden)
