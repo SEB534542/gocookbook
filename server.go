@@ -11,15 +11,16 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	//	"io/ioutil"
-	// "github.com/satori/go.uuid"
-	// "golang.org/x/crypto/bcrypt"
+
+	"github.com/satori/go.uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var (
-	tpl   *template.Template
-	fm    = template.FuncMap{"fdateHM": hourMinute, "fsliceString": sliceToString, "fminutes": minutes, "fseconds": seconds} // Map with all functions that can be used within html.
-	dbIps = map[string]bool{}                                                                                                // Map containing all IPs that visited.
+	tpl        *template.Template
+	fm         = template.FuncMap{"fdateHM": hourMinute, "fsliceString": sliceToString, "fminutes": minutes, "fseconds": seconds} // Map with all functions that can be used within html.
+	dbSessions = map[string]string{}
+	dbIps      = map[string]bool{} // Map containing all IPs that visited.
 )
 
 var (
@@ -27,6 +28,8 @@ var (
 	maxSteps = 20 // Maximum amount of Steps that can be added on webpage.
 	convRows = 10 // Rows where additional conversion data can be added.
 )
+
+const cookieSession = "session"
 
 func init() {
 	//Loading gohtml templates
@@ -54,9 +57,8 @@ func startServer(port int) {
 	http.HandleFunc("/export/table", handlerExportTable)
 	http.HandleFunc("/log/", handlerLog)
 	http.HandleFunc("/reset", handlerResetIps)
-	// http.HandleFunc("/login", handlerLogin)
-	// http.HandleFunc("/logout", handlerLogout)
-	// http.HandleFunc("/stop", handlerStop)
+	http.HandleFunc("/login", handlerLogin)
+	http.HandleFunc("/logout", handlerLogout)
 	err := http.ListenAndServeTLS(":"+fmt.Sprint(port), cert, key, nil)
 	if err != nil {
 		log.Printf("Unable to launch TLS, launching without TLS (%v)", err)
@@ -192,9 +194,14 @@ func getIP(req *http.Request) string {
 	return req.RemoteAddr
 }
 
+//TODO: check if this is still necessary
 /*handlerResetIps resets the map that stores all visited IP addresses.*/
 func handlerResetIps(w http.ResponseWriter, req *http.Request) {
 	checkIp(dbIps, getIP(req))
+	if !alreadyLoggedIn(req) {
+		http.Redirect(w, req, "/login", http.StatusSeeOther)
+		return
+	}
 	msg := "Ip tracking list reset..."
 	log.Println(msg)
 	dbIps = map[string]bool{}
@@ -204,6 +211,10 @@ func handlerResetIps(w http.ResponseWriter, req *http.Request) {
 /*handlerLog displays the complete log.*/
 func handlerLog(w http.ResponseWriter, req *http.Request) {
 	checkIp(dbIps, getIP(req))
+	if !alreadyLoggedIn(req) {
+		http.Redirect(w, req, "/login", http.StatusSeeOther)
+		return
+	}
 	f, err := ioutil.ReadFile(fnameLog)
 	if err != nil {
 		fmt.Println("File reading error", err)
@@ -310,6 +321,10 @@ func handlerRecipe(w http.ResponseWriter, req *http.Request) {
 stores the new recipe.*/
 func handlerAddRcp(w http.ResponseWriter, req *http.Request) {
 	checkIp(dbIps, getIP(req))
+	if !alreadyLoggedIn(req) {
+		http.Redirect(w, req, "/login", http.StatusSeeOther)
+		return
+	}
 	if req.Method == http.MethodPost {
 		rcp := processRcp(req)
 		rcp.Id = newRcpId(rcps)
@@ -339,6 +354,10 @@ func handlerAddRcp(w http.ResponseWriter, req *http.Request) {
 on the html page and processes any updates.*/
 func handlerEditRcp(w http.ResponseWriter, req *http.Request) {
 	checkIp(dbIps, getIP(req))
+	if !alreadyLoggedIn(req) {
+		http.Redirect(w, req, "/login", http.StatusSeeOther)
+		return
+	}
 	id, err := strconv.Atoi(req.URL.Path[len("/edit/"):])
 	if err != nil {
 		http.Redirect(w, req, "/", http.StatusBadRequest)
@@ -423,6 +442,10 @@ func processRcp(req *http.Request) Recipe {
 conversion table.*/
 func handlerConversion(w http.ResponseWriter, req *http.Request) {
 	checkIp(dbIps, getIP(req))
+	if !alreadyLoggedIn(req) {
+		http.Redirect(w, req, "/login", http.StatusSeeOther)
+		return
+	}
 	if req.Method == http.MethodPost {
 		for k, _ := range convTable {
 			if req.PostFormValue(fmt.Sprintf("%v-delete", k)) != "" {
@@ -450,4 +473,86 @@ func handlerConversion(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		log.Fatalln(err)
 	}
+}
+
+func handlerLogin(w http.ResponseWriter, req *http.Request) {
+	if alreadyLoggedIn(req) {
+		http.Redirect(w, req, "/", http.StatusSeeOther)
+		return
+	}
+	ip := getIP(req)
+	createSession := func() {
+		// create session
+		log.Printf("User (%v) logged in...", ip)
+		sID := uuid.NewV4()
+		c := &http.Cookie{
+			Name:   "session",
+			Value:  sID.String(),
+			MaxAge: 0,
+		}
+		http.SetCookie(w, c)
+		dbSessions[c.Value] = username
+		http.Redirect(w, req, "/", http.StatusSeeOther)
+	}
+	// process form submission
+	if req.Method == http.MethodPost {
+		u := req.FormValue("Username")
+		p := req.FormValue("Password")
+
+		if u != config.Username {
+			log.Printf("%v entered incorrect username...", ip)
+			http.Error(w, "Username and/or password do not match", http.StatusForbidden)
+			return
+		}
+		// Does the entered password match the stored password?
+		err := bcrypt.CompareHashAndPassword(config.Password, []byte(p))
+		if err != nil {
+			log.Printf("%v entered incorrect password...", ip)
+			http.Error(w, "Username and/or password do not match", http.StatusForbidden)
+			return
+		}
+		createSession()
+		return
+	}
+
+	err := tpl.ExecuteTemplate(w, "login.gohtml", nil)
+	if err != nil {
+		log.Fatalln(err)
+	}
+}
+
+func handlerLogout(w http.ResponseWriter, req *http.Request) {
+	if !alreadyLoggedIn(req) {
+		http.Redirect(w, req, "/", http.StatusSeeOther)
+		return
+	}
+	c, _ := req.Cookie(cookieSession)
+	// delete the session
+	delete(dbSessions, c.Value)
+	// remove the cookie
+	c = &http.Cookie{
+		Name:   cookieSession,
+		Value:  "",
+		MaxAge: -1,
+	}
+	http.SetCookie(w, c)
+
+	http.Redirect(w, req, "/login", http.StatusSeeOther)
+}
+
+func alreadyLoggedIn(req *http.Request) bool {
+	c, err := req.Cookie(cookieSession)
+	if err != nil {
+		// Error retrieving cookie
+		return false
+	}
+	un := dbSessions[c.Value]
+	muConf.Lock()
+	username := config.Username
+	muConf.Unlock()
+	if un != username {
+		// Unknown cookie
+		return false
+	}
+	return true
 }
