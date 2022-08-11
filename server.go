@@ -21,9 +21,17 @@ type user struct {
 	Password []byte
 }
 
-// Folders and file names used for storing users.
+type visit struct {
+	Ip   string
+	Port string
+	Time time.Time
+	Site string
+}
+
+// Folders and file names used
 var (
-	fnameUsers = folderConfig + "users.json"
+	fnameUsers  = folderConfig + "users.json"
+	fnameVisits = folderLog + "visits.json"
 )
 
 var (
@@ -31,7 +39,7 @@ var (
 	fm         = template.FuncMap{"fdateHM": hourMinute, "fsliceString": sliceToString, "fminutes": minutes, "fseconds": seconds} // Map with all functions that can be used within html.
 	dbUsers    = map[string]user{}                                                                                                // username, user
 	dbSessions = map[string]string{}                                                                                              // session ID, username
-	dbIps      = map[string]bool{}                                                                                                // Map containing all IPs that visited.
+	dbVisits   = []visit{}                                                                                                        // Visits to this website.
 )
 
 var (
@@ -59,6 +67,11 @@ func startServer(port int) {
 	if err != nil {
 		log.Printf("Unable to load users from '%v': %v", fnameUsers, err)
 	}
+	// load visits
+	err = readJSON(&dbVisits, fnameVisits)
+	if err != nil {
+		log.Printf("Unable to load previous visits from '%v': %v", fnameVisits, err)
+	}
 	// TODO: configure TSL
 	cert := ""
 	key := ""
@@ -72,7 +85,6 @@ func startServer(port int) {
 	http.HandleFunc("/export/recipes", handlerExportRcps)
 	http.HandleFunc("/export/table", handlerExportTable)
 	http.HandleFunc("/log/", handlerLog)
-	http.HandleFunc("/reset", handlerResetIps)
 	http.HandleFunc("/login", handlerLogin)
 	http.HandleFunc("/logout", handlerLogout)
 	err = http.ListenAndServeTLS(":"+fmt.Sprint(port), cert, key, nil)
@@ -210,23 +222,9 @@ func getIP(req *http.Request) string {
 	return req.RemoteAddr
 }
 
-//TODO: check if this is still necessary
-/*handlerResetIps resets the map that stores all visited IP addresses.*/
-func handlerResetIps(w http.ResponseWriter, req *http.Request) {
-	checkIp(dbIps, getIP(req))
-	if !alreadyLoggedIn(req) {
-		http.Redirect(w, req, "/login", http.StatusSeeOther)
-		return
-	}
-	msg := "Ip tracking list reset..."
-	log.Println(msg)
-	dbIps = map[string]bool{}
-	fmt.Fprintf(w, msg)
-}
-
 /*handlerLog displays the complete log.*/
 func handlerLog(w http.ResponseWriter, req *http.Request) {
-	checkIp(dbIps, getIP(req))
+	addVisit(getIP(req), "log")
 	if !alreadyLoggedIn(req) {
 		http.Redirect(w, req, "/login", http.StatusSeeOther)
 		return
@@ -267,8 +265,7 @@ func stringToSlice(s string) []string {
 }
 
 func handlerMain(w http.ResponseWriter, req *http.Request) {
-	checkIp(dbIps, getIP(req))
-	// TODO: add login functionality?
+	addVisit(getIP(req), "main")
 	data := struct {
 		Recipes []Recipe
 	}{
@@ -283,7 +280,7 @@ func handlerMain(w http.ResponseWriter, req *http.Request) {
 
 /* handlerExportRcps prints all recipes in JSON on the webpage.*/
 func handlerExportRcps(w http.ResponseWriter, req *http.Request) {
-	checkIp(dbIps, getIP(req))
+	addVisit(getIP(req), "export rcps")
 	output, err := jsonString(rcps)
 	if err != nil {
 		msg := "Error saving:" + fmt.Sprint(err)
@@ -294,7 +291,7 @@ func handlerExportRcps(w http.ResponseWriter, req *http.Request) {
 
 /* handlerExportTable prints the conversion table in JSON on the webpage.*/
 func handlerExportTable(w http.ResponseWriter, req *http.Request) {
-	checkIp(dbIps, getIP(req))
+	addVisit(getIP(req), "export table")
 	output, err := jsonString(convTable)
 	if err != nil {
 		msg := "Error saving:" + fmt.Sprint(err)
@@ -307,8 +304,8 @@ func handlerExportTable(w http.ResponseWriter, req *http.Request) {
 if no. of persons is send along (through post method), the recipe is adjusted to
 the new number of persons and it sends the response back.*/
 func handlerRecipe(w http.ResponseWriter, req *http.Request) {
-	checkIp(dbIps, getIP(req))
 	id, err := strconv.Atoi(req.URL.Path[len("/recipe/"):])
+	addVisit(getIP(req), fmt.Sprintf("recipe %v", id))
 	if err != nil {
 		http.Redirect(w, req, "/", http.StatusBadRequest)
 		return
@@ -336,7 +333,7 @@ func handlerRecipe(w http.ResponseWriter, req *http.Request) {
 /* handlerAddRcp generates the html page to enter a new recipe and processes and
 stores the new recipe.*/
 func handlerAddRcp(w http.ResponseWriter, req *http.Request) {
-	checkIp(dbIps, getIP(req))
+	addVisit(getIP(req), "add recipe")
 	if !alreadyLoggedIn(req) {
 		http.Redirect(w, req, "/login", http.StatusSeeOther)
 		return
@@ -369,7 +366,7 @@ func handlerAddRcp(w http.ResponseWriter, req *http.Request) {
 /* handlerEditRcp lookus up the recipe ID from the path, generates the recipe
 on the html page and processes any updates.*/
 func handlerEditRcp(w http.ResponseWriter, req *http.Request) {
-	checkIp(dbIps, getIP(req))
+	addVisit(getIP(req), "edit recipe")
 	if !alreadyLoggedIn(req) {
 		http.Redirect(w, req, "/login", http.StatusSeeOther)
 		return
@@ -457,7 +454,7 @@ func processRcp(req *http.Request) Recipe {
 /* handlerConversion generates the html page to show and update the
 conversion table.*/
 func handlerConversion(w http.ResponseWriter, req *http.Request) {
-	checkIp(dbIps, getIP(req))
+	addVisit(getIP(req), "conversion")
 	if !alreadyLoggedIn(req) {
 		http.Redirect(w, req, "/login", http.StatusSeeOther)
 		return
@@ -492,6 +489,7 @@ func handlerConversion(w http.ResponseWriter, req *http.Request) {
 }
 
 func handlerLogin(w http.ResponseWriter, req *http.Request) {
+	addVisit(getIP(req), "login")
 	if alreadyLoggedIn(req) {
 		http.Redirect(w, req, "/", http.StatusSeeOther)
 		return
@@ -535,6 +533,7 @@ func handlerLogin(w http.ResponseWriter, req *http.Request) {
 }
 
 func handlerLogout(w http.ResponseWriter, req *http.Request) {
+	addVisit(getIP(req), "logout")
 	if !alreadyLoggedIn(req) {
 		http.Redirect(w, req, "/", http.StatusSeeOther)
 		return
@@ -565,4 +564,21 @@ func alreadyLoggedIn(req *http.Request) bool {
 		return false
 	}
 	return true
+}
+
+func addVisit(ipp, site string) {
+	addr := strings.Split(ipp, ":") // ipp contains ip:port, ie 192.168.1.1:7000 and converts this into a slice of string.
+	var ip, port string
+	ip = addr[0]
+	if len(addr) > 0 {
+		port = addr[1]
+	}
+	v := visit{
+		Ip:   ip,
+		Port: port,
+		Time: time.Now(),
+		Site: site,
+	}
+	dbVisits = append(dbVisits, v)
+	SaveToJSON(dbVisits, fnameVisits)
 }
