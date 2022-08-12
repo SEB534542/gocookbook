@@ -281,7 +281,7 @@ func handlerMain(w http.ResponseWriter, req *http.Request) {
 /* handlerExportRcps prints all recipes in JSON on the webpage.*/
 func handlerExportRcps(w http.ResponseWriter, req *http.Request) {
 	addVisit(getIP(req), "export rcps")
-	output, err := jsonString(rcps)
+	output, err := jsonStringPretty(rcps)
 	if err != nil {
 		msg := "Error saving:" + fmt.Sprint(err)
 		http.Error(w, msg, http.StatusExpectationFailed)
@@ -292,7 +292,7 @@ func handlerExportRcps(w http.ResponseWriter, req *http.Request) {
 /* handlerExportTable prints the conversion table in JSON on the webpage.*/
 func handlerExportTable(w http.ResponseWriter, req *http.Request) {
 	addVisit(getIP(req), "export table")
-	output, err := jsonString(convTable)
+	output, err := jsonStringPretty(convTable)
 	if err != nil {
 		msg := "Error saving:" + fmt.Sprint(err)
 		http.Error(w, msg, http.StatusExpectationFailed)
