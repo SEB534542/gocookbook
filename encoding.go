@@ -16,9 +16,13 @@ func SaveToJSON(i interface{}, fileName string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = ioutil.WriteFile(fileName, bs, 0644)
+	//  Use below if you want JSON pretty printed
+	var prettyJSON bytes.Buffer
+	_ = json.Indent(&prettyJSON, bs, "", "    ")
+
+	err = ioutil.WriteFile(fileName, prettyJSON.Bytes(), 0644)
 	if err != nil {
-		log.Fatal("Error", err)
+		log.Fatal("Error saving JSON:", err)
 	}
 }
 
