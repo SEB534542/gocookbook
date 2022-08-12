@@ -14,7 +14,7 @@
 			{{define "edit_rcp"}}
 				<form method="POST">
 					<input type="hidden" name="Id" value="{{.Id}}">
-					<table>
+					<table text-align="top">
 						<tr>
 							<td><label for="Name">Naam</label></td>
 							<td><input type="text" name="Name" value="{{.Name}}" minlength="4" required></td>
@@ -33,7 +33,7 @@
 						</tr>
 					</table>
 					<input type="submit" value="Opslaan"><br>
-					<h2>Ingredients</h2>
+					<h2>Ingrediënten</h2>
 					<table>
 						<tr>
 							<th>Aantal</th>
