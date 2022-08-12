@@ -550,7 +550,7 @@ func handlerLogout(w http.ResponseWriter, req *http.Request) {
 	}
 	http.SetCookie(w, c)
 
-	http.Redirect(w, req, "/login", http.StatusSeeOther)
+	http.Redirect(w, req, "/", http.StatusSeeOther)
 }
 
 func alreadyLoggedIn(req *http.Request) bool {
