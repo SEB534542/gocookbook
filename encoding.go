@@ -84,6 +84,22 @@ func SaveToGob(i interface{}, fname string) error {
 	return nil
 }
 
+/* jsonStringPretty takes an interface and returns it as a string containing the
+JSON structure for that interface pretty printed.*/
+func jsonStringPretty(i interface{}) (string, error) {
+	bs, err := json.Marshal(i)
+	if err != nil {
+		return "", err
+	}
+	// Return string(bs) for json without pretty print.
+	//  Use below and return prettyJSON.String if you want JSON pretty printed
+	var prettyJSON bytes.Buffer
+	if err := json.Indent(&prettyJSON, bs, "", "    "); err != nil {
+		return "", err
+	}
+	return prettyJSON.String(), nil
+}
+
 /* jsonString takes an interface and returns it as a string containing the
 JSON structure for that interface.*/
 func jsonString(i interface{}) (string, error) {
@@ -91,10 +107,5 @@ func jsonString(i interface{}) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	// Use below and return prettyJSON if you want JSON pretty printed
-	// var prettyJSON bytes.Buffer
-	// if err := json.Indent(&prettyJSON, bs, "", "    "); err != nil {
-	// 	return "", err
-	// }
 	return string(bs), nil
 }
