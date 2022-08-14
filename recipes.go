@@ -80,8 +80,8 @@ func adjustRcp(rcp Recipe, newP int) Recipe {
 		Source:  rcp.Source,
 	}
 	x := float64(newP) / float64(rcp.Persons)
-	for i, _ := range newRcp.Ingrs {
-		newRcp.Ingrs[i].Amount *= x
+	for i, v := range newRcp.Ingrs {
+		newRcp.Ingrs[i].Amount = round(v.Amount * x)
 	}
 	return newRcp
 }
