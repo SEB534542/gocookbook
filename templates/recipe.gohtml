@@ -34,7 +34,11 @@
 			</ol>
 			<br>
 			{{if ne .Source ""}}
-				<i>Recept bron: {{.Source}}</i>
+          {{if eq .SourceLink ""}}
+					<i>Recept bron: {{.Source}}</i>
+          {{else}}
+					<i>Recept bron: <a href="{{.SourceLink}}">{{.Source}}</a></i>
+          {{end}}
 			{{end}}
 		</p>
 	</body>
