@@ -34,7 +34,11 @@
 			</ol>
 			<br>
 			{{if ne .Source ""}}
-				<i>Source of recipe: {{.Source}}</i>
+				{{if eq .SourceLink ""}}
+					<i>Source of recipe: {{.Source}}</i>
+				{{else}}
+					<i>Source of recipe: <a href="{{.SourceLink}}">{{.Source}}</a></i>
+				{{end}}
 			{{end}}
 		</p>
 	</body>

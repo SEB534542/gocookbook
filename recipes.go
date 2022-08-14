@@ -6,14 +6,15 @@ import (
 
 // Recipe represents an actual recipe for cooking.
 type Recipe struct {
-	Id      int      // Internal reference number for a recipe
-	Name    string   // Name of recipe.
-	Ingrs   []Ingrd  // Slice containing all ingredients.
-	Steps   []string // Steps for cooking the recipe.
-	Persons int      // Default number of persons for which this recipe is made.
-	Notes   string   // Notes and/or description on recipes.
-	Source  string   // Source of the recipe.
-	AddedBy string   // User that added the recipe.
+	Id         int      // Internal reference number for a recipe
+	Name       string   // Name of recipe.
+	Ingrs      []Ingrd  // Slice containing all ingredients.
+	Steps      []string // Steps for cooking the recipe.
+	Persons    int      // Default number of persons for which this recipe is made.
+	Notes      string   // Notes and/or description on recipes.
+	Source     string   // Source of the recipe.
+	SourceLink string   // Hyperlink to the source.
+	AddedBy    string   // User that added the recipe.
 }
 
 // Ingr represents an ingredient for a recipe.
@@ -72,12 +73,13 @@ func adjustRcp(rcp Recipe, newP int) Recipe {
 	newIngrs := make([]Ingrd, len(rcp.Ingrs))
 	copy(newIngrs, rcp.Ingrs)
 	newRcp := Recipe{
-		Id:      rcp.Id,
-		Name:    rcp.Name,
-		Ingrs:   newIngrs,
-		Steps:   rcp.Steps,
-		Persons: newP,
-		Source:  rcp.Source,
+		Id:         rcp.Id,
+		Name:       rcp.Name,
+		Ingrs:      newIngrs,
+		Steps:      rcp.Steps,
+		Persons:    newP,
+		Source:     rcp.Source,
+		SourceLink: rcp.SourceLink,
 	}
 	x := float64(newP) / float64(rcp.Persons)
 	for i, v := range newRcp.Ingrs {

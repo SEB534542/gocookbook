@@ -27,11 +27,16 @@ var (
 )
 
 var (
-	tpl        *template.Template
-	fm         = template.FuncMap{"fdateHM": hourMinute, "fsliceString": sliceToString, "fminutes": minutes, "fseconds": seconds} // Map with all functions that can be used within html.
-	dbUsers    = map[string]user{}                                                                                                // username, user
-	dbSessions = map[string]string{}                                                                                              // session ID, username
-	dbIps      = map[string]bool{}                                                                                                // Map containing all IPs that visited.
+	tpl *template.Template
+	fm  = template.FuncMap{
+		"fdateHM":      hourMinute,
+		"fsliceString": sliceToString,
+		"fminutes":     minutes,
+		"fseconds":     seconds,
+	} // Map with all functions that can be used within html.
+	dbUsers    = map[string]user{}   // username, user
+	dbSessions = map[string]string{} // session ID, username
+	dbIps      = map[string]bool{}   // Map containing all IPs that visited.
 )
 
 var (
@@ -451,6 +456,15 @@ func processRcp(req *http.Request) Recipe {
 		rcp.Steps = append(rcp.Steps, step)
 	}
 	rcp.Source = req.PostFormValue("Source")
+	rcp.SourceLink = req.PostFormValue("SourceLink")
+	switch {
+	case rcp.SourceLink == "" && isHyperlink(rcp.Source):
+		rcp.SourceLink = rcp.Source
+	case rcp.Source == "" && isHyperlink(rcp.SourceLink):
+		rcp.Source = rcp.SourceLink
+	case !isHyperlink(rcp.SourceLink):
+		rcp.SourceLink = ""
+	}
 	return rcp
 }
 
@@ -565,4 +579,38 @@ func alreadyLoggedIn(req *http.Request) bool {
 		return false
 	}
 	return true
+}
+
+/* isHyperlink takes a string, checks if a hyperlink exists in that string.*/
+func isHyperlink(s string) bool {
+	xs := strings.Split(s, " ")
+	if len(xs) > 1 {
+		// string has spaces so cannot be a hyperlink
+		return false
+	}
+	tags := []string{"http://", "https://", "www."}
+	for _, t := range tags {
+		if startsWith(s, t) {
+			return true
+		}
+	}
+	return false
+}
+
+/* startsWith takes a string and a substring and returns true if the string
+starts with the substring. It does not require cases to match
+(i.e. lower v/s upper case).*/
+func startsWith(s, substr string) bool {
+	if strings.ToLower(s[:len(substr)]) == strings.ToLower(substr) {
+		return true
+	}
+	return false
+}
+
+/* removeFromSlice takes a slice of string and removes the i-th element and
+returns the array.*/
+func removeFromSlice(xs []string, i int) []string {
+	v := make([]string, len(xs)-1)
+	v = append(xs[:i], xs[i+1:]...) // remove i-th element
+	return v
 }
