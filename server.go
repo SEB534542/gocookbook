@@ -35,11 +35,17 @@ var (
 )
 
 var (
-	tpl        *template.Template
-	fm         = template.FuncMap{"fdateHM": hourMinute, "fsliceString": sliceToString, "fminutes": minutes, "fseconds": seconds} // Map with all functions that can be used within html.
-	dbUsers    = map[string]user{}                                                                                                // username, user
-	dbSessions = map[string]string{}                                                                                              // session ID, username
-	dbVisits   = []visit{}                                                                                                        // Visits to this website.
+	tpl *template.Template
+	fm  = template.FuncMap{
+		"fdateHM":      hourMinute,
+		"fsliceString": sliceToString,
+		"fminutes":     minutes,
+		"fseconds":     seconds,
+		"fdate":        dateTime,
+	} // Map with all functions that can be used within html.
+	dbUsers    = map[string]user{}   // username, user
+	dbSessions = map[string]string{} // session ID, username
+	dbVisits   = []visit{}           // Visits to this website.
 )
 
 var (
@@ -87,6 +93,7 @@ func startServer(port int) {
 	http.HandleFunc("/log/", handlerLog)
 	http.HandleFunc("/login", handlerLogin)
 	http.HandleFunc("/logout", handlerLogout)
+	http.HandleFunc("/visits", handlerVisits)
 	err = http.ListenAndServeTLS(":"+fmt.Sprint(port), cert, key, nil)
 	if err != nil {
 		log.Printf("Unable to launch TLS, launching without TLS (%v)", err)
@@ -97,6 +104,11 @@ func startServer(port int) {
 // hourMinute takes a time.Time and returns it as a string.
 func hourMinute(t time.Time) string {
 	return t.Format("15:04")
+}
+
+// dateTime takes a time.Time and returns it as a string.
+func dateTime(t time.Time) string {
+	return t.Format("02-01 15:04")
 }
 
 // minutes takes a duration and returns the minutes as a string.
@@ -220,6 +232,18 @@ func getIP(req *http.Request) string {
 		return forwarded
 	}
 	return req.RemoteAddr
+}
+
+/* handlerVisits prints all stored visits on a HTML page.*/
+func handlerVisits(w http.ResponseWriter, req *http.Request) {
+	if !alreadyLoggedIn(req) {
+		http.Redirect(w, req, "/login", http.StatusSeeOther)
+		return
+	}
+	err := tpl.ExecuteTemplate(w, "visits.gohtml", dbVisits)
+	if err != nil {
+		log.Fatalln(err)
+	}
 }
 
 /*handlerLog displays the complete log.*/
