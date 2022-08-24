@@ -599,7 +599,6 @@ func alreadyLoggedIn(req *http.Request) bool {
 	return true
 }
 
-<<<<<<< HEAD
 /* isHyperlink takes a string, checks if a hyperlink exists in that string.*/
 func isHyperlink(s string) bool {
 	xs := strings.Split(s, " ")
@@ -632,7 +631,8 @@ func removeFromSlice(xs []string, i int) []string {
 	v := make([]string, len(xs)-1)
 	v = append(xs[:i], xs[i+1:]...) // remove i-th element
 	return v
-=======
+}
+
 func addVisit(ipp, site string) {
 	addr := strings.Split(ipp, ":") // ipp contains ip:port, ie 192.168.1.1:7000 and converts this into a slice of string.
 	var ip, port string
@@ -648,5 +648,4 @@ func addVisit(ipp, site string) {
 	}
 	dbVisits = append(dbVisits, v)
 	SaveToJSON(dbVisits, fnameVisits)
->>>>>>> logs
 }
