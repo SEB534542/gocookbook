@@ -41,9 +41,8 @@ func (i *Ingrd) uoms() {
 		m := round(gramToMl(i.Item, i.Amount))
 		if m != 0.0 {
 			c := round(m / cuptoMl)
-			xs = append(xs, fmt.Sprintf("%v %v", c, cup), fmt.Sprintf("%v %v", m, ml))
+			xs = append(xs, fmt.Sprintf("%v %v", m, ml), fmt.Sprintf("%v %v", c, cup))
 		}
-		// c toevoegen?
 	case cup:
 		m := round(i.Amount * cuptoMl)
 		if m != 0.0 {
