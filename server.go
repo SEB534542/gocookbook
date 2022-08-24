@@ -601,6 +601,10 @@ func alreadyLoggedIn(req *http.Request) bool {
 
 /* isHyperlink takes a string, checks if a hyperlink exists in that string.*/
 func isHyperlink(s string) bool {
+	if s == "" {
+		// string is empty, so not a hyperlink
+		return false
+	}
 	xs := strings.Split(s, " ")
 	if len(xs) > 1 {
 		// string has spaces so cannot be a hyperlink
