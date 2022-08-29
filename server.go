@@ -367,6 +367,7 @@ func handlerAddRcp(w http.ResponseWriter, req *http.Request) {
 		rcp.Id = newRcpId(rcps)
 		rcps = append(rcps, rcp)
 		SaveToJSON(rcps, fnameRcps)
+		log.Printf("New recipe added (id %v", rcp.Id)
 		http.Redirect(w, req, fmt.Sprintf("recipe/%v", rcp.Id), http.StatusSeeOther)
 		return
 	}
@@ -409,6 +410,7 @@ func handlerEditRcp(w http.ResponseWriter, req *http.Request) {
 		rcpNew := processRcp(req)
 		*rcp = rcpNew
 		SaveToJSON(rcps, fnameRcps)
+		log.Printf("Recipe %v updated", rcpNew.Id)
 		http.Redirect(w, req, fmt.Sprintf("/recipe/%v", rcp.Id), http.StatusSeeOther)
 	}
 	data := struct {
@@ -447,6 +449,7 @@ func processRcp(req *http.Request) Recipe {
 	}
 	rcp.Name = req.PostFormValue("Name")
 	rcp.Notes = req.PostFormValue("Notes")
+	rcp.Dur, _ = time.ParseDuration(fmt.Sprintf("%vm", req.PostFormValue("Dur")))
 	rcp.Persons, _ = strconv.Atoi(req.PostFormValue("Persons"))
 	// Ingredients
 	rcp.Ingrs = []Ingrd{}

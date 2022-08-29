@@ -11,9 +11,11 @@
 		</p>
 		<p style="font-size:10vw">
 			<h1>{{.Name}}</h1>
-			<p><i>{{.Notes}}</i><p>
-			<form method="POST">
+			<p><i>{{.Notes}}</i></p>
+			<p>Kooktijd: {{fminutes .Dur}} minuten</p>
+			<form method="POST">		
 				<label for="Persons">Aantal personen</label>
+>>>>>>> main
 				<input type="number" name="Persons" value="{{.Persons}}" required>
 				<input type="submit" value="Pas aan"><br>
 			</form>
