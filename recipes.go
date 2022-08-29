@@ -2,19 +2,21 @@ package main
 
 import (
 	"fmt"
+	"time"
 )
 
 // Recipe represents an actual recipe for cooking.
 type Recipe struct {
-	Id         int      // Internal reference number for a recipe
-	Name       string   // Name of recipe.
-	Ingrs      []Ingrd  // Slice containing all ingredients.
-	Steps      []string // Steps for cooking the recipe.
-	Persons    int      // Default number of persons for which this recipe is made.
-	Notes      string   // Notes and/or description on recipes.
-	Source     string   // Source of the recipe.
-	SourceLink string   // Hyperlink to the source.
-	AddedBy    string   // User that added the recipe.
+	Id         int           // Internal reference number for a recipe
+	Name       string        // Name of recipe.
+	Ingrs      []Ingrd       // Slice containing all ingredients.
+	Steps      []string      // Steps for cooking the recipe.
+	Persons    int           // Default number of persons for which this recipe is made.
+	Dur        time.Duration // Cooking time
+	Notes      string        // Notes and/or description on recipes.
+	Source     string        // Source of the recipe.
+	SourceLink string        // Hyperlink to the source.
+	AddedBy    string        // User that added the recipe.
 }
 
 // Ingr represents an ingredient for a recipe.

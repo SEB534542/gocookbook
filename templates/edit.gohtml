@@ -23,6 +23,10 @@
 							<td><label for="Notes">Notes</label></td>
 							<td><textarea rows="3" name="Notes">{{.Notes}}</textarea></td>
 						</tr>
+						<tr>
+							<td><label for="Dur">Cooking time (in minutes)</label></td>
+							<td><input type="number" name="Dur" value="{{fminutes .Dur}}" min="0" value="0" required></td>
+						</tr>
 						<tr>	
 							<td><label for="Persons">Number of persons</label></td>
 							<td><input type="number" name="Persons" value="{{.Persons}}" min="1" required></td>
