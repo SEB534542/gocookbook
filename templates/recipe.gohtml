@@ -12,7 +12,8 @@
 		<p style="font-size:10vw">
 			<h1>{{.Name}}</h1>
 			<p><i>{{.Notes}}</i></p>
-			<p>Kooktijd: {{fminutes .Dur}} minuten</p>
+			{{$dur := fminutes .Dur}}
+			{{if ne $dur "0"}}<p>Kooktijd: {{fminutes .Dur}} minuten</p>{{end}}
 			<form method="POST">		
 				<label for="Persons">Aantal personen</label>
 				<input type="number" name="Persons" value="{{.Persons}}" required>
