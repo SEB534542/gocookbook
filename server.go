@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -42,6 +43,7 @@ var (
 		"fminutes":     minutes,
 		"fseconds":     seconds,
 		"fdate":        dateTime,
+		"fplusOne":     plusOne,
 	} // Map with all functions that can be used within html.
 	dbUsers    = map[string]user{}   // username, user
 	dbSessions = map[string]string{} // session ID, username
@@ -452,9 +454,12 @@ func processRcp(req *http.Request) Recipe {
 	rcp.Dur, _ = time.ParseDuration(fmt.Sprintf("%vm", req.PostFormValue("Dur")))
 	rcp.Persons, _ = strconv.Atoi(req.PostFormValue("Persons"))
 	// Ingredients
-	rcp.Ingrs = []Ingrd{}
+	// Gather all ingredients
+	ids := []float64{}
+	ingrs := map[float64]Ingrd{}
 	for i := 0; i < maxIngrs; i++ {
 		ingr := Ingrd{}
+		id, _ := strconv.ParseFloat(req.PostFormValue(fmt.Sprintf("Id%v", i)), 64)
 		amount, _ := strconv.ParseFloat(req.PostFormValue(fmt.Sprintf("Amount%v", i)), 64)
 		if amount == 0.0 {
 			continue
@@ -463,7 +468,14 @@ func processRcp(req *http.Request) Recipe {
 		ingr.Unit = req.PostFormValue(fmt.Sprintf("Unit%v", i))
 		ingr.Item = strings.ToLower(req.PostFormValue(fmt.Sprintf("Item%v", i))) // All items are stored in lowercase.
 		ingr.Notes = req.PostFormValue(fmt.Sprintf("Notes%v", i))
-		rcp.Ingrs = append(rcp.Ingrs, ingr)
+		ingrs[id] = ingr
+		ids = append(ids, id)
+	}
+	// Sort and store ingredients into recipe
+	rcp.Ingrs = make([]Ingrd, len(ingrs))
+	sort.Float64s(ids)
+	for i, id := range ids {
+		rcp.Ingrs[i] = ingrs[id]
 	}
 	// Steps
 	rcp.Steps = []string{}
@@ -655,4 +667,9 @@ func addVisit(ipp, site string) {
 	}
 	dbVisits = append(dbVisits, v)
 	SaveToJSON(dbVisits, fnameVisits)
+}
+
+/* Increment takes an integer and returns the integer +1*/
+func plusOne(i int) int {
+	return i + 1
 }

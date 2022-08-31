@@ -44,6 +44,7 @@
 					<h2>Ingredients</h2>
 					<table>
 						<tr>
+							<th>Step</th>
 							<th>Amount</th>
 							<th>Unit</th>
 							<th>Item</th>
@@ -51,6 +52,7 @@
 						</tr>
 						{{range $index, $element := .Ingrs}}
 							<tr>
+								<td><input type="number" step="1" name="Id{{$index}}" value="{{fplusOne $index}}" min="0"></td>
 								<td><input type="number" step="any" name="Amount{{$index}}" value="{{$element.Amount}}" min="0.001"></td>
 								<td>
 									<select name="Unit{{$index}}">
@@ -65,6 +67,7 @@
 						{{end}}
 						{{range .CountIngrs}}
 							<tr>
+								<td><input type="number" step="1" name="Id{{.}}" value="{{fplusOne .}}" min="0"></td>
 								<td><input type="number" step="any" name="Amount{{.}}"></td>	
 								<td>
 									<select name="Unit{{.}}">
