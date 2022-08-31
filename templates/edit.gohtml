@@ -40,7 +40,7 @@
 							<td><input type="text" name="SourceLink" value="{{.SourceLink}}"></td>
 						</tr>
 					</table>
-					<input type="submit" value="Save"><br>
+					<p><input type="submit" value="Save"></p>
 					<h2>Ingredients</h2>
 					<table>
 						<tr>
@@ -81,6 +81,7 @@
 							</tr>
 						{{end}}
 					</table>
+					<p><input type="submit" value="Save"></p>
 					<h2>Steps</h2>
 						<table>
 							{{range $index, $element := .Steps}}
@@ -96,8 +97,7 @@
 								</tr>
 							{{end}}
 						</table>
-					<br>
-					<input type="submit" value="Save"><br>
+					<p><input type="submit" value="Save"></p>
 				</form>
 			{{end}}
 			{{template "edit_rcp" .}}
