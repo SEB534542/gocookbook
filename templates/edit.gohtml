@@ -40,8 +40,8 @@
 							<td><input type="text" name="SourceLink" value="{{.SourceLink}}"></td>
 						</tr>
 					</table>
-					<input type="submit" value="Opslaan"><br>
-					<h2>Ingrediënten</h2>
+					<p><input type="submit" value="Opslaan"></p>
+					<h2>Ingredients</h2>
 					<table>
 						<tr>
 							<th>Aantal</th>
@@ -78,6 +78,7 @@
 							</tr>
 						{{end}}
 					</table>
+					<p><input type="submit" value="Opslaan"></p>
 					<h2>Stappen</h2>
 					<ol>
 						{{range $index, $element := .Steps}}
@@ -87,8 +88,7 @@
 							<li><textarea rows="3" cols="80" name="Step{{.}}"></textarea></li>
 						{{end}}
 					</ol>
-					<br>
-					<input type="submit" value="Save"><br>
+					<p><input type="submit" value="Save"></p>
 				</form>
 			{{end}}
 			{{template "edit_rcp" .}}
