@@ -478,13 +478,23 @@ func processRcp(req *http.Request) Recipe {
 		rcp.Ingrs[i] = ingrs[id]
 	}
 	// Steps
-	rcp.Steps = []string{}
+	// Gather all steps
+	stepIds := []float64{}
+	steps := map[float64]string{}
 	for i := 0; i < maxSteps; i++ {
+		id, _ := strconv.ParseFloat(req.PostFormValue(fmt.Sprintf("StepId%v", i)), 64)
 		step := req.PostFormValue(fmt.Sprintf("Step%v", i))
 		if step == "" {
 			continue
 		}
-		rcp.Steps = append(rcp.Steps, step)
+		steps[id] = step
+		stepIds = append(stepIds, id)
+	}
+	// Sort and store steps into recipe
+	rcp.Steps = make([]string, len(steps))
+	sort.Float64s(stepIds)
+	for i, id := range stepIds {
+		rcp.Steps[i] = steps[id]
 	}
 	rcp.Source = req.PostFormValue("Source")
 	rcp.SourceLink = req.PostFormValue("SourceLink")

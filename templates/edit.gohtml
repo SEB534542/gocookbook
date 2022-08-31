@@ -82,14 +82,20 @@
 						{{end}}
 					</table>
 					<h2>Steps</h2>
-					<ol>
-						{{range $index, $element := .Steps}}
-							<li><textarea rows="3" cols="80" name="Step{{$index}}">{{$element}}</textarea></li>
-						{{end}}
-						{{range .CountSteps}}
-							<li><textarea rows="3" cols="80" name="Step{{.}}"></textarea></li>
-						{{end}}
-					</ol>
+						<table>
+							{{range $index, $element := .Steps}}
+								<tr>
+									<td><input type="number" rows="3" step="1" name="StepId{{$index}}" value="{{fplusOne $index}}" min="0"></td>
+									<td><textarea rows="3" cols="80" name="Step{{$index}}">{{$element}}</textarea></td>
+								</tr>						
+							{{end}}
+							{{range .CountSteps}}
+								<tr>
+									<td><input type="number" step="1" name="Id{{.}}" value="{{fplusOne .}}" min="0"></td>
+									<td><textarea rows="3" cols="80" name="Step{{.}}"></textarea></td>
+								</tr>
+							{{end}}
+						</table>
 					<br>
 					<input type="submit" value="Save"><br>
 				</form>
