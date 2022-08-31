@@ -44,13 +44,19 @@
 					<h2>Ingredients</h2>
 					<table>
 						<tr>
+<<<<<<< HEAD
 							<th>Aantal</th>
+=======
+							<th>Step</th>
+							<th>Amount</th>
+>>>>>>> seq
 							<th>Unit</th>
 							<th>Item</th>
 							<th>Notities</th>
 						</tr>
 						{{range $index, $element := .Ingrs}}
 							<tr>
+								<td><input type="number" step="1" name="Id{{$index}}" value="{{fplusOne $index}}" min="0"></td>
 								<td><input type="number" step="any" name="Amount{{$index}}" value="{{$element.Amount}}" min="0.001"></td>
 								<td>
 									<select name="Unit{{$index}}">
@@ -65,6 +71,7 @@
 						{{end}}
 						{{range .CountIngrs}}
 							<tr>
+								<td><input type="number" step="1" name="Id{{.}}" value="{{fplusOne .}}" min="0"></td>
 								<td><input type="number" step="any" name="Amount{{.}}"></td>	
 								<td>
 									<select name="Unit{{.}}">
@@ -80,14 +87,20 @@
 					</table>
 					<p><input type="submit" value="Opslaan"></p>
 					<h2>Stappen</h2>
-					<ol>
-						{{range $index, $element := .Steps}}
-							<li><textarea rows="3" cols="80" name="Step{{$index}}">{{$element}}</textarea></li>
-						{{end}}
-						{{range .CountSteps}}
-							<li><textarea rows="3" cols="80" name="Step{{.}}"></textarea></li>
-						{{end}}
-					</ol>
+						<table>
+							{{range $index, $element := .Steps}}
+								<tr>
+									<td><input type="number" rows="3" step="1" name="StepId{{$index}}" value="{{fplusOne $index}}" min="0"></td>
+									<td><textarea rows="3" cols="80" name="Step{{$index}}">{{$element}}</textarea></td>
+								</tr>						
+							{{end}}
+							{{range .CountSteps}}
+								<tr>
+									<td><input type="number" step="1" name="Id{{.}}" value="{{fplusOne .}}" min="0"></td>
+									<td><textarea rows="3" cols="80" name="Step{{.}}"></textarea></td>
+								</tr>
+							{{end}}
+						</table>
 					<p><input type="submit" value="Save"></p>
 				</form>
 			{{end}}
