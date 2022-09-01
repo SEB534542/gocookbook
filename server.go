@@ -51,7 +51,7 @@ var (
 )
 
 var (
-	maxIngrs = 20 // Maximum amount of Ingredients that can be added on webpage.
+	maxIngrs = 30 // Maximum amount of Ingredients that can be added on webpage.
 	maxSteps = 20 // Maximum amount of Steps that can be added on webpage.
 	convRows = 10 // Rows where additional conversion data can be added.
 )
