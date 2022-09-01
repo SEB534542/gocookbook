@@ -52,8 +52,8 @@
 						</tr>
 						{{range $index, $element := .Ingrs}}
 							<tr>
-								<td><input type="number" step="1" name="Id{{$index}}" value="{{fplusOne $index}}" min="0"></td>
-								<td><input type="number" step="any" name="Amount{{$index}}" value="{{$element.Amount}}" min="0.001"></td>
+								<td><input type="number" step="1" max="100" name="Id{{$index}}" value="{{fplusOne $index}}" min="0"></td>
+								<td><input type="number" step="any" max="99999" name="Amount{{$index}}" value="{{$element.Amount}}" min="0.001"></td>
 								<td>
 									<select name="Unit{{$index}}">
 										{{range $.Units}}
@@ -67,8 +67,8 @@
 						{{end}}
 						{{range .CountIngrs}}
 							<tr>
-								<td><input type="number" step="1" name="Id{{.}}" value="{{fplusOne .}}" min="0"></td>
-								<td><input type="number" step="any" name="Amount{{.}}"></td>	
+								<td><input type="number" step="1" max="100" name="Id{{.}}" value="{{fplusOne .}}" min="0"></td>
+								<td><input type="number" step="any" max="99999" name="Amount{{.}}"></td>	
 								<td>
 									<select name="Unit{{.}}">
 										{{range $.Units}}
@@ -86,13 +86,13 @@
 						<table>
 							{{range $index, $element := .Steps}}
 								<tr>
-									<td><input type="number" rows="3" step="1" name="StepId{{$index}}" value="{{fplusOne $index}}" min="0"></td>
+									<td><input type="number" step="1" max="100" name="StepId{{$index}}" value="{{fplusOne $index}}" min="0"></td>
 									<td><textarea rows="3" cols="80" name="Step{{$index}}">{{$element}}</textarea></td>
 								</tr>						
 							{{end}}
 							{{range .CountSteps}}
 								<tr>
-									<td><input type="number" step="1" name="Id{{.}}" value="{{fplusOne .}}" min="0"></td>
+									<td><input type="number" step="1" max="100" name="Id{{.}}" value="{{fplusOne .}}" min="0"></td>
 									<td><textarea rows="3" cols="80" name="Step{{.}}"></textarea></td>
 								</tr>
 							{{end}}
