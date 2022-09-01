@@ -11,6 +11,13 @@
 		</p>
 		<p style="font-size:10vw">
 			<h1>{{.Name}}</h1>
+			<table>
+				<tr>
+					{{range .Tags}}
+						<td><i>{{.}}</i></td>
+					{{end}}
+				</tr>
+			</table>
 			<p><i>{{.Notes}}</i></p>
 			{{$dur := fminutes .Dur}}
 			{{if ne $dur "0"}}<p>Cooking time: {{.Dur}}</p>{{end}}

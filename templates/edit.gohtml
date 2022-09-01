@@ -32,6 +32,10 @@
 							<td><input type="number" name="Persons" value="{{.Persons}}" min="1" required></td>
 						</tr>
 						<tr>
+							<td><label for="Tags">Enter tags (comma separated)</label></td>
+							<td><input type="text" name="Tags" value="{{fsliceString .Tags}}"></td>
+						</tr>
+						<tr>
 							<td><label for="Source">Recipe source</label></td>
 							<td><input type="text" name="Source" value="{{.Source}}"></td>
 						</tr>
