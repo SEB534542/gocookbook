@@ -11,6 +11,8 @@
 		</p>
 		<p style="font-size:10vw">
 			<h1>{{.Name}}</h1>
+			{{fsliceStringSpace .Tags}}
+			</table>
 			<p><i>{{.Notes}}</i></p>
 			{{$dur := fminutes .Dur}}
 			{{if ne $dur "0"}}<p>Kooktijd: {{.Dur}}</p>{{end}}

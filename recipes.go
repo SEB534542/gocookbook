@@ -11,6 +11,7 @@ type Recipe struct {
 	Name       string        // Name of recipe.
 	Ingrs      []Ingrd       // Slice containing all ingredients.
 	Steps      []string      // Steps for cooking the recipe.
+	Tags       []string      // Tags for a recipe.
 	Persons    int           // Default number of persons for which this recipe is made.
 	Dur        time.Duration // Cooking time
 	Notes      string        // Notes and/or description on recipes.
@@ -33,8 +34,6 @@ var (
 )
 
 var rcps []Recipe
-
-// TODO: implement logic for tags
 
 /* findRecipe takes a slice of recipes and an id. It looks up the recipe with that
 id and returns the recipe.*/
