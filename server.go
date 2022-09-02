@@ -460,6 +460,9 @@ func processRcp(req *http.Request) Recipe {
 	rcp.Dur, _ = time.ParseDuration(fmt.Sprintf("%vm", req.PostFormValue("Dur")))
 	rcp.Persons, _ = strconv.Atoi(req.PostFormValue("Persons"))
 	rcp.Tags = stringToSlice(req.PostFormValue("Tags"))
+	for i, v := range rcp.Tags {
+		rcp.Tags[i] = toTitle(v)
+	}
 	// Ingredients
 	// Gather all ingredients
 	ids := []float64{}
