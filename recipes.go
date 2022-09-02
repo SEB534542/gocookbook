@@ -78,7 +78,9 @@ func adjustRcp(rcp Recipe, newP int) Recipe {
 		Name:       rcp.Name,
 		Ingrs:      newIngrs,
 		Steps:      rcp.Steps,
+		Tags:       rcp.Tags,
 		Persons:    newP,
+		Dur:        rcp.Dur,
 		Source:     rcp.Source,
 		SourceLink: rcp.SourceLink,
 	}
