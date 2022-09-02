@@ -11,12 +11,7 @@
 		</p>
 		<p style="font-size:10vw">
 			<h1>{{.Name}}</h1>
-			<table>
-				<tr>
-					{{range .Tags}}
-						<td><i>{{.}}</i></td>
-					{{end}}
-				</tr>
+			{{fsliceStringSpace .Tags}}
 			</table>
 			<p><i>{{.Notes}}</i></p>
 			{{$dur := fminutes .Dur}}

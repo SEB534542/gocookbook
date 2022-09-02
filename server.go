@@ -38,12 +38,13 @@ var (
 var (
 	tpl *template.Template
 	fm  = template.FuncMap{
-		"fdateHM":      hourMinute,
-		"fsliceString": sliceToString,
-		"fminutes":     minutes,
-		"fseconds":     seconds,
-		"fdate":        dateTime,
-		"fplusOne":     plusOne,
+		"fdateHM":           hourMinute,
+		"fsliceString":      sliceToString,
+		"fsliceStringSpace": sliceToStringSpace,
+		"fminutes":          minutes,
+		"fseconds":          seconds,
+		"fdate":             dateTime,
+		"fplusOne":          plusOne,
 	} // Map with all functions that can be used within html.
 	dbUsers    = map[string]user{}   // username, user
 	dbSessions = map[string]string{} // session ID, username
@@ -123,9 +124,14 @@ func seconds(d time.Duration) string {
 	return fmt.Sprint(d.Seconds())
 }
 
-// sliceToString takes a slice of string and returns it is a string.
+// sliceToString takes a slice of string and returns it is a string, with each value comma separated.
 func sliceToString(xs []string) string {
 	return strings.Join(xs, ",")
+}
+
+// sliceToStringSpace takes a slice of string and returns it is a string, with each value comma+space separated.
+func sliceToStringSpace(xs []string) string {
+	return strings.Join(xs, ", ")
 }
 
 // reverseXSS takes a slice of a slice of string and returns it in reversed order.
