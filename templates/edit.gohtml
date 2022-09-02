@@ -44,15 +44,14 @@
 					<h2>Ingrediënten</h2>
 					<table>
 						<tr>
-							<th>Stap</th>
 							<th>Aantal</th>
 							<th>Unit</th>
 							<th>Item</th>
 							<th>Notities</th>
+							<th>Volgorde</th>
 						</tr>
 						{{range $index, $element := .Ingrs}}
 							<tr>
-								<td><input type="number" step="1" max="999" name="Id{{$index}}" value="{{fplusOne $index}}" min="0"></td>
 								<td><input type="number" step="any" max="99999" name="Amount{{$index}}" value="{{$element.Amount}}" min="0.001"></td>
 								<td>
 									<select name="Unit{{$index}}">
@@ -63,11 +62,11 @@
 								</td>
 								<td><input type="text" name="Item{{$index}}" value="{{$element.Item}}"></td>
 								<td><input type="text" name="Notes{{$index}}" value="{{$element.Notes}}"></td>
+								<td><input type="number" step="0.1" max="999" name="Id{{$index}}" value="{{fplusOne $index}}" min="0"></td>
 							</tr>
 						{{end}}
 						{{range .CountIngrs}}
 							<tr>
-								<td><input type="number" step="1" max="999" name="Id{{.}}" value="{{fplusOne .}}" min="0"></td>
 								<td><input type="number" step="any" max="99999" name="Amount{{.}}"></td>	
 								<td>
 									<select name="Unit{{.}}">
@@ -78,6 +77,7 @@
 								</td>
 								<td><input type="text" name="Item{{.}}"></td>
 								<td><input type="text" name="Notes{{.}}"></td>
+								<td><input type="number" step="0.1" max="999" name="Id{{.}}" value="{{fplusOne .}}" min="0"></td>
 							</tr>
 						{{end}}
 					</table>
@@ -86,13 +86,13 @@
 						<table>
 							{{range $index, $element := .Steps}}
 								<tr>
-									<td><input type="number" step="1" max="999" name="StepId{{$index}}" value="{{fplusOne $index}}" min="0"></td>
+									<td><input type="number" step="0.1" max="999" name="StepId{{$index}}" value="{{fplusOne $index}}" min="0"></td>
 									<td><textarea rows="3" cols="80" name="Step{{$index}}">{{$element}}</textarea></td>
 								</tr>						
 							{{end}}
 							{{range .CountSteps}}
 								<tr>
-									<td><input type="number" step="1" max="999" name="Id{{.}}" value="{{fplusOne .}}" min="0"></td>
+									<td><input type="number" step="0.1" max="999" name="Id{{.}}" value="{{fplusOne .}}" min="0"></td>
 									<td><textarea rows="3" cols="80" name="Step{{.}}"></textarea></td>
 								</tr>
 							{{end}}
