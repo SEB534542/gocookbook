@@ -463,6 +463,7 @@ func processRcp(req *http.Request) Recipe {
 	for i, v := range rcp.Tags {
 		rcp.Tags[i] = toTitle(v)
 	}
+	sort.Strings(rcp.Tags)
 	// Ingredients
 	// Gather all ingredients
 	ids := []float64{}
