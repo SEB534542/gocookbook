@@ -502,7 +502,7 @@ func processRcp(req *http.Request) Recipe {
 		stepIds = append(stepIds, id)
 	}
 	// Sort and store steps into recipe
-	rcp.Steps = make([]string, len(steps))
+	rcp.Steps = make([]string, len(stepIds))
 	sort.Float64s(stepIds)
 	for i, id := range stepIds {
 		rcp.Steps[i] = steps[id]
