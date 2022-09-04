@@ -96,7 +96,7 @@
 							{{end}}
 							{{range .CountSteps}}
 								<tr>
-									<td><input type="number" step="0.1" max="999" name="Id{{.}}" value="{{fplusOne .}}" min="0"></td>
+									<td><input type="number" step="0.1" max="999" name="StepId{{.}}" value="{{fplusOne .}}" min="0"></td>
 									<td><textarea rows="3" cols="80" name="Step{{.}}"></textarea></td>
 								</tr>
 							{{end}}
