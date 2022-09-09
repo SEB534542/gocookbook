@@ -74,7 +74,9 @@
 			<div id="myBtnContainer">
 				<button class="btn active" onclick="filterSelection('all')"> Show all</button>
 				{{range .Tags}}				
-					<button class="btn" onclick="filterSelection('{{.}}')"> {{.}}</button>
+					{{if ne . ""}}
+						<button class="btn" onclick="filterSelection('{{.}}')"> {{.}}</button>
+					{{end}}
 				{{end}}
 			</div>
 			<ul class="container" id="myUL">
