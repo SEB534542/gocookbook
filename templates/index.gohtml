@@ -73,10 +73,9 @@
 			<input type="text" id="myInput" onkeyup="searchFunction()" placeholder="Search for recipes.."><br>
 			<div id="myBtnContainer">
 				<button class="btn active" onclick="filterSelection('all')"> Show all</button>
-				<button class="btn" onclick="filterSelection('Vega')"> Vega</button>
-				<button class="btn" onclick="filterSelection('Slowcooker')"> Slowcooker</button>
-				<button class="btn" onclick="filterSelection('fruits')"> Fruits</button>
-				<button class="btn" onclick="filterSelection('colors')"> Colors</button>
+				{{range .Tags}}				
+					<button class="btn" onclick="filterSelection('{{.}}')"> {{.}}</button>
+				{{end}}
 			</div>
 			<ul class="container" id="myUL">
 				{{range .Recipes}}
