@@ -300,8 +300,10 @@ func handlerMain(w http.ResponseWriter, req *http.Request) {
 	addVisit(getIP(req), "main")
 	data := struct {
 		Recipes []Recipe
+		Tags    []string
 	}{
 		rcps,
+		tags(rcps),
 	}
 
 	err := tpl.ExecuteTemplate(w, "index.gohtml", data)
@@ -693,4 +695,29 @@ func addVisit(ipp, site string) {
 /* Increment takes an integer and returns the integer +1*/
 func plusOne(i int) int {
 	return i + 1
+}
+
+/*Tags receives a slice of Recipe and returns the unique Tags as a slice
+of string*/
+func tags(rcps []Recipe) []string {
+	list := map[string]bool{}
+	for _, rcp := range rcps {
+		for _, tag := range rcp.Tags {
+			list[tag] = true
+		}
+	}
+	output := []string{}
+	for k, _ := range list {
+		output = append(output, k)
+	}
+	sort.Strings(output)
+	return output
+}
+
+/*remove takes a slice of string and a position i and removes i from the
+slice, by substituting it with the value at the end of the slice, as this is
+less costly then moving all elements.*/
+func remove(s []string, i int) []string {
+	s[i] = s[len(s)-1]
+	return s[:len(s)-1]
 }
