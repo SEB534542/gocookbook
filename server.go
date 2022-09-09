@@ -694,3 +694,11 @@ func addVisit(ipp, site string) {
 func plusOne(i int) int {
 	return i + 1
 }
+
+/*remove takes a slice of string and a position i and removes i from the
+slice, by substituting it with the value at the end of the slice, as this is
+less costly then moving all elements.*/
+func remove(s []string, i int) []string {
+	s[i] = s[len(s)-1]
+	return s[:len(s)-1]
+}
