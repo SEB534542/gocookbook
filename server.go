@@ -302,9 +302,11 @@ func handlerMain(w http.ResponseWriter, req *http.Request) {
 	data := struct {
 		Recipes []Recipe
 		Tags    []string
+		Known   bool
 	}{
 		rcps,
 		tags(rcps),
+		alreadyLoggedIn(req),
 	}
 
 	err := tpl.ExecuteTemplate(w, "index.gohtml", data)
@@ -359,7 +361,14 @@ func handlerRecipe(w http.ResponseWriter, req *http.Request) {
 	for i, _ := range rcp.Ingrs {
 		rcp.Ingrs[i].uoms()
 	}
-	err = tpl.ExecuteTemplate(w, "recipe.gohtml", rcp)
+	data := struct {
+		Recipe Recipe
+		Known  bool
+	}{
+		rcp,
+		alreadyLoggedIn(req),
+	}
+	err = tpl.ExecuteTemplate(w, "recipe.gohtml", data)
 	if err != nil {
 		log.Fatalln(err)
 	}
