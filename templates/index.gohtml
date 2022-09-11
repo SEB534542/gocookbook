@@ -64,7 +64,16 @@
 	</head>	
 	<body>
 		<p>
-			<a href="add">Add new recipe</a> | <a href="conv">Maintain conversion table</a>
+			<a href="add">Add new recipe</a> 
+			{{if .Known}}
+				| <a href="/conv">Maintain conversion table</a>
+				| <a href="/export/recipes">JSON recipes</a>
+				| <a href="/export/table">JSON conversion table</a>
+				| <a href="/visits">Visits</a>			
+				| <a href="/logout">Logout</a>
+			{{else}}
+				| <a href="/login">Login</a>
+			{{end}}
 		</p>
 		<p style="font-size:10vw">
 			<h1>Recipes</h1>

@@ -2,28 +2,34 @@
 <html>
 	<head>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Recipe for {{.Name}}</title>
+		<title>Recipe for {{.Recipe.Name}}</title>
 		{{template "style"}}
 	</head>	
 	<body>
 		<p>
-			<a href="/">Return to all recipes</a> | <a href="/edit/{{.Id}}">Edit recipe</a> | <a href="/conv">Maintain conversion table</a>
+			<a href="/">Return to all recipes</a> 
+			{{if .Known}}
+				| <a href="/edit/{{.Recipe.Id}}">Edit recipe</a> | <a href="/conv">Maintain conversion table</a>
+				| <a href="/logout">Logout</a>
+			{{else}}
+				| <a href="/login">Login</a>
+			{{end}}
 		</p>
 		<p style="font-size:10vw">
-			<h1>{{.Name}}</h1>
-			<i>{{fsliceStringSpace .Tags}}</i>
+			<h1>{{.Recipe.Name}}</h1>
+			<i>{{fsliceStringSpace .Recipe.Tags}}</i>
 			</table>
-			<p><i>{{.Notes}}</i></p>
-			{{$dur := fminutes .Dur}}
-			{{if ne $dur "0"}}<p>Cooking time: {{.Dur}}</p>{{end}}
+			<p><i>{{.Recipe.Notes}}</i></p>
+			{{$dur := fminutes .Recipe.Dur}}
+			{{if ne $dur "0"}}<p>Cooking time: {{.Recipe.Dur}}</p>{{end}}
 			<form method="POST">		
 				<label for="Persons">Number of persons</label>
-				<input type="number" name="Persons" value="{{.Persons}}" required>
+				<input type="number" name="Persons" value="{{.Recipe.Persons}}" required>
 				<input type="submit" value="Adjust"><br>
 			</form>
 			<h2>Ingredients</h2>
 				<table>
-					{{range .Ingrs}}
+					{{range .Recipe.Ingrs}}
 						<tr>
 							<td><input type="checkbox"></td>
 							<td>{{.Amount}} {{.Unit}} {{.Item}} {{.Notes}} {{if .AltUnits}}({{.AltUnits}}){{end}}</td>
@@ -32,16 +38,16 @@
 				</table>				
 			<h2>Steps</h2>
 			<ol>
-				{{range .Steps}}
+				{{range .Recipe.Steps}}
 					<li>{{.}}</li>
 				{{end}}
 			</ol>
 			<br>
-			{{if ne .Source ""}}
-				{{if eq .SourceLink ""}}
-					<i>Source of recipe: {{.Source}}</i>
+			{{if ne .Recipe.Source ""}}
+				{{if eq .Recipe.SourceLink ""}}
+					<i>Source of recipe: {{.Recipe.Source}}</i>
 				{{else}}
-					<i>Source of recipe: <a href="{{.SourceLink}}">{{.Source}}</a></i>
+					<i>Source of recipe: <a href="{{.Recipe.SourceLink}}">{{.Recipe.Source}}</a></i>
 				{{end}}
 			{{end}}
 		</p>
