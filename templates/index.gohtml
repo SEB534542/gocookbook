@@ -72,7 +72,7 @@
 		<p>
 			<input type="text" id="myInput" onkeyup="searchFunction()" placeholder="Zoek recepten.."><br>
 			<div id="myBtnContainer">
-				<button class="btn active" onclick="filterSelection('all')"> Show all</button>
+				<button class="btn active" onclick="filterSelection('all')"> Toon alles</button>
 				{{range .Tags}}				
 					{{if ne . ""}}
 						<button class="btn" onclick="filterSelection('{{.}}')"> {{.}}</button>
