@@ -298,6 +298,7 @@ func stringToSlice(s string) []string {
 
 func handlerMain(w http.ResponseWriter, req *http.Request) {
 	addVisit(getIP(req), "main")
+	sort.Slice(rcps, func(i, j int) bool { return rcps[i].Name < rcps[j].Name })
 	data := struct {
 		Recipes []Recipe
 		Tags    []string
