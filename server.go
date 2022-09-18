@@ -298,7 +298,6 @@ func stringToSlice(s string) []string {
 
 func handlerMain(w http.ResponseWriter, req *http.Request) {
 	addVisit(getIP(req), "main")
-	sort.Slice(rcps, func(i, j int) bool { return rcps[i].Name < rcps[j].Name })
 	data := struct {
 		Recipes []Recipe
 		Tags    []string
@@ -386,6 +385,7 @@ func handlerAddRcp(w http.ResponseWriter, req *http.Request) {
 		rcp := processRcp(req)
 		rcp.Id = newRcpId(rcps)
 		rcps = append(rcps, rcp)
+		sort.Slice(rcps, func(i, j int) bool { return rcps[i].Name < rcps[j].Name })
 		SaveToJSON(rcps, fnameRcps)
 		log.Printf("New recipe added (id %v", rcp.Id)
 		http.Redirect(w, req, fmt.Sprintf("recipe/%v", rcp.Id), http.StatusSeeOther)
@@ -429,6 +429,7 @@ func handlerEditRcp(w http.ResponseWriter, req *http.Request) {
 	if req.Method == http.MethodPost {
 		rcpNew := processRcp(req)
 		*rcp = rcpNew
+		sort.Slice(rcps, func(i, j int) bool { return rcps[i].Name < rcps[j].Name })
 		SaveToJSON(rcps, fnameRcps)
 		log.Printf("Recipe %v updated", rcpNew.Id)
 		http.Redirect(w, req, fmt.Sprintf("/recipe/%v", rcp.Id), http.StatusSeeOther)
