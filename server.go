@@ -671,6 +671,9 @@ func isHyperlink(s string) bool {
 starts with the substring. It does not require cases to match
 (i.e. lower v/s upper case).*/
 func startsWith(s, substr string) bool {
+	if len(s) < len(substr) {
+		return false
+	}
 	if strings.ToLower(s[:len(substr)]) == strings.ToLower(substr) {
 		return true
 	}
