@@ -244,6 +244,7 @@ func getIP(req *http.Request) string {
 
 /* handlerVisits prints all stored visits on a HTML page.*/
 func handlerVisits(w http.ResponseWriter, req *http.Request) {
+	addVisit(req)
 	if !alreadyLoggedIn(req) {
 		http.Redirect(w, req, "/login", http.StatusSeeOther)
 		return
@@ -256,7 +257,7 @@ func handlerVisits(w http.ResponseWriter, req *http.Request) {
 
 /*handlerLog displays the complete log.*/
 func handlerLog(w http.ResponseWriter, req *http.Request) {
-	addVisit(getIP(req), "log")
+	addVisit(req)
 	if !alreadyLoggedIn(req) {
 		http.Redirect(w, req, "/login", http.StatusSeeOther)
 		return
@@ -297,7 +298,7 @@ func stringToSlice(s string) []string {
 }
 
 func handlerMain(w http.ResponseWriter, req *http.Request) {
-	addVisit(getIP(req), "main")
+	addVisit(req)
 	data := struct {
 		Recipes []Recipe
 		Tags    []string
@@ -316,7 +317,11 @@ func handlerMain(w http.ResponseWriter, req *http.Request) {
 
 /* handlerExportRcps prints all recipes in JSON on the webpage.*/
 func handlerExportRcps(w http.ResponseWriter, req *http.Request) {
-	addVisit(getIP(req), "export rcps")
+	addVisit(req)
+	if !alreadyLoggedIn(req) {
+		http.Redirect(w, req, "/login", http.StatusSeeOther)
+		return
+	}
 	output, err := jsonStringPretty(rcps)
 	if err != nil {
 		msg := "Error saving:" + fmt.Sprint(err)
@@ -327,7 +332,11 @@ func handlerExportRcps(w http.ResponseWriter, req *http.Request) {
 
 /* handlerExportTable prints the conversion table in JSON on the webpage.*/
 func handlerExportTable(w http.ResponseWriter, req *http.Request) {
-	addVisit(getIP(req), "export table")
+	addVisit(req)
+	if !alreadyLoggedIn(req) {
+		http.Redirect(w, req, "/login", http.StatusSeeOther)
+		return
+	}
 	output, err := jsonStringPretty(convTable)
 	if err != nil {
 		msg := "Error saving:" + fmt.Sprint(err)
@@ -340,8 +349,8 @@ func handlerExportTable(w http.ResponseWriter, req *http.Request) {
 if no. of persons is send along (through post method), the recipe is adjusted to
 the new number of persons and it sends the response back.*/
 func handlerRecipe(w http.ResponseWriter, req *http.Request) {
+	addVisit(req)
 	id, err := strconv.Atoi(req.URL.Path[len("/recipe/"):])
-	addVisit(getIP(req), fmt.Sprintf("recipe %v", id))
 	if err != nil {
 		http.Redirect(w, req, "/", http.StatusBadRequest)
 		return
@@ -376,7 +385,7 @@ func handlerRecipe(w http.ResponseWriter, req *http.Request) {
 /* handlerAddRcp generates the html page to enter a new recipe and processes and
 stores the new recipe.*/
 func handlerAddRcp(w http.ResponseWriter, req *http.Request) {
-	addVisit(getIP(req), "add recipe")
+	addVisit(req)
 	if !alreadyLoggedIn(req) {
 		http.Redirect(w, req, "/login", http.StatusSeeOther)
 		return
@@ -411,7 +420,7 @@ func handlerAddRcp(w http.ResponseWriter, req *http.Request) {
 /* handlerEditRcp lookus up the recipe ID from the path, generates the recipe
 on the html page and processes any updates.*/
 func handlerEditRcp(w http.ResponseWriter, req *http.Request) {
-	addVisit(getIP(req), "edit recipe")
+	addVisit(req)
 	if !alreadyLoggedIn(req) {
 		http.Redirect(w, req, "/login", http.StatusSeeOther)
 		return
@@ -536,7 +545,7 @@ func processRcp(req *http.Request) Recipe {
 /* handlerConversion generates the html page to show and update the
 conversion table.*/
 func handlerConversion(w http.ResponseWriter, req *http.Request) {
-	addVisit(getIP(req), "conversion")
+	addVisit(req)
 	if !alreadyLoggedIn(req) {
 		http.Redirect(w, req, "/login", http.StatusSeeOther)
 		return
@@ -571,7 +580,6 @@ func handlerConversion(w http.ResponseWriter, req *http.Request) {
 }
 
 func handlerLogin(w http.ResponseWriter, req *http.Request) {
-	addVisit(getIP(req), "login")
 	if alreadyLoggedIn(req) {
 		http.Redirect(w, req, "/", http.StatusSeeOther)
 		return
@@ -615,7 +623,7 @@ func handlerLogin(w http.ResponseWriter, req *http.Request) {
 }
 
 func handlerLogout(w http.ResponseWriter, req *http.Request) {
-	addVisit(getIP(req), "logout")
+	addVisit(req)
 	if !alreadyLoggedIn(req) {
 		http.Redirect(w, req, "/", http.StatusSeeOther)
 		return
@@ -689,7 +697,9 @@ func removeFromSlice(xs []string, i int) []string {
 	return v
 }
 
-func addVisit(ipp, site string) {
+func addVisit(req *http.Request) {
+	ipp := getIP(req)
+	site := req.URL.Path
 	addr := strings.Split(ipp, ":") // ipp contains ip:port, ie 192.168.1.1:7000 and converts this into a slice of string.
 	var ip, port string
 	ip = addr[0]
