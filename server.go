@@ -23,10 +23,11 @@ type user struct {
 }
 
 type visit struct {
-	Ip   string
-	Port string
-	Time time.Time
-	Site string
+	Ip   string    // IP address origin
+	Port string    // Port
+	Time time.Time // Datetime of visit
+	Site string    // Actual site visited
+	Un   string    // If logged in, username of visitor
 }
 
 // Folders and file names used
@@ -661,6 +662,22 @@ func alreadyLoggedIn(req *http.Request) bool {
 	return true
 }
 
+/*username takes a http request, checks the session cookie to identify
+and return the user (if).*/
+func username(req *http.Request) string {
+	c, err := req.Cookie(cookieSession)
+	if err != nil {
+		// Error retrieving cookie
+		return ""
+	}
+	un := dbSessions[c.Value]
+	if _, ok := dbUsers[un]; !ok {
+		// Unknown cookie and/or user
+		return ""
+	}
+	return un
+}
+
 /* isHyperlink takes a string, checks if a hyperlink exists in that string.*/
 func isHyperlink(s string) bool {
 	if s == "" {
@@ -705,6 +722,7 @@ func removeFromSlice(xs []string, i int) []string {
 func addVisit(req *http.Request) {
 	ipp := getIP(req)
 	site := req.URL.Path
+	un := username(req)
 	addr := strings.Split(ipp, ":") // ipp contains ip:port, ie 192.168.1.1:7000 and converts this into a slice of string.
 	var ip, port string
 	ip = addr[0]
@@ -716,6 +734,7 @@ func addVisit(req *http.Request) {
 		Port: port,
 		Time: time.Now(),
 		Site: site,
+		Un:   un,
 	}
 	dbVisits = append(dbVisits, v)
 	SaveToJSON(dbVisits, fnameVisits)
