@@ -82,8 +82,8 @@ func startServer(port int) {
 		log.Printf("Unable to load previous visits from '%v': %v", fnameVisits, err)
 	}
 	// TODO: configure TSL
-	cert := ""
-	key := ""
+	cert := "" // address of cert file
+	key := ""  // address of key file
 	log.Printf("Launching website at localhost:%v", port)
 	http.HandleFunc("/", handlerMain)
 	http.Handle("/favicon.ico", http.NotFoundHandler())
@@ -481,9 +481,14 @@ func processRcp(req *http.Request) Recipe {
 	rcp.Notes = req.PostFormValue("Notes")
 	rcp.Dur, _ = time.ParseDuration(fmt.Sprintf("%vm", req.PostFormValue("Dur")))
 	rcp.Persons, _ = strconv.Atoi(req.PostFormValue("Persons"))
-	rcp.Tags = stringToSlice(req.PostFormValue("Tags"))
-	for i, v := range rcp.Tags {
-		rcp.Tags[i] = toTitle(v)
+
+	t := stringToSlice(req.PostFormValue("Tags"))
+	rcp.Tags = []string{}
+	for _, v := range t {
+		v = strings.Trim(v, " ")
+		if v != "" {
+			rcp.Tags = append(rcp.Tags, toTitle(v))
+		}
 	}
 	sort.Strings(rcp.Tags)
 	// Ingredients
