@@ -19,6 +19,7 @@
 					<th>Port</th>
 					<th>Time</th>
 					<th>Site</th>
+					<th>User</th>
 				</tr>
 				{{range .}}
 					<tr>
@@ -26,6 +27,7 @@
 						<td>{{.Port}}</td>
 						<td>{{fdate .Time}}</td>
 						<td>{{.Site}}</td>
+						<td>{{.Un}}</td>
 					</tr>
 				{{end}}
 			</table>
