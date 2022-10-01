@@ -170,45 +170,6 @@ func stoTime(t string, days int) (time.Time, error) {
 	return time.Date(timeNow.Year(), timeNow.Month(), timeNow.Day()+days, int(timeHour), int(timeMinute), 0, 0, time.Local), nil
 }
 
-/* readCSV takes a filename to a CSV file and returns the CSV as a [][]string,
-where the first slice represents each row and the second the comma separated
-text on that line.*/
-func readCSV(file string) [][]string {
-	// Read the file
-	f, err := os.Open(file)
-	if err != nil {
-		f, err := os.Create(file)
-		if err != nil {
-			log.Fatal("Unable to create csv", err)
-		}
-		f.Close()
-		return [][]string{}
-	}
-	defer f.Close()
-	r := csv.NewReader(f)
-	lines, err := r.ReadAll()
-	if err != nil {
-		log.Fatal(err)
-	}
-	return lines
-}
-
-/* AppendCSV takes a filename and new lines and adds the new lines to the
-corresponding CSV file.*/
-func appendCSV(file string, newLines [][]string) {
-	lines := readCSV(file)
-	lines = append(lines, newLines...)
-	// Write the file
-	f, err := os.Create(file)
-	if err != nil {
-		log.Fatal(err)
-	}
-	w := csv.NewWriter(f)
-	if err = w.WriteAll(lines); err != nil {
-		log.Fatal(err)
-	}
-}
-
 // strToInt transforms string to an int and returns a positive int or zero.
 func strToInt(s string) (int, error) {
 	i, err := strconv.Atoi(s)
