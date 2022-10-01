@@ -1,13 +1,11 @@
 package main
 
 import (
-	"encoding/csv"
 	"fmt"
 	"html/template"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"sort"
 	"strconv"
 	"strings"
