@@ -47,6 +47,10 @@ func (i *Ingrd) uoms() {
 		m := round(i.Amount * cuptoMl)
 		if m != 0.0 {
 			xs = append(xs, fmt.Sprintf("%v %v", m, ml))
+			g := round(mlToGram(i.Item, m))
+			if g != 0.0 {
+				xs = append(xs, fmt.Sprintf("%v %v", g, gram))
+			}
 		}
 	case ml:
 		c := round(i.Amount / cuptoMl)
@@ -109,5 +113,5 @@ func toTitle(s string) string {
 /* round takes a float and rounds it to three decimals. E.g. round(0.5555) returns
 0.555.*/
 func round(f float64) float64 {
-	return math.Round(f*1000) / 1000
+	return math.Round(f*10) / 10
 }
