@@ -100,7 +100,7 @@ func (i Ingrd) Print() string {
 		s = fmt.Sprintf("%v %v %v %v", i.Amount, i.Unit, i.Item, i.Notes)
 	}
 	if i.AltUnits != "" {
-		return fmt.Sprintf("%v %v", s, i.AltUnits)
+		return fmt.Sprintf("%v (%v)", s, i.AltUnits)
 	}
 	return s
 }
