@@ -18,7 +18,6 @@
 		<p style="font-size:10vw">
 			<h1>{{.Recipe.Name}}</h1>
 			<i>{{fsliceStringSpace .Recipe.Tags}}</i>
-			</table>
 			<p><i>{{.Recipe.Notes}}</i></p>
 			{{$dur := fminutes .Recipe.Dur}}
 			{{if ne $dur "0"}}<p>Cooking time: {{.Recipe.Dur}}</p>{{end}}
@@ -28,14 +27,9 @@
 				<input type="submit" value="Adjust"><br>
 			</form>
 			<h2>Ingredients</h2>
-				<table>
 					{{range .Recipe.Ingrs}}
-						<tr>
-							<td><input type="checkbox"></td>
-							<td>{{.Amount}} {{.Unit}} {{.Item}} {{.Notes}} {{if .AltUnits}}({{.AltUnits}}){{end}}</td>
-						</tr>
-					{{end}}
-				</table>				
+						<input type="checkbox"> {{.Print}}<br>
+					{{end}}			
 			<h2>Steps</h2>
 			<ol>
 				{{range .Recipe.Steps}}
