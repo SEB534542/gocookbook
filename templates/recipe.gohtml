@@ -27,14 +27,9 @@
 				<input type="submit" value="Pas aan"><br>
 			</form>
 			<h2>Ingrediënten</h2>
-				<table>
 					{{range .Recipe.Ingrs}}
-						<tr>
-							<td><input type="checkbox"></td>
-							<td>{{.Amount}} {{.Unit}} {{.Item}} {{.Notes}} {{if .AltUnits}}({{.AltUnits}}){{end}}</td>
-						</tr>
-					{{end}}
-				</table>				
+						<input type="checkbox"> {{.Print}}<br>
+					{{end}}			
 			<h2>Stappen</h2>
 			<ol>
 				{{range .Recipe.Steps}}
