@@ -96,9 +96,12 @@ func (i Ingrd) Print() string {
 	i.uoms()
 	var s string
 	if i.Unit == pcs {
-		s = fmt.Sprintf("%v %v, %v", i.Amount, i.Item, strings.ToLower(i.Notes))
+		s = fmt.Sprintf("%v %v", i.Amount, i.Item)
 	} else {
-		s = fmt.Sprintf("%v %v %v, %v", i.Amount, i.Unit, i.Item, strings.ToLower(i.Notes))
+		s = fmt.Sprintf("%v %v %v", i.Amount, i.Unit, i.Item)
+	}
+	if i.Notes != "" {
+		s = fmt.Sprintf("%v, %v", s, strings.ToLower(i.Notes))
 	}
 	if i.AltUnits != "" {
 		return fmt.Sprintf("%v (%v)", s, i.AltUnits)
