@@ -401,7 +401,7 @@ func handlerEditRcp(w http.ResponseWriter, req *http.Request) {
 		sort.Slice(rcps, func(i, j int) bool { return rcps[i].Name < rcps[j].Name })
 		SaveToJSON(rcps, fnameRcps)
 		log.Printf("Recipe %v updated", rcpNew.Id)
-		http.Redirect(w, req, fmt.Sprintf("/recipe/%v", rcp.Id), http.StatusSeeOther)
+		http.Redirect(w, req, fmt.Sprintf("/recipe/%v", rcpNew.Id), http.StatusSeeOther)
 	}
 	data := struct {
 		Recipe
@@ -437,8 +437,8 @@ func processRcp(req *http.Request) Recipe {
 	if id := req.PostFormValue("Id"); id != "" {
 		rcp.Id, _ = strconv.Atoi(id)
 	}
-	rcp.Name = req.PostFormValue("Name")
-	rcp.Notes = req.PostFormValue("Notes")
+	rcp.Name = strings.Trim(req.PostFormValue("Name"), " ")
+	rcp.Notes = strings.Trim(req.PostFormValue("Notes"), " ")
 	rcp.Dur, _ = time.ParseDuration(fmt.Sprintf("%vm", req.PostFormValue("Dur")))
 	rcp.Persons, _ = strconv.Atoi(req.PostFormValue("Persons"))
 
@@ -464,8 +464,8 @@ func processRcp(req *http.Request) Recipe {
 		}
 		ingr.Amount = amount
 		ingr.Unit = req.PostFormValue(fmt.Sprintf("Unit%v", i))
-		ingr.Item = strings.ToLower(req.PostFormValue(fmt.Sprintf("Item%v", i))) // All items are stored in lowercase.
-		ingr.Notes = req.PostFormValue(fmt.Sprintf("Notes%v", i))
+		ingr.Item = strings.Trim(strings.ToLower(req.PostFormValue(fmt.Sprintf("Item%v", i))), " ") // All items are stored in lowercase.
+		ingr.Notes = strings.Trim(req.PostFormValue(fmt.Sprintf("Notes%v", i)), " ")
 		ingrs[id] = ingr
 		ids = append(ids, id)
 	}
