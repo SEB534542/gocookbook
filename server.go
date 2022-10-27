@@ -397,6 +397,14 @@ func handlerEditRcp(w http.ResponseWriter, req *http.Request) {
 	}
 	if req.Method == http.MethodPost {
 		rcpNew := processRcp(req)
+		// Set CreatedBy and Created back to original creator and datetime (if not the same and not empty).
+		if rcp.CreatedBy != "" && rcpNew.CreatedBy != rcp.CreatedBy {
+			rcpNew.CreatedBy = rcp.CreatedBy
+		}
+		if !rcp.Created.IsZero() {
+			rcpNew.Created = rcp.Created
+		}
+		// Update existing recipe.
 		*rcp = rcpNew
 		sort.Slice(rcps, func(i, j int) bool { return rcps[i].Name < rcps[j].Name })
 		SaveToJSON(rcps, fnameRcps)
@@ -494,6 +502,7 @@ func processRcp(req *http.Request) Recipe {
 	for i, id := range stepIds {
 		rcp.Steps[i] = steps[id]
 	}
+	// Store source and hyperlink
 	rcp.Source = req.PostFormValue("Source")
 	rcp.SourceLink = req.PostFormValue("SourceLink")
 	switch {
@@ -503,6 +512,17 @@ func processRcp(req *http.Request) Recipe {
 		rcp.Source = rcp.SourceLink
 	case !isHyperlink(rcp.SourceLink):
 		rcp.SourceLink = ""
+	}
+	/*Store user and datetime. As this func creates a new recipe,
+	it sets both AddedBy and UpdatedBy to the same user.
+	In "upper" logic the AddedBy is restored to the original creator,
+	if it is an update to existing recipe.*/
+	if usr, b := username(req); b {
+		rcp.CreatedBy = usr
+		rcp.UpdatedBy = usr
+		t := time.Now()
+		rcp.Created = t
+		rcp.Updated = t
 	}
 	return rcp
 }
@@ -622,19 +642,19 @@ func alreadyLoggedIn(req *http.Request) bool {
 }
 
 /*username takes a http request, checks the session cookie to identify
-and return the user (if).*/
-func username(req *http.Request) string {
+and return the user and true if logged in, or "" and false if not).*/
+func username(req *http.Request) (string, bool) {
 	c, err := req.Cookie(cookieSession)
 	if err != nil {
 		// Error retrieving cookie
-		return ""
+		return "", false
 	}
 	un := dbSessions[c.Value]
 	if _, ok := dbUsers[un]; !ok {
 		// Unknown cookie and/or user
-		return ""
+		return "", false
 	}
-	return un
+	return un, true
 }
 
 /* isHyperlink takes a string, checks if a hyperlink exists in that string.*/
@@ -681,7 +701,7 @@ func removeFromSlice(xs []string, i int) []string {
 func addVisit(req *http.Request) {
 	ipp := getIP(req)
 	site := req.URL.Path
-	un := username(req)
+	un, _ := username(req)
 	addr := strings.Split(ipp, ":") // ipp contains ip:port, ie 192.168.1.1:7000 and converts this into a slice of string.
 	var ip, port string
 	ip = addr[0]
