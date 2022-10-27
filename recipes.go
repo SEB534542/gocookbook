@@ -18,7 +18,11 @@ type Recipe struct {
 	Notes      string        // Notes and/or description on recipes.
 	Source     string        // Source of the recipe.
 	SourceLink string        // Hyperlink to the source.
-	AddedBy    string        // User that added the recipe.
+	CreatedBy  string        // User that created the recipe.
+	Created    time.Time     // Datetime when created.
+	UpdatedBy  string        // User that last updated the recipe.
+	Updated    time.Time     // Datetime when last updated.
+
 }
 
 // Ingr represents an ingredient for a recipe.
