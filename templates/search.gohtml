@@ -80,10 +80,13 @@
 			{{end}}
 		</p>
 		<p style="font-size:10vw">
-			<h1>Recipes</h1>
+			<h1>Ingredient searcher</h1>
 		</p>
 		<p>
-			<input type="text" id="myInput" onkeyup="searchFunction()" placeholder="Search for recipes.."><br>
+			<form method="POST">					
+				<input type="text" name="Item" placeholder="Search ingredients..">
+				<input type="submit" value="Search"><br><br>
+			</form>
 			<div id="myBtnContainer">
 				<button class="btn active" onclick="filterSelection('all')"> Show all</button>
 				{{range .Tags}}				

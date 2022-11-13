@@ -112,3 +112,23 @@ func (i Ingrd) Print() string {
 	}
 	return s
 }
+
+/* FindIngr takes a slice of recipes and an item. It returns all recipes that
+have an ingredient that (partially) matches the item and/or recipe name.*/
+func findIngr(rcps []Recipe, item string) []Recipe {
+	item = strings.ToLower(item)
+	var output []Recipe
+	for _, rcp := range rcps {
+		if strings.Contains(strings.ToLower(rcp.Name), item) {
+			output = append(output, rcp)
+			break
+		}
+		for _, ingrd := range rcp.Ingrs {
+			if strings.Contains(strings.ToLower(ingrd.Item), item) {
+				output = append(output, rcp)
+				break
+			}
+		}
+	}
+	return output
+}
