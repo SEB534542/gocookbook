@@ -121,7 +121,7 @@ func findIngr(rcps []Recipe, item string) []Recipe {
 	for _, rcp := range rcps {
 		if strings.Contains(strings.ToLower(rcp.Name), item) {
 			output = append(output, rcp)
-			break
+			continue
 		}
 		for _, ingrd := range rcp.Ingrs {
 			if strings.Contains(strings.ToLower(ingrd.Item), item) {
