@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="nl">
 	<head>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Kookboek</title>
+		<title>Cookbook</title>
 		{{template "style"}}
 
 		<STYLE>
@@ -65,8 +65,8 @@
 	<body>
 		<p>
 			{{if .Known}}
-				<a href="add">Nieuw recept</a> 
-				| <a href="/conv">Conversie tabel</a>
+				<a href="add">New recipe</a> 
+				| <a href="/conv">Maintain table</a>
 				| <a href="/log">Log</a>
 				| <a href="/export/recipes">JSON recipes</a>
 				| <a href="/export/table">JSON table</a>
@@ -78,15 +78,15 @@
 			{{end}}
 		</p>
 		<p style="font-size:10vw">
-			<h1>Recepten {{if ne .Item ""}} met {{.Item}} {{end}}</h1>
+			<h1>Recipes {{if ne .Item ""}} containing {{.Item}} {{end}}</h1>
 		</p>
 		<p>
 			<form method="POST">					
-				<input type="text" name="Item" id="myInput" onkeyup="searchFunction()" placeholder="Zoek recepten..">
-				<input type="submit" value="Zoek ingrediënt"><br><br>
+				<input type="text" name="Item" id="myInput" onkeyup="searchFunction()" placeholder="Search for recipes..">
+				<input type="submit" value="Search ingredient"><br><br>
 			</form>
 			<div id="myBtnContainer">
-				<button class="btn active" onclick="filterSelection('all')"> Toon alles</button>
+				<button class="btn active" onclick="filterSelection('all')"> Show all</button>
 				{{range .Tags}}				
 					{{if ne . ""}}
 						<button class="btn" onclick="filterSelection('{{.}}')"> {{.}}</button>
