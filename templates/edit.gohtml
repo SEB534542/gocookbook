@@ -2,34 +2,34 @@
 <html>
 	<head>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Edit recipe {{.Name}}</title>		
+		<title>Recept {{.Name}}</title>		
 		{{template "style"}}
 	</head>	
 	<body>
 		<p>
 			<a href="/">Return to all recipes</a>
-			| <a href="/recipe/{{.Id}}">View recipe</a>
+			| <a href="/">Alle recepten</a> | <a href="/recipe/{{.Id}}">Toon recept</a>
 		</p>
 		<p style="font-size:10vw">
-			<h1>Edit recipe {{.Name}}</h1>
+			<h1>Recept {{.Name}}</h1>
 			{{define "edit_rcp"}}
 				<form method="POST">
 					<input type="hidden" name="Id" value="{{.Id}}">
-					<table>
+					<table text-align="top">
 						<tr>
-							<td><label for="Name">Name</label></td>
+							<td><label for="Name">Naam</label></td>
 							<td><input type="text" name="Name" value="{{.Name}}" minlength="4" required></td>
 						</tr>
 						<tr>
-							<td><label for="Notes">Notes</label></td>
+							<td><label for="Notes">Notities</label></td>
 							<td><textarea rows="3" name="Notes">{{.Notes}}</textarea></td>
 						</tr>
 						<tr>
-							<td><label for="Dur">Cooking time (in minutes)</label></td>
+							<td><label for="Dur">Kooktijd (in minuten)</label></td>
 							<td><input type="number" name="Dur" value="{{fminutes .Dur}}" min="0" value="0" required></td>
 						</tr>
 						<tr>	
-							<td><label for="Persons">Number of persons</label></td>
+							<td><label for="Persons">Aantal personen</label></td>
 							<td><input type="number" name="Persons" value="{{.Persons}}" min="1" required></td>
 						</tr>
 						<tr>
@@ -37,7 +37,7 @@
 							<td><input type="text" name="Tags" value="{{fsliceString .Tags}}"></td>
 						</tr>
 						<tr>
-							<td><label for="Source">Recipe source</label></td>
+							<td><label for="Source">Recept bron</label></td>
 							<td><input type="text" name="Source" value="{{.Source}}"></td>
 						</tr>
 						<tr>
@@ -45,15 +45,15 @@
 							<td><input type="text" name="SourceLink" value="{{.SourceLink}}"></td>
 						</tr>
 					</table>
-					<p><input type="submit" value="Save"></p>
-					<h2>Ingredients</h2>
+					<p><input type="submit" value="Opslaan"></p>
+					<h2>Ingrediënten</h2>
 					<table>
 						<tr>
-							<th>Amount</th>
+							<th>Aantal</th>
 							<th>Unit</th>
 							<th>Item</th>
-							<th>Notes</th>
-							<th>Sequence</th>
+							<th>Notities</th>
+							<th>Volgorde</th>
 						</tr>
 						{{range $index, $element := .Ingrs}}
 							<tr>
@@ -86,8 +86,8 @@
 							</tr>
 						{{end}}
 					</table>
-					<p><input type="submit" value="Save"></p>
-					<h2>Steps</h2>
+					<p><input type="submit" value="Opslaan"></p>
+					<h2>Stappen</h2>
 						<table>
 							{{range $index, $element := .Steps}}
 								<tr>
