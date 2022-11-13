@@ -87,7 +87,6 @@ func startServer(port int) {
 	http.HandleFunc("/", handlerMain)
 	http.Handle("/favicon.ico", http.NotFoundHandler())
 	http.HandleFunc("/recipe/", handlerRecipe)
-	http.HandleFunc("/search", handlerSearch)
 	http.HandleFunc("/edit/", handlerEditRcp)
 	http.HandleFunc("/add", handlerAddRcp)
 	http.HandleFunc("/conv", handlerConversion)
@@ -260,27 +259,10 @@ func stringToSlice(s string) []string {
 
 func handlerMain(w http.ResponseWriter, req *http.Request) {
 	addVisit(req)
-	data := struct {
-		Recipes []Recipe
-		Tags    []string
-		Known   bool
-	}{
-		rcps,
-		tags(rcps),
-		alreadyLoggedIn(req),
-	}
-	err := tpl.ExecuteTemplate(w, "index.gohtml", data)
-	if err != nil {
-		log.Fatalln(err)
-	}
-}
-
-/* HandlerSearch allows to search for certain ingredient in all recipes.*/
-func handlerSearch(w http.ResponseWriter, req *http.Request) {
-	addVisit(req)
 	var xr []Recipe
+	var item string
 	if req.Method == http.MethodPost {
-		item := strings.Trim(req.PostFormValue("Item"), " ")
+		item = strings.Trim(req.PostFormValue("Item"), " ")
 		xr = findIngr(rcps, item)
 	} else {
 		xr = rcps
@@ -289,12 +271,14 @@ func handlerSearch(w http.ResponseWriter, req *http.Request) {
 		Recipes []Recipe
 		Tags    []string
 		Known   bool
+		Item    string
 	}{
 		xr,
 		tags(rcps),
 		alreadyLoggedIn(req),
+		item,
 	}
-	err := tpl.ExecuteTemplate(w, "search.gohtml", data)
+	err := tpl.ExecuteTemplate(w, "index.gohtml", data)
 	if err != nil {
 		log.Fatalln(err)
 	}
