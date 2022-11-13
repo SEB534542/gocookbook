@@ -2,24 +2,24 @@
 <html lang="nl">
 	<head>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Conversion table</title>
+		<title>Conversie tabel</title>
 		{{template "style"}}
 	</head>	
 	<body>
 		<p>
-			<a href="/">Return to all recipes</a>
+			<a href="/">Alle recepten</a>
 		</p>
 		<p style="font-size:10vw">
-			<h1>Conversion table</h1>
+			<h1>Conversie tabel</h1>
 		</p>
 		<p>
-			The table below contains the item conversion from 1 gram to ml.
+			De tabel hieronder bevat het aantal mililiter voor 1 gram van het item.
 		</p>
 		<p>
 			<form method="POST">
-				<input type="submit" value="Save"><br>
+				<input type="submit" value="Opslaan"><br>
 				<table>
-					<tr><th>Item</th><th>ml for 1 gr</th><th>Delete</th></tr>
+					<tr><th>Item</th><th>ml voor 1 gr</th><th>Verwijderen</th></tr>
 					
 					{{range $index, $element := .ConvTable}}
 						<tr>
@@ -38,7 +38,7 @@
 					{{end}}
 				</table>
 				<br>
-				<input type="submit" value="Save"><br>
+				<input type="submit" value="Opslaan"><br>
 			</form>
 		</p>
 	</body>

@@ -2,14 +2,14 @@
 <html>
 	<head>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Recipe for {{.Recipe.Name}}</title>
+		<title>Recept voor {{.Recipe.Name}}</title>
 		{{template "style"}}
 	</head>	
 	<body>
 		<p>
-			<a href="/">Return to all recipes</a> 
+			<a href="/">Alle recepten</a> 
 			{{if .Known}}
-				| <a href="/edit/{{.Recipe.Id}}">Edit recipe</a> | <a href="/conv">Maintain table</a>
+				| <a href="/edit/{{.Recipe.Id}}">Pas recept aan</a> | <a href="/conv">Conversie tabel</a>
 				| <a href="/logout">Logout</a>
 			{{else}}
 				| <a href="/login">Login</a>
@@ -20,17 +20,17 @@
 			<i>{{fsliceStringSpace .Recipe.Tags}}</i>
 			<p><i>{{.Recipe.Notes}}</i></p>
 			{{$dur := fminutes .Recipe.Dur}}
-			{{if ne $dur "0"}}<p>Cooking time: {{.Recipe.Dur}}</p>{{end}}
+			{{if ne $dur "0"}}<p>Kooktijd: {{.Recipe.Dur}}</p>{{end}}
 			<form method="POST">		
-				<label for="Persons">Number of persons</label>
+				<label for="Persons">Aantal personen</label>
 				<input type="number" name="Persons" value="{{.Recipe.Persons}}" required>
-				<input type="submit" value="Adjust"><br>
+				<input type="submit" value="Pas aan"><br>
 			</form>
-			<h2>Ingredients</h2>
+			<h2>Ingrediënten</h2>
 					{{range .Recipe.Ingrs}}
 						<input type="checkbox"> {{.Print}}<br>
 					{{end}}			
-			<h2>Steps</h2>
+			<h2>Stappen</h2>
 			<ol>
 				{{range .Recipe.Steps}}
 					<li>{{.}}</li>
@@ -39,9 +39,9 @@
 			<br>
 			{{if ne .Recipe.Source ""}}
 				{{if eq .Recipe.SourceLink ""}}
-					<i>Source of recipe: {{.Recipe.Source}}</i>
+					<i>Recept bron: {{.Recipe.Source}}</i>
 				{{else}}
-					<i>Source of recipe: <a href="{{.Recipe.SourceLink}}">{{.Recipe.Source}}</a></i>
+					<i>Recept bron: <a href="{{.Recipe.SourceLink}}">{{.Recipe.Source}}</a></i>
 				{{end}}
 			{{end}}
 		</p>
