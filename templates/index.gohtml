@@ -77,10 +77,10 @@
 				| <a href="/login">Login</a>
 			{{end}}
 		</p>
-		<p style="font-size:10vw">
+		<p>
 			<h1>Recepten {{if ne .Item ""}} met {{.Item}} {{end}}</h1>
 		</p>
-		<p>
+		<p style="font-size:10vw">
 			<form method="POST">					
 				<input type="text" name="Item" id="myInput" onkeyup="searchFunction()" placeholder="Zoek recepten..">
 				<input type="submit" value="Zoek ingrediënt"><br><br>
