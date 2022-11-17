@@ -89,6 +89,7 @@ func startServer(port int) {
 	http.HandleFunc("/recipe/", handlerRecipe)
 	http.HandleFunc("/edit/", handlerEditRcp)
 	http.HandleFunc("/add", handlerAddRcp)
+	http.HandleFunc("/delete/", handlerDelete)
 	http.HandleFunc("/conv", handlerConversion)
 	http.HandleFunc("/export/recipes", handlerExportRcps)
 	http.HandleFunc("/export/table", handlerExportTable)
@@ -384,6 +385,25 @@ func handlerAddRcp(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		log.Fatalln(err)
 	}
+}
+
+/* handlerDelete deletes the recipe correspondiing to the id given.*/
+func handlerDelete(w http.ResponseWriter, req *http.Request) {
+	addVisit(req)
+	if !alreadyLoggedIn(req) {
+		http.Redirect(w, req, "/login", http.StatusSeeOther)
+		return
+	}
+	id, err := strconv.Atoi(req.URL.Path[len("/delete/"):])
+	if err != nil {
+		http.Redirect(w, req, "/", http.StatusBadRequest)
+		return
+	}
+	rcps = removeRecipe(rcps, id)
+	SaveToJSON(rcps, fnameRcps)
+	log.Printf("Recipe deleted added (id %v)", id)
+	http.Redirect(w, req, "/", http.StatusSeeOther)
+	return
 }
 
 /* handlerEditRcp lookus up the recipe ID from the path, generates the recipe
@@ -699,14 +719,6 @@ func startsWith(s, substr string) bool {
 	return false
 }
 
-/* removeFromSlice takes a slice of string and removes the i-th element and
-returns the array.*/
-func removeFromSlice(xs []string, i int) []string {
-	v := make([]string, len(xs)-1)
-	v = append(xs[:i], xs[i+1:]...) // remove i-th element
-	return v
-}
-
 func addVisit(req *http.Request) {
 	ipp := getIP(req)
 	site := req.URL.Path
@@ -728,7 +740,7 @@ func addVisit(req *http.Request) {
 	SaveToJSON(dbVisits, fnameVisits)
 }
 
-/* Increment takes an integer and returns the integer +1*/
+/* plusOne takes an integer and returns the integer +1*/
 func plusOne(i int) int {
 	return i + 1
 }
@@ -756,4 +768,12 @@ less costly then moving all elements.*/
 func remove(s []string, i int) []string {
 	s[i] = s[len(s)-1]
 	return s[:len(s)-1]
+}
+
+/* removeFromSlice takes a slice of string and removes the i-th element and
+returns the array.*/
+func removeFromSlice(xs []string, i int) []string {
+	v := make([]string, len(xs)-1)
+	v = append(xs[:i], xs[i+1:]...) // remove i-th element
+	return v
 }

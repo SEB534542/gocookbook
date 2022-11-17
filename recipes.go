@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 )
@@ -131,4 +132,25 @@ func findIngr(rcps []Recipe, item string) []Recipe {
 		}
 	}
 	return output
+}
+
+/* RemoveRecipe takes a slice of recipes and an id. The recipe that matches
+the id is removed from the slice and slice is returned. */
+func removeRecipe(rcps []Recipe, id int) []Recipe {
+	var i int
+	var rcp Recipe
+	var b bool
+	for i, rcp = range rcps {
+		if rcp.Id == id {
+			b = true
+			break
+		}
+	}
+	if b {
+		rcps[i] = rcps[len(rcps)-1]
+		rcpsNew := rcps[:len(rcps)-1]
+		sort.Slice(rcpsNew, func(i, j int) bool { return rcpsNew[i].Name < rcpsNew[j].Name })
+		return rcpsNew
+	}
+	return rcps
 }
