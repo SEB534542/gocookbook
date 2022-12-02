@@ -14,7 +14,7 @@ type Recipe struct {
 	Ingrs      []Ingrd       // Slice containing all ingredients.
 	Steps      []string      // Steps for cooking the recipe.
 	Tags       []string      // Tags for a recipe.
-	Persons    int           // Default number of persons for which this recipe is made.
+	Portions   float64       // Default number of portions for recipe.
 	Dur        time.Duration // Cooking time
 	Notes      string        // Notes and/or description on recipes.
 	Source     string        // Source of the recipe.
@@ -76,7 +76,7 @@ func findRecipeP(rcps []Recipe, id int) (*Recipe, error) {
 }
 
 // updateRcp adjusts Ingrs in the recipe r to n persons and returns the new recipe.
-func adjustRcp(rcp Recipe, newP int) Recipe {
+func adjustRcp(rcp Recipe, newP float64) Recipe {
 	newIngrs := make([]Ingrd, len(rcp.Ingrs))
 	copy(newIngrs, rcp.Ingrs)
 	newRcp := Recipe{
@@ -85,12 +85,12 @@ func adjustRcp(rcp Recipe, newP int) Recipe {
 		Ingrs:      newIngrs,
 		Steps:      rcp.Steps,
 		Tags:       rcp.Tags,
-		Persons:    newP,
+		Portions:   newP,
 		Dur:        rcp.Dur,
 		Source:     rcp.Source,
 		SourceLink: rcp.SourceLink,
 	}
-	x := float64(newP) / float64(rcp.Persons)
+	x := round(newP / rcp.Portions)
 	for i, v := range newRcp.Ingrs {
 		newRcp.Ingrs[i].Amount = round(v.Amount * x)
 	}
