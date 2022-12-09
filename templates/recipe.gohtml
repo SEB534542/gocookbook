@@ -23,7 +23,7 @@
 			{{if ne $dur "0"}}<p>Cooking time: {{.Recipe.Dur}}</p>{{end}}
 			<form method="POST">		
 				<label for="Portions">Number of portions</label>
-				<input type="number" name="Portions" value="{{.Recipe.Portions}}" required>
+				<input type="number" name="Portions" value="{{.Recipe.Portions}}" step="any" required>
 				<input type="submit" value="Adjust"><br>
 			</form>
 			<h2>Ingredients</h2>
