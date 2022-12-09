@@ -13,6 +13,7 @@ Functionalities in a quick overview:
 - Run `go test`, this will create a default login: admin/test (Note: in future want to add login in the main folder to create default user when none exists).
 - Run `go build` to create executable.
 - Run the executable (in Linux: `./go-cookbook`, in windows `go-cookbook.exe`).
+- Open the cookbook in your browser at `localhost:8081`.
 
 ## More information
 - Since this is a basis application, no server is used. All data is stored into json files, located in the config folder.
