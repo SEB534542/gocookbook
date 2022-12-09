@@ -6,7 +6,7 @@ COPY go.mod ./
 COPY go.sum ./
 COPY *.go ./
 COPY ./templates/ ./templates/
-COPY ./config ./config
+# COPY ./config ./config
 
 RUN go build -o /ckb
 
