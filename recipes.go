@@ -97,6 +97,8 @@ func adjustRcp(rcp Recipe, newP float64) Recipe {
 	return newRcp
 }
 
+/* Print returns the ingredient with all available information
+(depending on the type of ingredient) as a string.*/
 func (i Ingrd) Print() string {
 	i.uoms()
 	var s string
