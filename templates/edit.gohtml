@@ -28,9 +28,9 @@
 							<td><label for="Dur">Kooktijd (in minuten)</label></td>
 							<td><input type="number" name="Dur" value="{{fminutes .Dur}}" min="0" value="0" required></td>
 						</tr>
-						<tr>	
-							<td><label for="Persons">Aantal personen</label></td>
-							<td><input type="number" name="Persons" value="{{.Persons}}" min="1" required></td>
+						<tr>
+							<td><label for="Portions">Aantal porties</label></td>
+							<td><input type="number" name="Portions" value="{{.Portions}}" min="1.00" step="any" required></td>
 						</tr>
 						<tr>
 							<td><label for="Tags">Tags (comma separated)</label></td>

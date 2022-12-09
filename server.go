@@ -331,7 +331,7 @@ func handlerRecipe(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	if req.Method == http.MethodPost {
-		if persons, err := strconv.Atoi(req.PostFormValue("Persons")); err == nil {
+		if persons, err := strconv.ParseFloat(req.PostFormValue("Portions"), 64); err == nil {
 			rcp = adjustRcp(rcp, persons)
 		}
 	}
@@ -477,7 +477,7 @@ func processRcp(req *http.Request) Recipe {
 	rcp.Name = strings.Trim(req.PostFormValue("Name"), " ")
 	rcp.Notes = strings.Trim(req.PostFormValue("Notes"), " ")
 	rcp.Dur, _ = time.ParseDuration(fmt.Sprintf("%vm", req.PostFormValue("Dur")))
-	rcp.Persons, _ = strconv.Atoi(req.PostFormValue("Persons"))
+	rcp.Portions, _ = strconv.ParseFloat(req.PostFormValue("Portions"), 64)
 
 	t := stringToSlice(req.PostFormValue("Tags"))
 	rcp.Tags = []string{}
