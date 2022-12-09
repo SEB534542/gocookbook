@@ -16,22 +16,23 @@ import (
 )
 
 type user struct {
-	Username string
-	Password []byte
+	Username string // Username for logging in.
+	Password []byte // Password for user to log in.
 }
 
 type visit struct {
-	Ip   string    // IP address origin
-	Port string    // Port
-	Time time.Time // Datetime of visit
-	Site string    // Actual site visited
-	Un   string    // If logged in, username of visitor
+	Ip   string    // IP address origin.
+	Port string    // Port origin.
+	Time time.Time // Datetime of visit.
+	Site string    // Actual url visited/requested by visitor.
+	Un   string    // If logged in, username of visitor.
 }
 
-// Folders and file names used
+// Folders and file names used.
 var (
-	fnameUsers  = folderConfig + "users.json"
-	fnameVisits = folderLog + "visits.json"
+	fnameUsers      = folderConfig + "users.json" // File where users are stored.
+	fnameVisits     = folderLog + "visits.json"   // File where visits are stored.
+	folderTemplates = "./templates/"              // Folder where templates are stored.
 )
 
 var (
@@ -50,17 +51,17 @@ var (
 	dbVisits   = []visit{}           // Visits to this website.
 )
 
+const cookieSession = "session"
+
 var (
 	maxIngrs = 30 // Maximum amount of Ingredients that can be added on webpage.
 	maxSteps = 20 // Maximum amount of Steps that can be added on webpage.
 	convRows = 10 // Rows where additional conversion data can be added.
 )
 
-const cookieSession = "session"
-
 func init() {
 	//Loading gohtml templates
-	tpl = template.Must(template.New("").Funcs(fm).ParseGlob("./templates/*"))
+	tpl = template.Must(template.New("").Funcs(fm).ParseGlob(folderTemplates + "*"))
 }
 
 /* startServer takes a port and launches a server. It tries to create a HTTPS
@@ -68,7 +69,7 @@ server, but if that fails, it creates a HTTP server.*/
 func startServer(port int) {
 	if port == 0 {
 		port = 8081
-		log.Printf("No port configured, using port %v", port)
+		log.Printf("No port configured, using default port %v", port)
 	}
 	// load users
 	err := readJSON(&dbUsers, fnameUsers)
@@ -152,9 +153,9 @@ func reverseXS(xs []string) []string {
 	return r
 }
 
-/* StoTime receives a string of time (format hh:mm) and a day offset, and
-returns a type time with today's and the supplied hours and minutes + the offset
-in days.*/
+/* StoTime receives a string of time (format hh:mm) and a day offset. It returns
+a type time with today's and the supplied hours and minutes + the offset in
+days.*/
 func stoTime(t string, days int) (time.Time, error) {
 	timeNow := time.Now()
 	timeHour, err := strconv.Atoi(t[:2])
@@ -258,6 +259,8 @@ func stringToSlice(s string) []string {
 	return xs
 }
 
+/* handlerMain lists the complete list of recipes and allows to search for
+recipes, ingrediënts or tags.*/
 func handlerMain(w http.ResponseWriter, req *http.Request) {
 	addVisit(req)
 	var xr []Recipe
@@ -593,6 +596,7 @@ func handlerConversion(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
+/* handlerLogin allows users to log in, if not already logged in. */
 func handlerLogin(w http.ResponseWriter, req *http.Request) {
 	if alreadyLoggedIn(req) {
 		http.Redirect(w, req, "/", http.StatusSeeOther)
@@ -636,6 +640,7 @@ func handlerLogin(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
+/* handlerLogout allows users to log out. */
 func handlerLogout(w http.ResponseWriter, req *http.Request) {
 	addVisit(req)
 	if !alreadyLoggedIn(req) {
@@ -656,6 +661,7 @@ func handlerLogout(w http.ResponseWriter, req *http.Request) {
 	http.Redirect(w, req, "/", http.StatusSeeOther)
 }
 
+/* alreadyLoggedIn checks if visitor is already logged in.*/
 func alreadyLoggedIn(req *http.Request) bool {
 	c, err := req.Cookie(cookieSession)
 	if err != nil {
@@ -719,6 +725,8 @@ func startsWith(s, substr string) bool {
 	return false
 }
 
+/* addVisit adds the current visitor to the visitor log, including relevant
+information.*/
 func addVisit(req *http.Request) {
 	ipp := getIP(req)
 	site := req.URL.Path

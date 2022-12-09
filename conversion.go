@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Conv contains the item conversion from 1 gram to ml
+// convTable contains the item conversion from 1 gram to ml.
 var convTable = map[string]float64{}
 
 /* different types of volumes and masses used for conversion. Note don't change

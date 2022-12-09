@@ -14,7 +14,7 @@ var (
 	fnameLog       = folderLog + "logfile.log"
 )
 
-/**checkFolder checks if folder f exists and if not creates the folder.*/
+/** checkFolder checks if folder f exists and if not creates the folder.*/
 func checkFolder(f string) {
 	if _, err := os.Stat(f); os.IsNotExist(err) {
 		os.Mkdir(f, 4096)
