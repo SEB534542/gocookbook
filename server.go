@@ -98,10 +98,15 @@ func startServer(port int) {
 	http.HandleFunc("/login", handlerLogin)
 	http.HandleFunc("/logout", handlerLogout)
 	http.HandleFunc("/visits", handlerVisits)
-	err = http.ListenAndServeTLS(":"+fmt.Sprint(port), cert, key, nil)
+	srv := &http.Server{
+		Addr:         ":" + fmt.Sprint(port),
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+	}
+	err = srv.ListenAndServeTLS(cert, key)
 	if err != nil {
 		log.Printf("Unable to launch TLS, launching without TLS (%v)", err)
-		log.Fatal(http.ListenAndServe(":"+fmt.Sprint(port), nil))
+		log.Fatal(srv.ListenAndServe())
 	}
 }
 
