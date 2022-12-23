@@ -10,10 +10,10 @@ Functionalities in a quick overview:
 ## How to run
 - Clone/Download this repository.
 - In command-line, go to the folder where you've cloned/unpacked the repository.
-- Run `go test`, this will create a default login: admin/test (Note: in future want to add login in the main folder to create default user when none exists).
 - Run `go build` to create executable.
 - Run the executable (in Linux: `./go-cookbook`, in windows `go-cookbook.exe`).
 - Open the cookbook in your browser at `localhost:8081`.
+- Login in with default user (username: chef, password: koken) and go to profile to change the username and/or password.
 
 ## More information
-- Since this is a basis application, no server is used. All data is stored into json files, located in the config folder.
+- Since this is a basic application with limited interaction, no database has been implemented. All data is stored into json files, located in the config folder.
