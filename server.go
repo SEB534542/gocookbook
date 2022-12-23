@@ -84,6 +84,11 @@ func startServer(port int) {
 	http.HandleFunc("/export/table", handlerExportTable)
 	http.HandleFunc("/log/", handlerLog)
 	http.HandleFunc("/login", handlerLogin)
+	http.HandleFunc("/profile", handlerProfile)
+	// http.HandleFunc("/users", handlerUsers)
+	// http.HandleFunc("/users/add", handlerAddUsers)
+	// http.HandleFunc("/users/delete", handlerDeleteUser)
+	// http.HandleFunc("/users/change", handlerChangeUser)
 	http.HandleFunc("/logout", handlerLogout)
 	http.HandleFunc("/visits", handlerVisits)
 	srv := &http.Server{
@@ -542,9 +547,9 @@ func processRcp(req *http.Request) Recipe {
 	it sets both AddedBy and UpdatedBy to the same user.
 	In "upper" logic the AddedBy is restored to the original creator,
 	if it is an update to existing recipe.*/
-	if usr, b := username(req); b {
-		rcp.CreatedBy = usr
-		rcp.UpdatedBy = usr
+	if un := username(req); un != "" {
+		rcp.CreatedBy = un
+		rcp.UpdatedBy = un
 		t := time.Now()
 		rcp.Created = t
 		rcp.Updated = t
@@ -600,8 +605,6 @@ func handlerLogin(w http.ResponseWriter, req *http.Request) {
 	if req.Method == http.MethodPost {
 		un := req.FormValue("Username")
 		p := req.FormValue("Password")
-		// Lookup username
-
 		err := checkPwd(un, p)
 		if err != nil {
 			log.Printf("%v entered incorrect password", ip)
@@ -664,19 +667,19 @@ func alreadyLoggedIn(req *http.Request) bool {
 }
 
 /*username takes a http request, checks the session cookie to identify
-and return the user and true if logged in, or "" and false if not).*/
-func username(req *http.Request) (string, bool) {
+and returns the user if logged in, or "" if not.*/
+func username(req *http.Request) string {
 	c, err := req.Cookie(cookieSession)
 	if err != nil {
 		// Error retrieving cookie
-		return "", false
+		return ""
 	}
 	un := dbSessions[c.Value]
 	if _, ok := dbUsers[un]; !ok {
 		// Unknown cookie and/or user
-		return "", false
+		return ""
 	}
-	return un, true
+	return un
 }
 
 /* isHyperlink takes a string, checks if a hyperlink exists in that string.*/
@@ -717,7 +720,7 @@ information.*/
 func addVisit(req *http.Request) {
 	ipp := getIP(req)
 	site := req.URL.Path
-	un, _ := username(req)
+	un := username(req)
 	addr := strings.Split(ipp, ":") // ipp contains ip:port, ie 192.168.1.1:7000 and converts this into a slice of string.
 	var ip, port string
 	ip = addr[0]
@@ -772,3 +775,61 @@ func removeFromSlice(xs []string, i int) []string {
 	v = append(xs[:i], xs[i+1:]...) // remove i-th element
 	return v
 }
+
+/* handlerProfile is used to update username and/or password.*/
+func handlerProfile(w http.ResponseWriter, req *http.Request) {
+	addVisit(req)
+	if !alreadyLoggedIn(req) {
+		http.Redirect(w, req, "/login", http.StatusSeeOther)
+		return
+	}
+	ip := getIP(req)
+	un := username(req)
+	msg := ""
+	// process form submission
+	if req.Method == http.MethodPost {
+		p := req.FormValue("CurrentPassword")
+		unNew := req.FormValue("NewUsername")
+		pNew := req.FormValue("NewPassword")
+		// Verify password
+		err := checkPwd(un, p)
+		if err != nil {
+			log.Printf("%v entered incorrect password", ip)
+			http.Error(w, fmt.Sprint(err), http.StatusForbidden)
+			return
+		}
+		// Check if a new username is provided
+		if unNew != "" && unNew != un {
+			if userExists(unNew) {
+				s := fmt.Sprintf("New username (%v) for %v already exists", unNew, un)
+				log.Print(s)
+				http.Error(w, s, http.StatusForbidden)
+				return
+			}
+			removeUser(un)
+			un = unNew
+		}
+		// Check if a new password is provided
+		if pNew != "" {
+			p = pNew
+		}
+		addUpdateUser(un, p)
+		msg = "User has been updated"
+	}
+	data := struct {
+		Username string
+		Message  string
+	}{
+		un,
+		msg,
+	}
+	err := tpl.ExecuteTemplate(w, "profile.gohtml", data)
+	if err != nil {
+		log.Fatalln(err)
+	}
+}
+
+// http.HandleFunc("/users", handlerUsers)
+// http.HandleFunc("/users/add", handlerAddUsers)
+// http.HandleFunc("/users/delete", handlerDeleteUser)
+// http.HandleFunc("/users/change", handlerChangeUser)
