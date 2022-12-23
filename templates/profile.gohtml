@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+    	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta charset="UTF-8">
+		<title>Profile</title>
+		{{template "style"}}
+	</head>
+	<body>
+		<p>
+			<a href="/">Return to all recipes</a>
+		</p>
+		<h1>Profile for {{.Username}}</h1>
+		<i>{{.Message}}</i>
+		<p style="font-size:10vw">
+			<form method="post">
+				<h2>Change username and/or password</h2>
+				<table>
+					<tr>
+						<td><label for="NewUsername">New Username</label></td>
+						<td><input type="text" name="NewUsername"></td>
+						<td><i>Only enter new username if you want to change it</i></td>
+					</tr>
+					<tr>
+						<td><label for="NewPassword">New Password</label></td>
+						<td><input type="password" name="NewPassword"></td>
+						<td><i>Only enter new password if you want to change it</i></td>
+					</tr>
+				</table>
+				<h2>Enter current password to confirm</h2>
+				<table>
+					<tr>
+						<td><label for="CurrentPassword">Current Password</label></td>
+						<td><input type="password" name="CurrentPassword"></td>
+					</tr>
+				</table>
+				<br>
+				<input type="submit">
+			</form>
+		</p>
+	</body>
+</html>
