@@ -12,13 +12,7 @@ import (
 	"time"
 
 	"github.com/satori/go.uuid"
-	"golang.org/x/crypto/bcrypt"
 )
-
-type user struct {
-	Username string // Username for logging in.
-	Password []byte // Password for user to log in.
-}
 
 type visit struct {
 	Ip   string    // IP address origin.
@@ -30,9 +24,8 @@ type visit struct {
 
 // Folders and file names used.
 var (
-	fnameUsers      = folderConfig + "users.json" // File where users are stored.
-	fnameVisits     = folderLog + "visits.json"   // File where visits are stored.
-	folderTemplates = "./templates/"              // Folder where templates are stored.
+	fnameVisits     = folderLog + "visits.json" // File where visits are stored.
+	folderTemplates = "./templates/"            // Folder where templates are stored.
 )
 
 var (
@@ -46,7 +39,6 @@ var (
 		"fdate":             dateTime,
 		"fplusOne":          plusOne,
 	} // Map with all functions that can be used within html.
-	dbUsers    = map[string]user{}   // username, user
 	dbSessions = map[string]string{} // session ID, username
 	dbVisits   = []visit{}           // Visits to this website.
 )
@@ -71,13 +63,9 @@ func startServer(port int) {
 		port = 8081
 		log.Printf("No port configured, using default port %v", port)
 	}
-	// load users
-	err := readJSON(&dbUsers, fnameUsers)
-	if err != nil {
-		log.Printf("Unable to load users from '%v': %v", fnameUsers, err)
-	}
+	loadUsers()
 	// load visits
-	err = readJSON(&dbVisits, fnameVisits)
+	err := readJSON(&dbVisits, fnameVisits)
 	if err != nil {
 		log.Printf("Unable to load previous visits from '%v': %v", fnameVisits, err)
 	}
@@ -613,17 +601,11 @@ func handlerLogin(w http.ResponseWriter, req *http.Request) {
 		un := req.FormValue("Username")
 		p := req.FormValue("Password")
 		// Lookup username
-		u, ok := dbUsers[un]
-		if !ok {
-			log.Printf("%v entered incorrect username %v..", un, ip)
-			http.Error(w, "Username and/or password do not match", http.StatusForbidden)
-			return
-		}
-		// Does the entered password match the stored password?
-		err := bcrypt.CompareHashAndPassword(u.Password, []byte(p))
+
+		err := checkPwd(un, p)
 		if err != nil {
-			log.Printf("%v entered incorrect password...", ip)
-			http.Error(w, "Username and/or password do not match", http.StatusForbidden)
+			log.Printf("%v entered incorrect password", ip)
+			http.Error(w, fmt.Sprint(err), http.StatusForbidden)
 			return
 		}
 		// create session
