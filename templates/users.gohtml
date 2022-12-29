@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+    	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta charset="UTF-8">
+		<title>Profile</title>
+		{{template "style"}}
+	</head>
+	<body>
+		<p>
+			<a href="/">Return to all recipes</a>
+		</p>
+		<h1>User management</h1>
+		{{range .Messages}}
+			<i>{{.}}</i><br>
+		{{end}}
+		<p style="font-size:10vw">
+			<form method="post">
+				<h2>User overview</h2>
+				<table>
+					<tr>
+						<th>User</th>
+						<th>Admin</th>
+						<th>Delete?</th>
+					</tr>
+					{{range $key, $value := .Users}}
+						<tr>
+							<td>{{$key}}</td>
+							<td>{{$value.Admin}}</td>
+							<td><input type="checkbox" name="Delete-{{$key}}" value="true"></td>
+						</tr>
+					{{end}}
+				</table>
+				<h2>Update or create user</h2>
+				<table>
+					<tr>
+						<td><label for="Username">Username</label></td>
+						<td><input type="text" name="Username"></td>
+						<td><label for="Password">(New) Password</label></td>
+						<td><input type="password" name="Password"></td>
+						<td><label for="Admin">Admin user</label></td>
+						<td><input type="checkbox" id="Admin" value="true"></td>
+					</tr>
+				</table>
+				<br>
+				<input type="submit">
+			</form>
+		</p>
+	</body>
+</html>

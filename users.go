@@ -7,9 +7,12 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// TODO: make type users and funcs method of users
+
 type user struct {
 	Username string // Username for logging in.
 	Password []byte // Password for user to log in.
+	Admin    bool   // True if admin user.
 }
 
 var (
@@ -25,20 +28,21 @@ func loadUsers() {
 	if err != nil {
 		log.Printf("Unable to load users from '%v': %v", fnameUsers, err)
 		log.Print("Setting default user")
-		addUpdateUser("chef", "koken")
+		addUpdateUser("chef", "koken", true)
 	}
 }
 
-/* addUpdateUser takes a username and a converted password, and stores it in
-the filename. If the username already exists, the password is updated.*/
-func addUpdateUser(un, p string) {
+/* addUpdateUser takes a username, a converted password and an
+indicator if it is an admin user. It stores in the filename.
+If the username already exists, the password is updated.*/
+func addUpdateUser(un, p string, b bool) {
 	if un != "" {
 		pwd, err := bcrypt.GenerateFromPassword([]byte(p), bcrypt.MinCost)
 		if err != nil {
 			log.Print(err)
 			return
 		}
-		dbUsers[un] = user{un, pwd}
+		dbUsers[un] = user{un, pwd, b}
 		SaveToJSON(dbUsers, fnameUsers)
 	}
 }
@@ -49,6 +53,14 @@ func userExists(un string) bool {
 	_, ok := dbUsers[un]
 	if ok {
 		return true
+	}
+	return false
+}
+
+func isAdmin(un string) bool {
+	u, ok := dbUsers[un]
+	if ok {
+		return u.Admin
 	}
 	return false
 }
@@ -78,4 +90,14 @@ func checkPwd(un, p string) error {
 	default:
 		return nil
 	}
+}
+
+/* users returns the users as a slice of string.*/
+func users() []string {
+	xs := make([]string, len(dbUsers))
+	i := 0
+	for k, _ := range dbUsers {
+		xs[i] = k
+	}
+	return xs
 }

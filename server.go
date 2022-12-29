@@ -85,10 +85,7 @@ func startServer(port int) {
 	http.HandleFunc("/log/", handlerLog)
 	http.HandleFunc("/login", handlerLogin)
 	http.HandleFunc("/profile", handlerProfile)
-	// http.HandleFunc("/users", handlerUsers)
-	// http.HandleFunc("/users/add", handlerAddUsers)
-	// http.HandleFunc("/users/delete", handlerDeleteUser)
-	// http.HandleFunc("/users/change", handlerChangeUser)
+	http.HandleFunc("/users", handlerUsers)
 	http.HandleFunc("/logout", handlerLogout)
 	http.HandleFunc("/visits", handlerVisits)
 	srv := &http.Server{
@@ -813,7 +810,7 @@ func handlerProfile(w http.ResponseWriter, req *http.Request) {
 		if pNew != "" {
 			p = pNew
 		}
-		addUpdateUser(un, p)
+		addUpdateUser(un, p, false)
 		msg = "User has been updated"
 	}
 	data := struct {
@@ -829,7 +826,60 @@ func handlerProfile(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-// http.HandleFunc("/users", handlerUsers)
-// http.HandleFunc("/users/add", handlerAddUsers)
-// http.HandleFunc("/users/delete", handlerDeleteUser)
-// http.HandleFunc("/users/change", handlerChangeUser)
+func handlerUsers(w http.ResponseWriter, req *http.Request) {
+	addVisit(req)
+	if !alreadyLoggedIn(req) {
+		http.Redirect(w, req, "/login", http.StatusSeeOther)
+		return
+	}
+	if !isAdmin(username(req)) {
+		http.Redirect(w, req, "/", http.StatusSeeOther)
+		return
+	}
+	msgs := []string{}
+	// process form submission
+	if req.Method == http.MethodPost {
+		un := req.FormValue("Username")
+		p := req.FormValue("Password")
+		b, err := strconv.ParseBool(req.FormValue("Admin"))
+		if err != nil {
+			log.Printf("Error on converting 'Admin' value (%v): %v", req.FormValue("Admin"), err)
+		}
+		if un != "" && p != "" {
+			ex := userExists(un)
+			addUpdateUser(un, p, b)
+			if ex {
+				msgs = append(msgs, fmt.Sprintf("'%v' updated", un))
+			} else {
+				msgs = append(msgs, fmt.Sprintf("'%v' created", un))
+			}
+		}
+		// Check if users need to be deleted
+		for k, _ := range dbUsers {
+			fmt.Println(k, req.FormValue(fmt.Sprintf("Delete-%v", k))) // XXX
+			if del, _ := strconv.ParseBool(req.FormValue(fmt.Sprintf("Delete-%v", k))); del {
+				if k == username(req) {
+					msg := fmt.Sprintf("Cannot delete own user (%v)", k)
+					log.Print(msg)
+					msgs = append(msgs, msg)
+				} else {
+					delete(dbUsers, k)
+					msg := fmt.Sprintf("User %v deleted", k)
+					log.Print(msg)
+					msgs = append(msgs, msg)
+				}
+			}
+		}
+	}
+	data := struct {
+		Users    map[string]user
+		Messages []string
+	}{
+		dbUsers,
+		msgs,
+	}
+	err := tpl.ExecuteTemplate(w, "users.gohtml", data)
+	if err != nil {
+		log.Fatalln(err)
+	}
+}
