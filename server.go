@@ -270,11 +270,13 @@ func handlerMain(w http.ResponseWriter, req *http.Request) {
 		Recipes []Recipe
 		Tags    []string
 		Known   bool
+		Admin   bool
 		Item    string
 	}{
 		xr,
 		tags(rcps),
 		alreadyLoggedIn(req),
+		isAdmin(username(req)),
 		item,
 	}
 	err := tpl.ExecuteTemplate(w, "index.gohtml", data)
@@ -845,6 +847,7 @@ func handlerUsers(w http.ResponseWriter, req *http.Request) {
 		if err != nil {
 			log.Printf("Error on converting 'Admin' value (%v): %v", req.FormValue("Admin"), err)
 		}
+		// TODO: check own user is not included(?)
 		if un != "" && p != "" {
 			ex := userExists(un)
 			addUpdateUser(un, p, b)
@@ -856,7 +859,6 @@ func handlerUsers(w http.ResponseWriter, req *http.Request) {
 		}
 		// Check if users need to be deleted
 		for k, _ := range dbUsers {
-			fmt.Println(k, req.FormValue(fmt.Sprintf("Delete-%v", k))) // XXX
 			if del, _ := strconv.ParseBool(req.FormValue(fmt.Sprintf("Delete-%v", k))); del {
 				if k == username(req) {
 					msg := fmt.Sprintf("Cannot delete own user (%v)", k)
