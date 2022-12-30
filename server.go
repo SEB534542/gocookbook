@@ -40,7 +40,8 @@ var (
 		"fplusOne":          plusOne,
 	} // Map with all functions that can be used within html.
 	dbSessions = map[string]string{} // session ID, username
-	dbVisits   = []visit{}           // Visits to this website.
+	dbUsers    = CreateUsers(folderConfig + "users.json")
+	dbVisits   = []visit{} // Visits to this website.
 )
 
 const cookieSession = "session"
@@ -63,7 +64,7 @@ func startServer(port int) {
 		port = 8081
 		log.Printf("No port configured, using default port %v", port)
 	}
-	loadUsers()
+	// loadUsers()
 	// load visits
 	err := readJSON(&dbVisits, fnameVisits)
 	if err != nil {
@@ -276,7 +277,7 @@ func handlerMain(w http.ResponseWriter, req *http.Request) {
 		xr,
 		tags(rcps),
 		alreadyLoggedIn(req),
-		isAdmin(username(req)),
+		dbUsers.IsAdmin(currentUser(req)),
 		item,
 	}
 	err := tpl.ExecuteTemplate(w, "index.gohtml", data)
@@ -546,7 +547,7 @@ func processRcp(req *http.Request) Recipe {
 	it sets both AddedBy and UpdatedBy to the same user.
 	In "upper" logic the AddedBy is restored to the original creator,
 	if it is an update to existing recipe.*/
-	if un := username(req); un != "" {
+	if un := currentUser(req); un != "" {
 		rcp.CreatedBy = un
 		rcp.UpdatedBy = un
 		t := time.Now()
@@ -604,7 +605,7 @@ func handlerLogin(w http.ResponseWriter, req *http.Request) {
 	if req.Method == http.MethodPost {
 		un := req.FormValue("Username")
 		p := req.FormValue("Password")
-		err := checkPwd(un, p)
+		err := dbUsers.CheckPwd(un, p)
 		if err != nil {
 			log.Printf("%v entered incorrect password", ip)
 			http.Error(w, fmt.Sprint(err), http.StatusForbidden)
@@ -658,7 +659,7 @@ func alreadyLoggedIn(req *http.Request) bool {
 		return false
 	}
 	un := dbSessions[c.Value]
-	if _, ok := dbUsers[un]; !ok {
+	if ok := dbUsers.Exists(un); !ok {
 		// Unknown cookie and/or user
 		return false
 	}
@@ -667,14 +668,14 @@ func alreadyLoggedIn(req *http.Request) bool {
 
 /*username takes a http request, checks the session cookie to identify
 and returns the user if logged in, or "" if not.*/
-func username(req *http.Request) string {
+func currentUser(req *http.Request) string {
 	c, err := req.Cookie(cookieSession)
 	if err != nil {
 		// Error retrieving cookie
 		return ""
 	}
 	un := dbSessions[c.Value]
-	if _, ok := dbUsers[un]; !ok {
+	if ok := dbUsers.Exists(un); !ok {
 		// Unknown cookie and/or user
 		return ""
 	}
@@ -719,7 +720,7 @@ information.*/
 func addVisit(req *http.Request) {
 	ipp := getIP(req)
 	site := req.URL.Path
-	un := username(req)
+	un := currentUser(req)
 	addr := strings.Split(ipp, ":") // ipp contains ip:port, ie 192.168.1.1:7000 and converts this into a slice of string.
 	var ip, port string
 	ip = addr[0]
@@ -783,7 +784,7 @@ func handlerProfile(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	ip := getIP(req)
-	un := username(req)
+	un := currentUser(req)
 	msg := ""
 	// process form submission
 	if req.Method == http.MethodPost {
@@ -791,7 +792,7 @@ func handlerProfile(w http.ResponseWriter, req *http.Request) {
 		unNew := req.FormValue("NewUsername")
 		pNew := req.FormValue("NewPassword")
 		// Verify password
-		err := checkPwd(un, p)
+		err := dbUsers.CheckPwd(un, p)
 		if err != nil {
 			log.Printf("%v entered incorrect password", ip)
 			http.Error(w, fmt.Sprint(err), http.StatusForbidden)
@@ -799,20 +800,20 @@ func handlerProfile(w http.ResponseWriter, req *http.Request) {
 		}
 		// Check if a new username is provided
 		if unNew != "" && unNew != un {
-			if userExists(unNew) {
+			if dbUsers.Exists(unNew) {
 				s := fmt.Sprintf("New username (%v) for %v already exists", unNew, un)
 				log.Print(s)
 				http.Error(w, s, http.StatusForbidden)
 				return
 			}
-			removeUser(un)
+			dbUsers.Remove(un)
 			un = unNew
 		}
 		// Check if a new password is provided
 		if pNew != "" {
 			p = pNew
 		}
-		addUpdateUser(un, p, false)
+		dbUsers.AddUpdate(un, p, false)
 		msg = "User has been updated"
 	}
 	data := struct {
@@ -834,7 +835,7 @@ func handlerUsers(w http.ResponseWriter, req *http.Request) {
 		http.Redirect(w, req, "/login", http.StatusSeeOther)
 		return
 	}
-	if !isAdmin(username(req)) {
+	if !dbUsers.IsAdmin(currentUser(req)) {
 		http.Redirect(w, req, "/", http.StatusSeeOther)
 		return
 	}
@@ -849,8 +850,8 @@ func handlerUsers(w http.ResponseWriter, req *http.Request) {
 		}
 		// TODO: check own user is not included(?)
 		if un != "" && p != "" {
-			ex := userExists(un)
-			addUpdateUser(un, p, b)
+			ex := dbUsers.Exists(un)
+			dbUsers.AddUpdate(un, p, b)
 			if ex {
 				msgs = append(msgs, fmt.Sprintf("'%v' updated", un))
 			} else {
@@ -858,15 +859,15 @@ func handlerUsers(w http.ResponseWriter, req *http.Request) {
 			}
 		}
 		// Check if users need to be deleted
-		for k, _ := range dbUsers {
-			if del, _ := strconv.ParseBool(req.FormValue(fmt.Sprintf("Delete-%v", k))); del {
-				if k == username(req) {
-					msg := fmt.Sprintf("Cannot delete own user (%v)", k)
+		for _, v := range dbUsers.Users() {
+			if del, _ := strconv.ParseBool(req.FormValue(fmt.Sprintf("Delete-%v", v))); del {
+				if v == currentUser(req) {
+					msg := fmt.Sprintf("Cannot delete own user (%v)", v)
 					log.Print(msg)
 					msgs = append(msgs, msg)
 				} else {
-					delete(dbUsers, k)
-					msg := fmt.Sprintf("User %v deleted", k)
+					dbUsers.Remove(v)
+					msg := fmt.Sprintf("User %v deleted", v)
 					log.Print(msg)
 					msgs = append(msgs, msg)
 				}
@@ -874,7 +875,7 @@ func handlerUsers(w http.ResponseWriter, req *http.Request) {
 		}
 	}
 	data := struct {
-		Users    map[string]user
+		Users    Users
 		Messages []string
 	}{
 		dbUsers,
