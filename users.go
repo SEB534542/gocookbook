@@ -47,7 +47,7 @@ indicator if it is an admin user. If the username already exists, the password i
 updated, else a new user is added, after which the updated Users is stored.*/
 func (dbUsers Users) AddUpdate(un, p string, b bool) {
 	if un != "" {
-		pwd, err := bcrypt.GenerateFromPassword([]byte(p), bcrypt.MinCost)
+		pwd, err := bcrypt.GenerateFromPassword([]byte(p), bcrypt.DefaultCost+2)
 		if err != nil {
 			log.Print(err)
 			return

@@ -859,7 +859,6 @@ func handlerUsers(w http.ResponseWriter, req *http.Request) {
 			}
 		}
 		// Check if users need to be deleted
-		fmt.Println(dbUsers.Users()) // XXX
 		for _, v := range dbUsers.Users() {
 			if del, _ := strconv.ParseBool(req.FormValue(fmt.Sprintf("Delete-%v", v))); del {
 				if v == currentUser(req) {
