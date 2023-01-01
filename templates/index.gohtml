@@ -71,6 +71,9 @@
 				| <a href="/export/recipes">JSON recipes</a>
 				| <a href="/export/table">JSON table</a>
 				| <a href="/visits">Visits</a>	
+				{{if .Admin}}
+					| <a href="/users">Users</a>	
+				{{end}}
 				| <a href="/profile">Profiel</a>					
 				| <a href="/logout">Logout</a>
 			{{else}}

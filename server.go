@@ -40,7 +40,8 @@ var (
 		"fplusOne":          plusOne,
 	} // Map with all functions that can be used within html.
 	dbSessions = map[string]string{} // session ID, username
-	dbVisits   = []visit{}           // Visits to this website.
+	dbUsers    = CreateUsers(folderConfig + "users.json")
+	dbVisits   = []visit{} // Visits to this website.
 )
 
 const cookieSession = "session"
@@ -63,7 +64,7 @@ func startServer(port int) {
 		port = 8081
 		log.Printf("No port configured, using default port %v", port)
 	}
-	loadUsers()
+	// loadUsers()
 	// load visits
 	err := readJSON(&dbVisits, fnameVisits)
 	if err != nil {
@@ -85,10 +86,7 @@ func startServer(port int) {
 	http.HandleFunc("/log/", handlerLog)
 	http.HandleFunc("/login", handlerLogin)
 	http.HandleFunc("/profile", handlerProfile)
-	// http.HandleFunc("/users", handlerUsers)
-	// http.HandleFunc("/users/add", handlerAddUsers)
-	// http.HandleFunc("/users/delete", handlerDeleteUser)
-	// http.HandleFunc("/users/change", handlerChangeUser)
+	http.HandleFunc("/users", handlerUsers)
 	http.HandleFunc("/logout", handlerLogout)
 	http.HandleFunc("/visits", handlerVisits)
 	srv := &http.Server{
@@ -273,11 +271,13 @@ func handlerMain(w http.ResponseWriter, req *http.Request) {
 		Recipes []Recipe
 		Tags    []string
 		Known   bool
+		Admin   bool
 		Item    string
 	}{
 		xr,
 		tags(rcps),
 		alreadyLoggedIn(req),
+		dbUsers.IsAdmin(currentUser(req)),
 		item,
 	}
 	err := tpl.ExecuteTemplate(w, "index.gohtml", data)
@@ -547,7 +547,7 @@ func processRcp(req *http.Request) Recipe {
 	it sets both AddedBy and UpdatedBy to the same user.
 	In "upper" logic the AddedBy is restored to the original creator,
 	if it is an update to existing recipe.*/
-	if un := username(req); un != "" {
+	if un := currentUser(req); un != "" {
 		rcp.CreatedBy = un
 		rcp.UpdatedBy = un
 		t := time.Now()
@@ -605,7 +605,7 @@ func handlerLogin(w http.ResponseWriter, req *http.Request) {
 	if req.Method == http.MethodPost {
 		un := req.FormValue("Username")
 		p := req.FormValue("Password")
-		err := checkPwd(un, p)
+		err := dbUsers.CheckPwd(un, p)
 		if err != nil {
 			log.Printf("%v entered incorrect password", ip)
 			http.Error(w, fmt.Sprint(err), http.StatusForbidden)
@@ -659,7 +659,7 @@ func alreadyLoggedIn(req *http.Request) bool {
 		return false
 	}
 	un := dbSessions[c.Value]
-	if _, ok := dbUsers[un]; !ok {
+	if ok := dbUsers.Exists(un); !ok {
 		// Unknown cookie and/or user
 		return false
 	}
@@ -668,14 +668,14 @@ func alreadyLoggedIn(req *http.Request) bool {
 
 /*username takes a http request, checks the session cookie to identify
 and returns the user if logged in, or "" if not.*/
-func username(req *http.Request) string {
+func currentUser(req *http.Request) string {
 	c, err := req.Cookie(cookieSession)
 	if err != nil {
 		// Error retrieving cookie
 		return ""
 	}
 	un := dbSessions[c.Value]
-	if _, ok := dbUsers[un]; !ok {
+	if ok := dbUsers.Exists(un); !ok {
 		// Unknown cookie and/or user
 		return ""
 	}
@@ -720,7 +720,7 @@ information.*/
 func addVisit(req *http.Request) {
 	ipp := getIP(req)
 	site := req.URL.Path
-	un := username(req)
+	un := currentUser(req)
 	addr := strings.Split(ipp, ":") // ipp contains ip:port, ie 192.168.1.1:7000 and converts this into a slice of string.
 	var ip, port string
 	ip = addr[0]
@@ -784,7 +784,7 @@ func handlerProfile(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	ip := getIP(req)
-	un := username(req)
+	un := currentUser(req)
 	msg := ""
 	// process form submission
 	if req.Method == http.MethodPost {
@@ -792,7 +792,7 @@ func handlerProfile(w http.ResponseWriter, req *http.Request) {
 		unNew := req.FormValue("NewUsername")
 		pNew := req.FormValue("NewPassword")
 		// Verify password
-		err := checkPwd(un, p)
+		err := dbUsers.CheckPwd(un, p)
 		if err != nil {
 			log.Printf("%v entered incorrect password", ip)
 			http.Error(w, fmt.Sprint(err), http.StatusForbidden)
@@ -800,20 +800,20 @@ func handlerProfile(w http.ResponseWriter, req *http.Request) {
 		}
 		// Check if a new username is provided
 		if unNew != "" && unNew != un {
-			if userExists(unNew) {
+			if dbUsers.Exists(unNew) {
 				s := fmt.Sprintf("New username (%v) for %v already exists", unNew, un)
 				log.Print(s)
 				http.Error(w, s, http.StatusForbidden)
 				return
 			}
-			removeUser(un)
+			dbUsers.Remove(un)
 			un = unNew
 		}
 		// Check if a new password is provided
 		if pNew != "" {
 			p = pNew
 		}
-		addUpdateUser(un, p)
+		dbUsers.AddUpdate(un, p, false)
 		msg = "User has been updated"
 	}
 	data := struct {
@@ -829,7 +829,61 @@ func handlerProfile(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-// http.HandleFunc("/users", handlerUsers)
-// http.HandleFunc("/users/add", handlerAddUsers)
-// http.HandleFunc("/users/delete", handlerDeleteUser)
-// http.HandleFunc("/users/change", handlerChangeUser)
+func handlerUsers(w http.ResponseWriter, req *http.Request) {
+	addVisit(req)
+	if !alreadyLoggedIn(req) {
+		http.Redirect(w, req, "/login", http.StatusSeeOther)
+		return
+	}
+	if !dbUsers.IsAdmin(currentUser(req)) {
+		http.Redirect(w, req, "/", http.StatusSeeOther)
+		return
+	}
+	msgs := []string{}
+	// process form submission
+	if req.Method == http.MethodPost {
+		un := req.FormValue("Username")
+		p := req.FormValue("Password")
+		b, _ := strconv.ParseBool(req.FormValue("Admin"))
+		if un != "" && p != "" {
+			ex := dbUsers.Exists(un)
+			dbUsers.AddUpdate(un, p, b)
+			if ex {
+				msgs = append(msgs, fmt.Sprintf("'%v' updated", un))
+			} else {
+				msgs = append(msgs, fmt.Sprintf("'%v' created", un))
+			}
+		} else {
+			if un != "" {
+				msgs = append(msgs, "No new password provided")
+			}
+		}
+		// Check if users need to be deleted
+		fmt.Println(dbUsers.Users()) // XXX
+		for _, v := range dbUsers.Users() {
+			if del, _ := strconv.ParseBool(req.FormValue(fmt.Sprintf("Delete-%v", v))); del {
+				if v == currentUser(req) {
+					msg := fmt.Sprintf("Cannot delete own user (%v)", v)
+					log.Print(msg)
+					msgs = append(msgs, msg)
+				} else {
+					dbUsers.Remove(v)
+					msg := fmt.Sprintf("User %v deleted", v)
+					log.Print(msg)
+					msgs = append(msgs, msg)
+				}
+			}
+		}
+	}
+	data := struct {
+		Users    Users
+		Messages []string
+	}{
+		dbUsers,
+		msgs,
+	}
+	err := tpl.ExecuteTemplate(w, "users.gohtml", data)
+	if err != nil {
+		log.Fatalln(err)
+	}
+}
