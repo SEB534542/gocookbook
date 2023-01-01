@@ -9,8 +9,8 @@ import (
 
 // Users represents a file location and a map containing all the users (of type user).
 type Users struct {
-	uns   map[string]user // username, user.
-	fname string          // location of json file.
+	Uns   map[string]user // username, user.
+	Fname string          // location of json file.
 }
 
 // user represents a username, with a password and an indicator if the user is an admin.
@@ -23,8 +23,8 @@ type user struct {
 // CreateUsers takes a file name, loads the Users from the JSON and returns it.
 func CreateUsers(fname string) Users {
 	dbUsers := Users{
-		uns:   map[string]user{},
-		fname: fname,
+		Uns:   map[string]user{},
+		Fname: fname,
 	}
 	dbUsers.Load()
 	return dbUsers
@@ -34,9 +34,9 @@ func CreateUsers(fname string) Users {
 a new Users is created with the default user and password as specified in this
 method.*/
 func (dbUsers Users) Load() {
-	err := readJSON(&dbUsers.uns, dbUsers.fname)
+	err := readJSON(&dbUsers.Uns, dbUsers.Fname)
 	if err != nil {
-		log.Printf("Unable to load users from '%v': %v", dbUsers.fname, err)
+		log.Printf("Unable to load users from '%v': %v", dbUsers.Fname, err)
 		log.Print("Setting default user")
 		dbUsers.AddUpdate("chef", "koken", true)
 	}
@@ -52,15 +52,15 @@ func (dbUsers Users) AddUpdate(un, p string, b bool) {
 			log.Print(err)
 			return
 		}
-		dbUsers.uns[un] = user{un, pwd, b}
-		SaveToJSON(dbUsers.uns, dbUsers.fname)
+		dbUsers.Uns[un] = user{un, pwd, b}
+		SaveToJSON(dbUsers.Uns, dbUsers.Fname)
 	}
 }
 
 /* Exists takes a username. It returns true if the username already exists,
 false if it doesn't.*/
 func (dbUsers Users) Exists(un string) bool {
-	_, ok := dbUsers.uns[un]
+	_, ok := dbUsers.Uns[un]
 	if ok {
 		return true
 	}
@@ -70,7 +70,7 @@ func (dbUsers Users) Exists(un string) bool {
 /* IsAdmin takes a username and returns triue if the user is and admin.
 It returns false if the it is not an admin, or user doesn't exists.*/
 func (dbUsers Users) IsAdmin(un string) bool {
-	u, ok := dbUsers.uns[un]
+	u, ok := dbUsers.Uns[un]
 	if ok {
 		return u.Admin
 	}
@@ -79,8 +79,8 @@ func (dbUsers Users) IsAdmin(un string) bool {
 
 /* Remove takes a username and removes the user.*/
 func (dbUsers Users) Remove(un string) {
-	delete(dbUsers.uns, un)
-	SaveToJSON(dbUsers.uns, dbUsers.fname)
+	delete(dbUsers.Uns, un)
+	SaveToJSON(dbUsers.Uns, dbUsers.Fname)
 }
 
 /* CheckPwd takes a username and a password. It compares this password
@@ -89,7 +89,7 @@ match.*/
 func (dbUsers Users) CheckPwd(un, p string) error {
 	err := fmt.Errorf("Username and/or password do not match")
 	// lookup username
-	u, ok := dbUsers.uns[un]
+	u, ok := dbUsers.Uns[un]
 	if !ok {
 		return err
 	}
@@ -106,10 +106,11 @@ func (dbUsers Users) CheckPwd(un, p string) error {
 
 /* Users returns all users as a slice of string.*/
 func (dbUsers Users) Users() []string {
-	xs := make([]string, len(dbUsers.uns))
+	xs := make([]string, len(dbUsers.Uns))
 	i := 0
-	for k, _ := range dbUsers.uns {
+	for k, _ := range dbUsers.Uns {
 		xs[i] = k
+		i++
 	}
 	return xs
 }

@@ -844,11 +844,7 @@ func handlerUsers(w http.ResponseWriter, req *http.Request) {
 	if req.Method == http.MethodPost {
 		un := req.FormValue("Username")
 		p := req.FormValue("Password")
-		b, err := strconv.ParseBool(req.FormValue("Admin"))
-		if err != nil {
-			log.Printf("Error on converting 'Admin' value (%v): %v", req.FormValue("Admin"), err)
-		}
-		// TODO: check own user is not included(?)
+		b, _ := strconv.ParseBool(req.FormValue("Admin"))
 		if un != "" && p != "" {
 			ex := dbUsers.Exists(un)
 			dbUsers.AddUpdate(un, p, b)
@@ -857,8 +853,13 @@ func handlerUsers(w http.ResponseWriter, req *http.Request) {
 			} else {
 				msgs = append(msgs, fmt.Sprintf("'%v' created", un))
 			}
+		} else {
+			if un != "" {
+				msgs = append(msgs, "No new password provided")
+			}
 		}
 		// Check if users need to be deleted
+		fmt.Println(dbUsers.Users()) // XXX
 		for _, v := range dbUsers.Users() {
 			if del, _ := strconv.ParseBool(req.FormValue(fmt.Sprintf("Delete-%v", v))); del {
 				if v == currentUser(req) {

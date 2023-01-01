@@ -23,7 +23,7 @@
 						<th>Admin</th>
 						<th>Delete?</th>
 					</tr>
-					{{range $key, $value := .Users}}
+					{{range $key, $value := .Users.Uns}}
 						<tr>
 							<td>{{$key}}</td>
 							<td>{{$value.Admin}}</td>
@@ -39,7 +39,7 @@
 						<td><label for="Password">(New) Password</label></td>
 						<td><input type="password" name="Password"></td>
 						<td><label for="Admin">Admin user</label></td>
-						<td><input type="checkbox" id="Admin" value="true"></td>
+						<td><input type="checkbox" name="Admin" value="true"></td>
 					</tr>
 				</table>
 				<br>
