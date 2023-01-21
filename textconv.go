@@ -26,14 +26,25 @@ func textToLines(s string) []string {
 	return newLines
 }
 
+/* textToIngrds takes a string and returns a slice of ingredients in the text.*/
 func textToIngrds(s string) []Ingrd {
 	lines := textToLines(s)
 	ingrs := []Ingrd{}
 	// Convert each line to an ingredient
 	for _, line := range lines {
+		var ingr Ingrd
 		xs := strings.Split(line, " ")
+		// Parse each element of the line to a float to find the amount
 		for i, s := range xs {
 			amount, err := strconv.ParseFloat(s, 64)
+			if s[0] == uint8(171) {
+				amount = 0.5
+				err = nil
+			}
+			if s[0] == uint8(172) {
+				amount = 0.25
+				err = nil
+			}
 			if err == nil {
 				// Check if a unit is included directly behind the float
 				units := map[string]func(float64) (string, float64){
@@ -69,15 +80,20 @@ func textToIngrds(s string) []Ingrd {
 					unit, amount = units[xs[i+1]](amount)
 					offset += len(xs[i+1])
 				}
-				ingr := Ingrd{
+				ingr = Ingrd{
 					Amount: amount,
 					Unit:   unit,
 					Item:   line[strings.Index(line, s)+len(s)+offset+1:], // assuming item is directly after amount in the text
 					Notes:  line[:strings.Index(line, s)],                 // assuming an text before the float is additional notes
 				}
-				ingrs = append(ingrs, ingr)
+				break
 			}
 		}
+		if ingr.Amount == 0 && ingr.Unit == "" && ingr.Item == "" {
+			// No amount found
+			ingr.Item = line
+		}
+		ingrs = append(ingrs, ingr)
 	}
 	return ingrs
 }

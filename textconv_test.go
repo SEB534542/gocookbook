@@ -28,11 +28,12 @@ func TestFormat(t *testing.T) {
 
 ½ cup heavy cream
 
-2 teaspoons lemon juice
-
 2 tablespoons chopped fresh parsley`
 	xi := textToIngrds(s)
-	if len(xi) != 8 || xi[0].Amount != 1 {
+	// for _, v := range xi {
+	// 	t.Logf("'%v', '%v', '%v', '%v'", v.Amount, v.Unit, v.Item, v.Notes)
+	// }
+	if len(xi) != 12 || xi[0].Amount != 1 {
 		t.Error("Ingredients not correctly converted!")
 	}
 }
