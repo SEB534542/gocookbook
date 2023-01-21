@@ -362,13 +362,13 @@ func handlerAddRcp(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	if req.Method == http.MethodPost {
-		rcp := processRcp(req)
+		rcp := processNewRcp(req)
 		rcp.Id = newRcpId(rcps)
 		rcps = append(rcps, rcp)
 		sort.Slice(rcps, func(i, j int) bool { return rcps[i].Name < rcps[j].Name })
 		SaveToJSON(rcps, fnameRcps)
 		log.Printf("New recipe added (id %v", rcp.Id)
-		http.Redirect(w, req, fmt.Sprintf("recipe/%v", rcp.Id), http.StatusSeeOther)
+		http.Redirect(w, req, fmt.Sprintf("edit/%v", rcp.Id), http.StatusSeeOther)
 		return
 	}
 	data := struct {
@@ -532,6 +532,56 @@ func processRcp(req *http.Request) Recipe {
 	for i, id := range stepIds {
 		rcp.Steps[i] = steps[id]
 	}
+	// Store source and hyperlink
+	rcp.Source = req.PostFormValue("Source")
+	rcp.SourceLink = req.PostFormValue("SourceLink")
+	switch {
+	case rcp.SourceLink == "" && isHyperlink(rcp.Source):
+		rcp.SourceLink = rcp.Source
+	case rcp.Source == "" && isHyperlink(rcp.SourceLink):
+		rcp.Source = rcp.SourceLink
+	case !isHyperlink(rcp.SourceLink):
+		rcp.SourceLink = ""
+	}
+	/*Store user and datetime. As this func creates a new recipe,
+	it sets both AddedBy and UpdatedBy to the same user.
+	In "upper" logic the AddedBy is restored to the original creator,
+	if it is an update to existing recipe.*/
+	if un := currentUser(req); un != "" {
+		rcp.CreatedBy = un
+		rcp.UpdatedBy = un
+		t := time.Now()
+		rcp.Created = t
+		rcp.Updated = t
+	}
+	return rcp
+}
+
+/* processNewRcp takes a *http.requested and extracts the form POST data
+into a recipe, which is returned.*/
+func processNewRcp(req *http.Request) Recipe {
+	rcp := Recipe{}
+	if id := req.PostFormValue("Id"); id != "" {
+		rcp.Id, _ = strconv.Atoi(id)
+	}
+	rcp.Name = strings.Trim(req.PostFormValue("Name"), " ")
+	rcp.Notes = strings.Trim(req.PostFormValue("Notes"), " ")
+	rcp.Dur, _ = time.ParseDuration(fmt.Sprintf("%vm", req.PostFormValue("Dur")))
+	rcp.Portions, _ = strconv.ParseFloat(req.PostFormValue("Portions"), 64)
+
+	t := stringToSlice(req.PostFormValue("Tags"))
+	rcp.Tags = []string{}
+	for _, v := range t {
+		v = strings.Trim(v, " ")
+		if v != "" {
+			rcp.Tags = append(rcp.Tags, toTitle(v))
+		}
+	}
+	sort.Strings(rcp.Tags)
+	// Ingredients
+	rcp.Ingrs = textToIngrds(req.PostFormValue("Ingrds"))
+	// Steps
+	rcp.Steps = textToLines(req.PostFormValue("Steps"))
 	// Store source and hyperlink
 	rcp.Source = req.PostFormValue("Source")
 	rcp.SourceLink = req.PostFormValue("SourceLink")

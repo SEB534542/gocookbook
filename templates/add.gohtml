@@ -11,7 +11,15 @@
 		</p>
 		<p style="font-size:10vw">
 			<h1>Voeg nieuw recept toe</h1>
-			{{template "edit_rcp" .}}
+			<form method="POST">
+				{{template "edit_rcp" .}}
+				<p><i>Laat onderstaande leeg indien je de ingrediënten en stappen handmatig wilt invullen en klik op volgende</i></p>
+				<h2>Ingredients</h2>
+				<textarea rows="10" cols="80" name="Ingrds"></textarea>
+				<h2>Steps</h2>
+				<textarea rows="10" cols="80" name="Steps"></textarea>
+				<p><input type="submit" value="Volgende"></p>
+			</form>
 		</p>
 	</body>
 </html>
