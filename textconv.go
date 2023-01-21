@@ -37,11 +37,11 @@ func textToIngrds(s string) []Ingrd {
 		// Parse each element of the line to a float to find the amount
 		for i, s := range xs {
 			amount, err := strconv.ParseFloat(s, 64)
-			if s[0] == uint8(171) {
+			if strings.Index(s, string(uint8(189))) != -1 {
 				amount = 0.5
 				err = nil
 			}
-			if s[0] == uint8(172) {
+			if strings.Index(s, string(uint8(188))) != -1 {
 				amount = 0.25
 				err = nil
 			}
@@ -83,8 +83,8 @@ func textToIngrds(s string) []Ingrd {
 				ingr = Ingrd{
 					Amount: amount,
 					Unit:   unit,
-					Item:   line[strings.Index(line, s)+len(s)+offset+1:], // assuming item is directly after amount in the text
-					Notes:  line[:strings.Index(line, s)],                 // assuming an text before the float is additional notes
+					Item:   strings.Trim(line[strings.Index(line, s)+len(s)+offset+1:], " "), // assuming item is directly after amount in the text
+					Notes:  strings.Trim(line[:strings.Index(line, s)], " "),                 // assuming an text before the float is additional notes
 				}
 				break
 			}

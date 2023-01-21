@@ -11,7 +11,15 @@
 		</p>
 		<p style="font-size:10vw">
 			<h1>Add new recipe</h1>
-			{{template "edit_rcp" .}}
+			<form method="POST">
+				{{template "edit_rcp" .}}
+				<p><i>If you want to manually add ingredients and steps, leave below empty and click on Next</i></p>
+				<h2>Ingredients</h2>
+				<textarea rows="10" cols="80" name="Ingrds"></textarea>
+				<h2>Steps</h2>
+				<textarea rows="10" cols="80" name="Steps"></textarea>
+				<p><input type="submit" value="Next"></p>
+			</form>
 		</p>
 	</body>
 </html>

@@ -11,9 +11,9 @@
 			| <a href="/recipe/{{.Id}}">View recipe</a>
 		</p>
 		<p style="font-size:10vw">
-			<h1>Edit recipe {{.Name}}</h1>
-			{{define "edit_rcp"}}
-				<form method="POST">
+		<h1>Edit recipe {{.Name}}</h1>
+			<form method="POST">
+				{{define "edit_rcp"}}
 					<input type="hidden" name="Id" value="{{.Id}}">
 					<table>
 						<tr>
@@ -45,67 +45,67 @@
 							<td><input type="text" name="SourceLink" value="{{.SourceLink}}"></td>
 						</tr>
 					</table>
-					<p><input type="submit" value="Save"></p>
-					<h2>Ingredients</h2>
-					<table>
+				{{end}}
+				{{template "edit_rcp" .}}
+				<p><input type="submit" value="Save"></p>
+				<h2>Ingredients</h2>
+				<table>
+					<tr>
+						<th>Amount</th>
+						<th>Unit</th>
+						<th>Item</th>
+						<th>Notes</th>
+						<th>Order</th>
+					</tr>
+					{{range $index, $element := .Ingrs}}
 						<tr>
-							<th>Amount</th>
-							<th>Unit</th>
-							<th>Item</th>
-							<th>Notes</th>
-							<th>Order</th>
+							<td><input type="number" step="any" max="99999" name="Amount{{$index}}" value="{{$element.Amount}}" min="0.001" style="width:50px"></td>
+							<td>
+								<select name="Unit{{$index}}">
+									{{range $.Units}}
+										<option value="{{.}}" {{if eq $element.Unit .}} selected {{end}}>{{.}}</option>
+									{{end}}
+								</select>
+							</td>
+							<td><input type="text" name="Item{{$index}}" value="{{$element.Item}}"></td>
+							<td><input type="text" name="Notes{{$index}}" value="{{$element.Notes}}"></td>
+							<td><input type="number" step="0.1" max="999" name="Id{{$index}}" value="{{fplusOne $index}}" min="0" style="width:50px"></td>
 						</tr>
-						{{range $index, $element := .Ingrs}}
+					{{end}}
+					{{range .CountIngrs}}
+						<tr>
+							<td><input type="number" step="any" max="99999" name="Amount{{.}}" style="width:50px"></td>	
+							<td>
+								<select name="Unit{{.}}">
+									{{range $.Units}}
+										<option value="{{.}}">{{.}}</option>
+									{{end}}
+								</select>
+							</td>
+							<td><input type="text" name="Item{{.}}"></td>
+							<td><input type="text" name="Notes{{.}}"></td>
+							<td><input type="number" step="0.1" max="999" name="Id{{.}}" value="{{fplusOne .}}" min="0" style="width:50px"></td>
+						</tr>
+					{{end}}
+				</table>
+				<p><input type="submit" value="Save"></p>
+				<h2>Steps</h2>
+					<table>
+						{{range $index, $element := .Steps}}
 							<tr>
-								<td><input type="number" step="any" max="99999" name="Amount{{$index}}" value="{{$element.Amount}}" min="0.001" style="width:50px"></td>
-								<td>
-									<select name="Unit{{$index}}">
-										{{range $.Units}}
-											<option value="{{.}}" {{if eq $element.Unit .}} selected {{end}}>{{.}}</option>
-										{{end}}
-									</select>
-								</td>
-								<td><input type="text" name="Item{{$index}}" value="{{$element.Item}}"></td>
-								<td><input type="text" name="Notes{{$index}}" value="{{$element.Notes}}"></td>
-								<td><input type="number" step="0.1" max="999" name="Id{{$index}}" value="{{fplusOne $index}}" min="0" style="width:50px"></td>
-							</tr>
+								<td><input type="number" step="0.1" max="999" name="StepId{{$index}}" value="{{fplusOne $index}}" min="0" style="width:35px"></td>
+								<td><textarea rows="3" cols="80" name="Step{{$index}}">{{$element}}</textarea></td>
+							</tr>						
 						{{end}}
-						{{range .CountIngrs}}
+						{{range .CountSteps}}
 							<tr>
-								<td><input type="number" step="any" max="99999" name="Amount{{.}}" style="width:50px"></td>	
-								<td>
-									<select name="Unit{{.}}">
-										{{range $.Units}}
-											<option value="{{.}}">{{.}}</option>
-										{{end}}
-									</select>
-								</td>
-								<td><input type="text" name="Item{{.}}"></td>
-								<td><input type="text" name="Notes{{.}}"></td>
-								<td><input type="number" step="0.1" max="999" name="Id{{.}}" value="{{fplusOne .}}" min="0" style="width:50px"></td>
+								<td><input type="number" step="0.1" max="999" name="StepId{{.}}" value="{{fplusOne .}}" min="0" style="width:35px"></td>
+								<td><textarea rows="3" cols="80" name="Step{{.}}"></textarea></td>
 							</tr>
 						{{end}}
 					</table>
-					<p><input type="submit" value="Save"></p>
-					<h2>Steps</h2>
-						<table>
-							{{range $index, $element := .Steps}}
-								<tr>
-									<td><input type="number" step="0.1" max="999" name="StepId{{$index}}" value="{{fplusOne $index}}" min="0" style="width:35px"></td>
-									<td><textarea rows="3" cols="80" name="Step{{$index}}">{{$element}}</textarea></td>
-								</tr>						
-							{{end}}
-							{{range .CountSteps}}
-								<tr>
-									<td><input type="number" step="0.1" max="999" name="StepId{{.}}" value="{{fplusOne .}}" min="0" style="width:35px"></td>
-									<td><textarea rows="3" cols="80" name="Step{{.}}"></textarea></td>
-								</tr>
-							{{end}}
-						</table>
-					<p><input type="submit" value="Save"></p>
-				</form>
-			{{end}}
-			{{template "edit_rcp" .}}
+				<p><input type="submit" value="Save"></p>
+			</form>
 		</p>
 		<p>
 			<br><br>
