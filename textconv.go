@@ -1,6 +1,7 @@
 package main
 
 import (
+	"golang.org/x/text/unicode/norm"
 	"strconv"
 	"strings"
 )
@@ -39,17 +40,24 @@ var unitsconv = map[string]func(float64) (string, float64){
 	"pieces":      func(f float64) (string, float64) { return pcs, f },
 }
 
-/* textToLines takes a string, splits the string into a slice for each new line
-and removes all non text characters and empty lines. It returns the slice.*/
+/*
+	textToLines takes a string, splits the string into a slice for each new line
+
+and removes all non text characters and empty lines. It returns the slice.
+*/
 func textToLines(s string) []string {
+	s = norm.NFC.String(s)
+
+	// Change CR into LR to ensure all 'enters' are split into lines
+	s = strings.ReplaceAll(s, "\r", "\n")
+
+	// Change No-Break Spaces into normal spaces
+	s = strings.ReplaceAll(s, "\u202f", " ")
+	s = strings.ReplaceAll(s, "\u00a0", " ")
+
 	// Split string into lines
 	lines := strings.Split(s, "\n")
-	// Remove all non text characters
-	for i, _ := range lines {
-		for j := uint8(0); j < 32; j++ {
-			lines[i] = strings.Replace(lines[i], string(j), "", -1)
-		}
-	}
+
 	// Remove empty lines
 	newLines := []string{}
 	for _, line := range lines {

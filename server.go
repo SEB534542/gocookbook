@@ -57,8 +57,11 @@ func init() {
 	tpl = template.Must(template.New("").Funcs(fm).ParseGlob(folderTemplates + "*"))
 }
 
-/* startServer takes a port and launches a server. It tries to create a HTTPS
-server, but if that fails, it creates a HTTP server.*/
+/*
+	startServer takes a port and launches a server. It tries to create a HTTPS
+
+server, but if that fails, it creates a HTTP server.
+*/
 func startServer(port int) {
 	if port == 0 {
 		port = 8081
@@ -149,9 +152,12 @@ func reverseXS(xs []string) []string {
 	return r
 }
 
-/* StoTime receives a string of time (format hh:mm) and a day offset. It returns
+/*
+	StoTime receives a string of time (format hh:mm) and a day offset. It returns
+
 a type time with today's and the supplied hours and minutes + the offset in
-days.*/
+days.
+*/
 func stoTime(t string, days int) (time.Time, error) {
 	timeNow := time.Now()
 	timeHour, err := strconv.Atoi(t[:2])
@@ -178,9 +184,11 @@ func strToInt(s string) (int, error) {
 	return i, err
 }
 
-/*CheckIp takes a map of IP addresses and an IP address, checks if the
+/*
+CheckIp takes a map of IP addresses and an IP address, checks if the
 address is already present in the map and stores this in the log. If the address
-is local (i.e. starts with 192), it omits the address from the log.*/
+is local (i.e. starts with 192), it omits the address from the log.
+*/
 func checkIp(ips map[string]bool, ip string) {
 	if _, ok := ips[ip]; !ok {
 		ips[ip] = true
@@ -190,8 +198,11 @@ func checkIp(ips map[string]bool, ip string) {
 	}
 }
 
-/* GetIP takes a request's IP address by reading off the forwarded-for
-header (for proxies) and returns the to use the remote address.*/
+/*
+	GetIP takes a request's IP address by reading off the forwarded-for
+
+header (for proxies) and returns the to use the remote address.
+*/
 func getIP(req *http.Request) string {
 	forwarded := req.Header.Get("X-FORWARDED-FOR")
 	if forwarded != "" {
@@ -234,8 +245,11 @@ func handlerLog(w http.ResponseWriter, req *http.Request) {
 	fmt.Fprintf(w, output)
 }
 
-/* MaxIntSlice receives variadic parameter of integers and return the highest
-integer.*/
+/*
+	MaxIntSlice receives variadic parameter of integers and return the highest
+
+integer.
+*/
 func maxIntSlice(xi ...int) int {
 	var max int
 	for i, v := range xi {
@@ -255,8 +269,11 @@ func stringToSlice(s string) []string {
 	return xs
 }
 
-/* handlerMain lists the complete list of recipes and allows to search for
-recipes, ingrediënts or tags.*/
+/*
+	handlerMain lists the complete list of recipes and allows to search for
+
+recipes, ingrediënts or tags.
+*/
 func handlerMain(w http.ResponseWriter, req *http.Request) {
 	addVisit(req)
 	var xr []Recipe
@@ -316,9 +333,12 @@ func handlerExportTable(w http.ResponseWriter, req *http.Request) {
 	fmt.Fprintf(w, output)
 }
 
-/* handlerRecipe determines the recipe ID, gathers the coresponding recipe and
+/*
+	handlerRecipe determines the recipe ID, gathers the coresponding recipe and
+
 if no. of persons is send along (through post method), the recipe is adjusted to
-the new number of persons and it sends the response back.*/
+the new number of persons and it sends the response back.
+*/
 func handlerRecipe(w http.ResponseWriter, req *http.Request) {
 	addVisit(req)
 	id, err := strconv.Atoi(req.URL.Path[len("/recipe/"):])
@@ -353,8 +373,11 @@ func handlerRecipe(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-/* handlerAddRcp generates the html page to enter a new recipe and processes and
-stores the new recipe.*/
+/*
+	handlerAddRcp generates the html page to enter a new recipe and processes and
+
+stores the new recipe.
+*/
 func handlerAddRcp(w http.ResponseWriter, req *http.Request) {
 	addVisit(req)
 	if !alreadyLoggedIn(req) {
@@ -407,8 +430,11 @@ func handlerDelete(w http.ResponseWriter, req *http.Request) {
 	return
 }
 
-/* handlerEditRcp lookus up the recipe ID from the path, generates the recipe
-on the html page and processes any updates.*/
+/*
+	handlerEditRcp lookus up the recipe ID from the path, generates the recipe
+
+on the html page and processes any updates.
+*/
 func handlerEditRcp(w http.ResponseWriter, req *http.Request) {
 	addVisit(req)
 	if !alreadyLoggedIn(req) {
@@ -458,8 +484,11 @@ func handlerEditRcp(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-/* rangeList takes a min and max and return the numbers in between as a
-slice of int*/
+/*
+	rangeList takes a min and max and return the numbers in between as a
+
+slice of int
+*/
 func rangeList(min, max int) []int {
 	x := make([]int, max-min)
 	for i := 0; i < (max - min); i++ {
@@ -468,8 +497,11 @@ func rangeList(min, max int) []int {
 	return x
 }
 
-/* processRcp takes a *http.requested and extracts the form POST data into a
-recipe, which is returned.*/
+/*
+	processRcp takes a *http.requested and extracts the form POST data into a
+
+recipe, which is returned.
+*/
 func processRcp(req *http.Request) Recipe {
 	rcp := Recipe{}
 	if id := req.PostFormValue("Id"); id != "" {
@@ -557,8 +589,11 @@ func processRcp(req *http.Request) Recipe {
 	return rcp
 }
 
-/* processNewRcp takes a *http.requested and extracts the form POST data
-into a recipe, which is returned.*/
+/*
+	processNewRcp takes a *http.requested and extracts the form POST data
+
+into a recipe, which is returned.
+*/
 func processNewRcp(req *http.Request) Recipe {
 	rcp := Recipe{}
 	if id := req.PostFormValue("Id"); id != "" {
@@ -607,8 +642,11 @@ func processNewRcp(req *http.Request) Recipe {
 	return rcp
 }
 
-/* handlerConversion generates the html page to show and update the
-conversion table.*/
+/*
+	handlerConversion generates the html page to show and update the
+
+conversion table.
+*/
 func handlerConversion(w http.ResponseWriter, req *http.Request) {
 	addVisit(req)
 	if !alreadyLoggedIn(req) {
@@ -716,8 +754,10 @@ func alreadyLoggedIn(req *http.Request) bool {
 	return true
 }
 
-/*username takes a http request, checks the session cookie to identify
-and returns the user if logged in, or "" if not.*/
+/*
+username takes a http request, checks the session cookie to identify
+and returns the user if logged in, or "" if not.
+*/
 func currentUser(req *http.Request) string {
 	c, err := req.Cookie(cookieSession)
 	if err != nil {
@@ -752,9 +792,12 @@ func isHyperlink(s string) bool {
 	return false
 }
 
-/* startsWith takes a string and a substring and returns true if the string
+/*
+	startsWith takes a string and a substring and returns true if the string
+
 starts with the substring. It does not require cases to match
-(i.e. lower v/s upper case).*/
+(i.e. lower v/s upper case).
+*/
 func startsWith(s, substr string) bool {
 	if len(s) < len(substr) {
 		return false
@@ -765,8 +808,11 @@ func startsWith(s, substr string) bool {
 	return false
 }
 
-/* addVisit adds the current visitor to the visitor log, including relevant
-information.*/
+/*
+	addVisit adds the current visitor to the visitor log, including relevant
+
+information.
+*/
 func addVisit(req *http.Request) {
 	ipp := getIP(req)
 	site := req.URL.Path
@@ -793,8 +839,10 @@ func plusOne(i int) int {
 	return i + 1
 }
 
-/*Tags receives a slice of Recipe and returns the unique Tags as a slice
-of string*/
+/*
+Tags receives a slice of Recipe and returns the unique Tags as a slice
+of string
+*/
 func tags(rcps []Recipe) []string {
 	list := map[string]bool{}
 	for _, rcp := range rcps {
@@ -810,16 +858,21 @@ func tags(rcps []Recipe) []string {
 	return output
 }
 
-/*remove takes a slice of string and a position i and removes i from the
+/*
+remove takes a slice of string and a position i and removes i from the
 slice, by substituting it with the value at the end of the slice, as this is
-less costly then moving all elements.*/
+less costly then moving all elements.
+*/
 func remove(s []string, i int) []string {
 	s[i] = s[len(s)-1]
 	return s[:len(s)-1]
 }
 
-/* removeFromSlice takes a slice of string and removes the i-th element and
-returns the array.*/
+/*
+	removeFromSlice takes a slice of string and removes the i-th element and
+
+returns the array.
+*/
 func removeFromSlice(xs []string, i int) []string {
 	v := make([]string, len(xs)-1)
 	v = append(xs[:i], xs[i+1:]...) // remove i-th element
