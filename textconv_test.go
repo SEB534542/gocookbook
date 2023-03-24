@@ -4,35 +4,6 @@ import (
 	"testing"
 )
 
-func TestSpecialChars(t *testing.T) {
-	s := `300 g couscous 
-
-1 rode ui 
-
-2 teentjes knoflook 
-
-100 g zwarte olijven 
-
-100 g zongedroogde tomaten 
-
-2 venkelknollen 
-
-1 citroen 
-
-olijfolie om in te bakken 
-
-300 g spinazie 
-
-225 g halloumi 
-
-100 g blanke amandelen `
-	//lines := textToLines(s)
-	lines := textToIngrds(s)
-	for _, v := range lines {
-		t.Log(v)
-	}
-}
-
 func TestFormat(t *testing.T) {
 	s := `
 1 tablespoon extra-virgin olive oil
