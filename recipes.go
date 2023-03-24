@@ -41,8 +41,11 @@ var (
 
 var rcps []Recipe
 
-/* findRecipe takes a slice of recipes and an id. It looks up the recipe with that
-id and returns the recipe.*/
+/*
+	findRecipe takes a slice of recipes and an id. It looks up the recipe with that
+
+id and returns the recipe.
+*/
 func findRecipe(rcps []Recipe, id int) (Recipe, error) {
 	for _, rcp := range rcps {
 		if rcp.Id == id {
@@ -52,8 +55,11 @@ func findRecipe(rcps []Recipe, id int) (Recipe, error) {
 	return Recipe{}, errorUnknownRecipe
 }
 
-/* newRcpId takes a slice of Recipes, looks up the highest recipe Id and
-returns a new recipe Id.*/
+/*
+	newRcpId takes a slice of Recipes, looks up the highest recipe Id and
+
+returns a new recipe Id.
+*/
 func newRcpId(rcps []Recipe) int {
 	var maxId int
 	for _, v := range rcps {
@@ -64,8 +70,11 @@ func newRcpId(rcps []Recipe) int {
 	return maxId + 10
 }
 
-/* findRecipeP takes a slice of recipes and an id. It looks up the recipe with that
-id and returns a pointer to the recipe.*/
+/*
+	findRecipeP takes a slice of recipes and an id. It looks up the recipe with that
+
+id and returns a pointer to the recipe.
+*/
 func findRecipeP(rcps []Recipe, id int) (*Recipe, error) {
 	for i, _ := range rcps {
 		if rcps[i].Id == id {
@@ -97,8 +106,11 @@ func adjustRcp(rcp Recipe, newP float64) Recipe {
 	return newRcp
 }
 
-/* Print returns the ingredient with all available information
-(depending on the type of ingredient) as a string.*/
+/*
+	Print returns the ingredient with all available information
+
+(depending on the type of ingredient) as a string.
+*/
 func (i Ingrd) Print() string {
 	i.uoms()
 	var s string
@@ -116,8 +128,11 @@ func (i Ingrd) Print() string {
 	return s
 }
 
-/* FindIngr takes a slice of recipes and an item. It returns all recipes that
-have an ingredient that (partially) matches the item and/or recipe name.*/
+/*
+	FindIngr takes a slice of recipes and an item. It returns all recipes that
+
+have an ingredient that (partially) matches the item and/or recipe name.
+*/
 func findIngr(rcps []Recipe, item string) []Recipe {
 	item = strings.ToLower(item)
 	var output []Recipe
@@ -136,8 +151,11 @@ func findIngr(rcps []Recipe, item string) []Recipe {
 	return output
 }
 
-/* RemoveRecipe takes a slice of recipes and an id. The recipe that matches
-the id is removed from the slice and slice is returned. */
+/*
+	RemoveRecipe takes a slice of recipes and an id. The recipe that matches
+
+the id is removed from the slice and slice is returned.
+*/
 func removeRecipe(rcps []Recipe, id int) []Recipe {
 	var i int
 	var rcp Recipe

@@ -27,8 +27,11 @@ func SaveToJSON(i interface{}, fileName string) {
 	}
 }
 
-/* ReadJSON takes a pointer to an interface, reads from the given json file
-location, stores in i and returns any error.*/
+/*
+	ReadJSON takes a pointer to an interface, reads from the given json file
+
+location, stores in i and returns any error.
+*/
 func readJSON(i interface{}, fname string) error {
 	if _, err := os.Stat(fname); os.IsNotExist(err) {
 		return fmt.Errorf("File '%v' does not exist, creating new", fname)
@@ -46,8 +49,11 @@ func readJSON(i interface{}, fname string) error {
 	return nil
 }
 
-/* ReadGob takes a pointer to an interface, reads from the given g fob ile
-location, stores in i and returns any error.*/
+/*
+	ReadGob takes a pointer to an interface, reads from the given g fob ile
+
+location, stores in i and returns any error.
+*/
 func ReadGob(i interface{}, fname string) error {
 	// Initialize decoder
 	var data bytes.Buffer
@@ -89,8 +95,11 @@ func SaveToGob(i interface{}, fname string) error {
 	return nil
 }
 
-/* jsonStringPretty takes an interface and returns it as a string containing the
-JSON structure for that interface pretty printed.*/
+/*
+	jsonStringPretty takes an interface and returns it as a string containing the
+
+JSON structure for that interface pretty printed.
+*/
 func jsonStringPretty(i interface{}) (string, error) {
 	bs, err := json.Marshal(i)
 	if err != nil {
@@ -105,8 +114,11 @@ func jsonStringPretty(i interface{}) (string, error) {
 	return prettyJSON.String(), nil
 }
 
-/* jsonString takes an interface and returns it as a string containing the
-JSON structure for that interface.*/
+/*
+	jsonString takes an interface and returns it as a string containing the
+
+JSON structure for that interface.
+*/
 func jsonString(i interface{}) (string, error) {
 	bs, err := json.Marshal(i)
 	if err != nil {
@@ -115,8 +127,11 @@ func jsonString(i interface{}) (string, error) {
 	return string(bs), nil
 }
 
-/* AppendCSV takes a filename and new lines and adds the new lines to the
-corresponding CSV file.*/
+/*
+	AppendCSV takes a filename and new lines and adds the new lines to the
+
+corresponding CSV file.
+*/
 func appendCSV(file string, newLines [][]string) {
 	lines := readCSV(file)
 	lines = append(lines, newLines...)
@@ -131,9 +146,12 @@ func appendCSV(file string, newLines [][]string) {
 	}
 }
 
-/* readCSV takes a filename to a CSV file and returns the CSV as a [][]string,
+/*
+	readCSV takes a filename to a CSV file and returns the CSV as a [][]string,
+
 where the first slice represents each row and the second the comma separated
-text on that line.*/
+text on that line.
+*/
 func readCSV(file string) [][]string {
 	// Read the file
 	f, err := os.Open(file)

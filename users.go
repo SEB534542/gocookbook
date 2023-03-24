@@ -30,9 +30,11 @@ func CreateUsers(fname string) Users {
 	return dbUsers
 }
 
-/*Load tries to load the Users from the filename stored in Users. If it failes, it
+/*
+Load tries to load the Users from the filename stored in Users. If it failes, it
 a new Users is created with the default user and password as specified in this
-method.*/
+method.
+*/
 func (dbUsers Users) Load() {
 	err := readJSON(&dbUsers.Uns, dbUsers.Fname)
 	if err != nil {
@@ -42,9 +44,12 @@ func (dbUsers Users) Load() {
 	}
 }
 
-/* AddUpdate takes a username, a password and an
+/*
+	AddUpdate takes a username, a password and an
+
 indicator if it is an admin user. If the username already exists, the password is
-updated, else a new user is added, after which the updated Users is stored.*/
+updated, else a new user is added, after which the updated Users is stored.
+*/
 func (dbUsers Users) AddUpdate(un, p string, b bool) {
 	if un != "" {
 		pwd, err := bcrypt.GenerateFromPassword([]byte(p), bcrypt.DefaultCost+2)
@@ -57,8 +62,11 @@ func (dbUsers Users) AddUpdate(un, p string, b bool) {
 	}
 }
 
-/* Exists takes a username. It returns true if the username already exists,
-false if it doesn't.*/
+/*
+	Exists takes a username. It returns true if the username already exists,
+
+false if it doesn't.
+*/
 func (dbUsers Users) Exists(un string) bool {
 	_, ok := dbUsers.Uns[un]
 	if ok {
@@ -67,8 +75,11 @@ func (dbUsers Users) Exists(un string) bool {
 	return false
 }
 
-/* IsAdmin takes a username and returns triue if the user is and admin.
-It returns false if the it is not an admin, or user doesn't exists.*/
+/*
+	IsAdmin takes a username and returns triue if the user is and admin.
+
+It returns false if the it is not an admin, or user doesn't exists.
+*/
 func (dbUsers Users) IsAdmin(un string) bool {
 	u, ok := dbUsers.Uns[un]
 	if ok {
@@ -83,9 +94,12 @@ func (dbUsers Users) Remove(un string) {
 	SaveToJSON(dbUsers.Uns, dbUsers.Fname)
 }
 
-/* CheckPwd takes a username and a password. It compares this password
+/*
+	CheckPwd takes a username and a password. It compares this password
+
 with the password stored for the user and returns an error if it does not
-match.*/
+match.
+*/
 func (dbUsers Users) CheckPwd(un, p string) error {
 	err := fmt.Errorf("Username and/or password do not match")
 	// lookup username
