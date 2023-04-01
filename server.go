@@ -40,7 +40,7 @@ var (
 		"fplusOne":          plusOne,
 	} // Map with all functions that can be used within html.
 	dbSessions = map[string]string{} // session ID, username
-	dbUsers    = CreateUsers(folderConfig + "users.json")
+	dbUsers    = Users{}
 	dbVisits   = []visit{} // Visits to this website.
 )
 
@@ -58,8 +58,7 @@ func init() {
 }
 
 /*
-	startServer takes a port and launches a server. It tries to create a HTTPS
-
+startServer takes a port and launches a server. It tries to create a HTTPS
 server, but if that fails, it creates a HTTP server.
 */
 func startServer(port int) {
@@ -67,7 +66,8 @@ func startServer(port int) {
 		port = 8081
 		log.Printf("No port configured, using default port %v", port)
 	}
-	// loadUsers()
+	// load Users
+	loadUsers(folderConfig + fnameUsers)
 	// load visits
 	err := readJSON(&dbVisits, fnameVisits)
 	if err != nil {
@@ -153,8 +153,7 @@ func reverseXS(xs []string) []string {
 }
 
 /*
-	StoTime receives a string of time (format hh:mm) and a day offset. It returns
-
+StoTime receives a string of time (format hh:mm) and a day offset. It return
 a type time with today's and the supplied hours and minutes + the offset in
 days.
 */
@@ -199,8 +198,7 @@ func checkIp(ips map[string]bool, ip string) {
 }
 
 /*
-	GetIP takes a request's IP address by reading off the forwarded-for
-
+GetIP takes a request's IP address by reading off the forwarded-for
 header (for proxies) and returns the to use the remote address.
 */
 func getIP(req *http.Request) string {
@@ -246,8 +244,7 @@ func handlerLog(w http.ResponseWriter, req *http.Request) {
 }
 
 /*
-	MaxIntSlice receives variadic parameter of integers and return the highest
-
+MaxIntSlice receives variadic parameter of integers and return the highest
 integer.
 */
 func maxIntSlice(xi ...int) int {
@@ -270,8 +267,7 @@ func stringToSlice(s string) []string {
 }
 
 /*
-	handlerMain lists the complete list of recipes and allows to search for
-
+handlerMain lists the complete list of recipes and allows to search for
 recipes, ingrediënts or tags.
 */
 func handlerMain(w http.ResponseWriter, req *http.Request) {
@@ -334,8 +330,7 @@ func handlerExportTable(w http.ResponseWriter, req *http.Request) {
 }
 
 /*
-	handlerRecipe determines the recipe ID, gathers the coresponding recipe and
-
+handlerRecipe determines the recipe ID, gathers the coresponding recipe and
 if no. of persons is send along (through post method), the recipe is adjusted to
 the new number of persons and it sends the response back.
 */
@@ -374,8 +369,7 @@ func handlerRecipe(w http.ResponseWriter, req *http.Request) {
 }
 
 /*
-	handlerAddRcp generates the html page to enter a new recipe and processes and
-
+handlerAddRcp generates the html page to enter a new recipe and processes and
 stores the new recipe.
 */
 func handlerAddRcp(w http.ResponseWriter, req *http.Request) {
@@ -431,8 +425,7 @@ func handlerDelete(w http.ResponseWriter, req *http.Request) {
 }
 
 /*
-	handlerEditRcp lookus up the recipe ID from the path, generates the recipe
-
+handlerEditRcp lookus up the recipe ID from the path, generates the recipe
 on the html page and processes any updates.
 */
 func handlerEditRcp(w http.ResponseWriter, req *http.Request) {
@@ -485,8 +478,7 @@ func handlerEditRcp(w http.ResponseWriter, req *http.Request) {
 }
 
 /*
-	rangeList takes a min and max and return the numbers in between as a
-
+rangeList takes a min and max and return the numbers in between as a
 slice of int
 */
 func rangeList(min, max int) []int {
@@ -498,8 +490,7 @@ func rangeList(min, max int) []int {
 }
 
 /*
-	processRcp takes a *http.requested and extracts the form POST data into a
-
+processRcp takes a *http.requested and extracts the form POST data into a
 recipe, which is returned.
 */
 func processRcp(req *http.Request) Recipe {
@@ -590,8 +581,7 @@ func processRcp(req *http.Request) Recipe {
 }
 
 /*
-	processNewRcp takes a *http.requested and extracts the form POST data
-
+processNewRcp takes a *http.requested and extracts the form POST data
 into a recipe, which is returned.
 */
 func processNewRcp(req *http.Request) Recipe {
@@ -643,8 +633,7 @@ func processNewRcp(req *http.Request) Recipe {
 }
 
 /*
-	handlerConversion generates the html page to show and update the
-
+handlerConversion generates the html page to show and update the
 conversion table.
 */
 func handlerConversion(w http.ResponseWriter, req *http.Request) {
@@ -793,8 +782,7 @@ func isHyperlink(s string) bool {
 }
 
 /*
-	startsWith takes a string and a substring and returns true if the string
-
+startsWith takes a string and a substring and returns true if the string
 starts with the substring. It does not require cases to match
 (i.e. lower v/s upper case).
 */
@@ -809,8 +797,7 @@ func startsWith(s, substr string) bool {
 }
 
 /*
-	addVisit adds the current visitor to the visitor log, including relevant
-
+addVisit adds the current visitor to the visitor log, including relevant
 information.
 */
 func addVisit(req *http.Request) {
@@ -869,8 +856,7 @@ func remove(s []string, i int) []string {
 }
 
 /*
-	removeFromSlice takes a slice of string and removes the i-th element and
-
+removeFromSlice takes a slice of string and removes the i-th element and
 returns the array.
 */
 func removeFromSlice(xs []string, i int) []string {

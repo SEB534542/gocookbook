@@ -21,7 +21,7 @@ type user struct {
 }
 
 // CreateUsers takes a file name, loads the Users from the JSON and returns it.
-func CreateUsers(fname string) Users {
+func loadUsers(fname string) Users {
 	dbUsers := Users{
 		Uns:   map[string]user{},
 		Fname: fname,
@@ -45,10 +45,9 @@ func (dbUsers Users) Load() {
 }
 
 /*
-	AddUpdate takes a username, a password and an
-
-indicator if it is an admin user. If the username already exists, the password is
-updated, else a new user is added, after which the updated Users is stored.
+AddUpdate takes a username, a password and an indicator if it is an admin
+user. If the username already exists, the password is updated, else a new
+user is added, after which the updated Users is stored.
 */
 func (dbUsers Users) AddUpdate(un, p string, b bool) {
 	if un != "" {
@@ -63,8 +62,7 @@ func (dbUsers Users) AddUpdate(un, p string, b bool) {
 }
 
 /*
-	Exists takes a username. It returns true if the username already exists,
-
+Exists takes a username. It returns true if the username already exists,
 false if it doesn't.
 */
 func (dbUsers Users) Exists(un string) bool {
@@ -76,8 +74,7 @@ func (dbUsers Users) Exists(un string) bool {
 }
 
 /*
-	IsAdmin takes a username and returns triue if the user is and admin.
-
+IsAdmin takes a username and returns triue if the user is and admin.
 It returns false if the it is not an admin, or user doesn't exists.
 */
 func (dbUsers Users) IsAdmin(un string) bool {
@@ -95,8 +92,7 @@ func (dbUsers Users) Remove(un string) {
 }
 
 /*
-	CheckPwd takes a username and a password. It compares this password
-
+CheckPwd takes a username and a password. It compares this password
 with the password stored for the user and returns an error if it does not
 match.
 */

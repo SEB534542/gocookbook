@@ -28,8 +28,7 @@ func SaveToJSON(i interface{}, fileName string) {
 }
 
 /*
-	ReadJSON takes a pointer to an interface, reads from the given json file
-
+ReadJSON takes a pointer to an interface, reads from the given json file
 location, stores in i and returns any error.
 */
 func readJSON(i interface{}, fname string) error {
@@ -50,8 +49,7 @@ func readJSON(i interface{}, fname string) error {
 }
 
 /*
-	ReadGob takes a pointer to an interface, reads from the given g fob ile
-
+ReadGob takes a pointer to an interface, reads from the given gob file
 location, stores in i and returns any error.
 */
 func ReadGob(i interface{}, fname string) error {
@@ -96,8 +94,7 @@ func SaveToGob(i interface{}, fname string) error {
 }
 
 /*
-	jsonStringPretty takes an interface and returns it as a string containing the
-
+jsonStringPretty takes an interface and returns it as a string containing the
 JSON structure for that interface pretty printed.
 */
 func jsonStringPretty(i interface{}) (string, error) {
@@ -115,8 +112,7 @@ func jsonStringPretty(i interface{}) (string, error) {
 }
 
 /*
-	jsonString takes an interface and returns it as a string containing the
-
+jsonString takes an interface and returns it as a string containing the
 JSON structure for that interface.
 */
 func jsonString(i interface{}) (string, error) {
@@ -128,8 +124,7 @@ func jsonString(i interface{}) (string, error) {
 }
 
 /*
-	AppendCSV takes a filename and new lines and adds the new lines to the
-
+AppendCSV takes a filename and new lines and adds the new lines to the
 corresponding CSV file.
 */
 func appendCSV(file string, newLines [][]string) {
@@ -147,8 +142,7 @@ func appendCSV(file string, newLines [][]string) {
 }
 
 /*
-	readCSV takes a filename to a CSV file and returns the CSV as a [][]string,
-
+readCSV takes a filename to a CSV file and returns the CSV as a [][]string,
 where the first slice represents each row and the second the comma separated
 text on that line.
 */
