@@ -10,6 +10,7 @@ var (
 	folderConfig   = "./config/"
 	fnameRcps      = folderConfig + "recipes.json"
 	fnameConvTable = folderConfig + "conversion.json"
+	fnameUsers     = "users.json"
 	folderLog      = "./log/"
 	fnameLog       = folderLog + "logfile.log"
 )
