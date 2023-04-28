@@ -22,7 +22,7 @@ type user struct {
 
 // CreateUsers takes a file name, loads the Users from the JSON and returns it.
 func loadUsers(fname string) Users {
-	dbUsers := Users{
+	dbUsers = Users{
 		Uns:   map[string]user{},
 		Fname: fname,
 	}
