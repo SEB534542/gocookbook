@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"sort"
 	"strconv"
 	"strings"
@@ -677,11 +678,20 @@ func handlerLogin(w http.ResponseWriter, req *http.Request) {
 		http.Redirect(w, req, "/", http.StatusSeeOther)
 		return
 	}
-	ip := getIP(req)
+	redirect := "/"
+	ref, err := url.ParseRequestURI(req.Referer())
+	if err == nil {
+		// Update redirect to referer path, if on same host and different from own path
+		if ref.Host == req.Host && ref.Path != req.URL.Path {
+			redirect = ref.Path
+		}
+	}
 	// process form submission
 	if req.Method == http.MethodPost {
+		ip := getIP(req)
 		un := req.FormValue("Username")
 		p := req.FormValue("Password")
+		redirect = req.FormValue("Redirect")
 		err := dbUsers.CheckPwd(un, p)
 		if err != nil {
 			log.Printf("%v entered incorrect password", ip)
@@ -698,10 +708,10 @@ func handlerLogin(w http.ResponseWriter, req *http.Request) {
 		}
 		http.SetCookie(w, c)
 		dbSessions[c.Value] = un
-		http.Redirect(w, req, "/", http.StatusSeeOther)
+		http.Redirect(w, req, redirect, http.StatusSeeOther)
 		return
 	}
-	err := tpl.ExecuteTemplate(w, "login.gohtml", nil)
+	err = tpl.ExecuteTemplate(w, "login.gohtml", redirect)
 	if err != nil {
 		log.Fatalln(err)
 	}
