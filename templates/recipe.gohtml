@@ -26,6 +26,31 @@
 				<input type="number" name="Portions" value="{{.Recipe.Portions}}" step="any" required>
 				<input type="submit" value="Pas aan"><br>
 			</form>
+			<p>
+				{{template "screenonscript"}}
+				<input type="button" id="toggle" value="Screen lock uit">
+				<script>
+					var noSleep = new NoSleep();
+
+					var wakeLockEnabled = false;
+					var toggleEl = document.querySelector("#toggle");
+					toggleEl.addEventListener('click', function() {
+						if (!wakeLockEnabled) {
+						noSleep.enable(); // keep the screen on!
+						wakeLockEnabled = true;
+						toggleEl.value = "Screen lock is aan";
+						toggle.style.backgroundColor = "green";
+						toggle.style.color = "white";
+						} else {
+						noSleep.disable(); // let the screen turn off.
+						wakeLockEnabled = false;
+						toggleEl.value = "Screen lock uit";
+						toggle.style.backgroundColor = "";
+						toggle.style.color = "";
+						}
+					}, false);
+				</script>
+			</p>
 			<h2>Ingrediënten</h2>
 					{{range .Recipe.Ingrs}}
 						<input type="checkbox"> {{.Print}}<br>
