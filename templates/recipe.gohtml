@@ -28,7 +28,7 @@
 			</form>
 			<p>
 				{{template "screenonscript"}}
-				<input type="button" id="toggle" value="Screen lock uit">
+				<input type="button" id="toggle" value="Screen lock is uit">
 				<script>
 					var noSleep = new NoSleep();
 
@@ -44,7 +44,7 @@
 						} else {
 						noSleep.disable(); // let the screen turn off.
 						wakeLockEnabled = false;
-						toggleEl.value = "Screen lock uit";
+						toggleEl.value = "Screen lock is uit";
 						toggle.style.backgroundColor = "";
 						toggle.style.color = "";
 						}
@@ -53,7 +53,7 @@
 			</p>
 			<h2>Ingrediënten</h2>
 					{{range .Recipe.Ingrs}}
-						<input type="checkbox"> {{.Print}}<br>
+						<input type="checkbox"> {{.Print}} <br>
 					{{end}}			
 			<h2>Stappen</h2>
 			<ol>
