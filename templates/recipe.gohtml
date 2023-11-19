@@ -52,13 +52,15 @@
 				</script>
 			</p>
 			<h2>Ingrediënten</h2>
+				<p style="font-size:20px;">
 					{{range .Recipe.Ingrs}}
-						<input type="checkbox"> {{.Print}} <br>
-					{{end}}			
+						<input type="checkbox"> {{.Print}}<br>
+					{{end}}
+				</p>
 			<h2>Stappen</h2>
 			<ol>
 				{{range .Recipe.Steps}}
-					<li>{{.}}</li>
+					<li style="font-size:20px;">{{.}}</li>
 				{{end}}
 			</ol>
 			<br>
