@@ -12,4 +12,4 @@ RUN go build -o /ckb
 
 EXPOSE 8081
 
-CMD [ "/ckb" ]
+CMD ["/ckb"]
