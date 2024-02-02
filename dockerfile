@@ -1,15 +1,24 @@
-FROM golang:alpine
+# Due to an unkown bug on loading dependencies into the container, image uses the binary rather than go files
 
-WORKDIR /app
+# Use a base image
+FROM debian:latest
 
-COPY go.mod ./
-COPY go.sum ./
-COPY *.go ./
+# Create directory
+RUN mkdir -p /usr/local/bin
+
+# Copy the 'ckb' binary into the container
+COPY ckb /usr/local/bin/
+
+# Set the working directory
+WORKDIR /usr/local/bin/
+
 COPY ./templates/ ./templates/
-# COPY ./config ./config
 
-RUN go build -o /ckb
+# Make 'ckb' executable
+RUN chmod +x ckb
 
+# Expose port to access app
 EXPOSE 8081
 
-CMD ["/ckb"]
+# Define the command to run when the container starts
+CMD ["ckb"]
