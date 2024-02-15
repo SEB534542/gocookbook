@@ -68,7 +68,7 @@ func (i *Ingrd) uoms() {
 		m := round(i.Amount * tbspToMl)
 		c := round(1 / cuptoMl * m)
 		xs = append(xs, fmt.Sprintf("%v %v", m, ml), fmt.Sprintf("%v %v", c, cup))
-		g := mlToGram(i.Item, m)
+		g := round(mlToGram(i.Item, m))
 		if g != 0.0 {
 			xs = append(xs, fmt.Sprintf("%v %v", g, gram))
 		}
@@ -76,7 +76,7 @@ func (i *Ingrd) uoms() {
 		m := round(i.Amount * tspToMl)
 		c := round(1 / cuptoMl * m)
 		xs = append(xs, fmt.Sprintf("%v %v", m, ml), fmt.Sprintf("%v %v", c, cup))
-		g := mlToGram(i.Item, m)
+		g := round(mlToGram(i.Item, m))
 		if g != 0.0 {
 			xs = append(xs, fmt.Sprintf("%v %v", g, gram))
 		}
@@ -85,8 +85,7 @@ func (i *Ingrd) uoms() {
 }
 
 /*
-	gramToMl takes an item and number of grams, looks up the item in the
-
+gramToMl takes an item and number of grams, looks up the item in the
 conversion table and returns the number of milliliters for x grams of the item.
 */
 func gramToMl(item string, x float64) float64 {
@@ -97,8 +96,7 @@ func gramToMl(item string, x float64) float64 {
 }
 
 /*
-	mlToGram takes an item and number of milliliters, looks up the item in the
-
+mlToGram takes an item and number of milliliters, looks up the item in the
 conversion table and returns the number of grams for x milliliters of the item.
 */
 func mlToGram(item string, x float64) float64 {
@@ -109,8 +107,7 @@ func mlToGram(item string, x float64) float64 {
 }
 
 /*
-	toTitle takes a string, capitalizes the first value and sets the rest to lower
-
+toTitle takes a string, capitalizes the first value and sets the rest to lower
 case.
 */
 func toTitle(s string) string {
@@ -125,9 +122,8 @@ func toTitle(s string) string {
 }
 
 /*
-	round takes a float and rounds it to three decimals. E.g. round(0.5555) returns
-
-0.555.
+round takes a float and rounds it to one decimal. E.g. round(0.5555) returns
+0.6.
 */
 func round(f float64) float64 {
 	return math.Round(f*10) / 10
