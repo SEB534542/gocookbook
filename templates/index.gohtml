@@ -53,6 +53,9 @@
 				filter = input.value.toUpperCase();
 				ul = document.getElementById("myUL");
 				li = ul.getElementsByTagName('li');
+				
+				// empty field for searchFunction2 to avoid confusion
+				document.getElementById('myInput2').value = ""
 
 				// Loop through all list items, and hide those who don't match the search query
 				for (i = 0; i < li.length; i++) {
@@ -72,6 +75,9 @@
 				filter = input.value.toUpperCase();
 				ul = document.getElementById("myUL");
 				li = ul.getElementsByTagName('li');
+				
+				// empty field for searchFunction2 to avoid confusion
+				document.getElementById('myInput').value = ""
 
 				// Loop through all list items, and hide those who don't match the search query
 				for (i = 0; i < li.length; i++) {
