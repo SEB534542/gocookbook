@@ -65,6 +65,25 @@
 					}
 				}
 			}
+			function searchFunction2() {
+				// Declare variables
+				var input, filter, ul, li, a, i, txtValue;
+				input = document.getElementById('myInput2');
+				filter = input.value.toUpperCase();
+				ul = document.getElementById("myUL");
+				li = ul.getElementsByTagName('li');
+
+				// Loop through all list items, and hide those who don't match the search query
+				for (i = 0; i < li.length; i++) {
+					a = li[i].getElementsByTagName("a")[0];
+					txtValue = a.id;
+					if (txtValue.toUpperCase().indexOf(filter) > -1) {
+						li[i].style.display = "";
+					} else {
+						li[i].style.display = "none";
+					}
+				}
+			}
 		</script>
 	</head>	
 	<body>
@@ -91,8 +110,9 @@
 		<p style="font-size:10vw">
 			<form method="POST">					
 				<input type="text" name="Item" id="myInput" onkeyup="searchFunction()" placeholder="Zoek recepten..">
-				<input type="submit" value="Zoek ingrediënt"><br><br>
-			</form>
+				<input type="submit" value="Zoek ingrediënt">
+				<input type="text" name="SourceSearch" id="myInput2" onkeyup="searchFunction2()" placeholder="Filter bron.."><br><br>
+			</form>		
 			<div id="myBtnContainer">
 				<button class="btn active" onclick="filterSelection('all')"> Toon alles</button>
 				{{range .Tags}}				
@@ -103,8 +123,8 @@
 			</div>
 			<ul class="container" id="myUL">
 				{{range .Recipes}}
-					<li class="filterDiv {{fsliceStringSpace .Tags}}"><a href="recipe/{{.Id}}">{{.Name}}</a></li>
-				{{end}}
+					<li class="filterDiv {{fsliceStringSpace .Tags}}"><a href="recipe/{{.Id}}" id="{{.Source}}">{{.Name}}</a></li>
+ 				{{end}}
 			</ul>
 			<script>
 				filterSelection("all")
