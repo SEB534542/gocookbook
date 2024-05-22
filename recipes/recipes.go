@@ -1,8 +1,9 @@
-package main
+package gocookbook
 
 import (
 	"fmt"
 	"sort"
+	//"strconv"
 	"strings"
 	"time"
 )
@@ -19,9 +20,9 @@ type Recipe struct {
 	Notes      string        // Notes and/or description on recipes.
 	Source     string        // Source of the recipe.
 	SourceLink string        // Hyperlink to the source.
-	CreatedBy  string        // User that created the recipe.
+	Createdby  string        // User that created the recipe.
 	Created    time.Time     // Datetime when created.
-	UpdatedBy  string        // User that last updated the recipe.
+	Updatedby  string        // User that last updated the recipe.
 	Updated    time.Time     // Datetime when last updated.
 
 }
@@ -39,7 +40,56 @@ var (
 	errorUnknownRecipe = fmt.Errorf("Recipe not found.")
 )
 
-var rcps []Recipe
+var rcps []Recipe // TODO: remove?
+
+// // NewRecipe takes all date required for a recipe and returns the recipe
+// func NewRecipe(name string, ingrs []Ingrd, steps, tags []string, portions float64, dur time.Duration, notes, source, sourceLink, createdby string) Recipe {
+// 	rcp := Recipe{}
+// 	if id := req.PostFormValue("Id"); id != "" {
+// 		rcp.Id, _ = strconv.Atoi(id)
+// 	}
+// 	rcp.Name = strings.Trim(req.PostFormValue("Name"), " ")
+// 	rcp.Notes = strings.Trim(req.PostFormValue("Notes"), " ")
+// 	rcp.Dur, _ = time.ParseDuration(fmt.Sprintf("%vm", req.PostFormValue("Dur")))
+// 	rcp.Portions, _ = strconv.ParseFloat(req.PostFormValue("Portions"), 64)
+
+// 	t := stringToSlice(req.PostFormValue("Tags"))
+// 	rcp.Tags = []string{}
+// 	for _, v := range t {
+// 		v = strings.Trim(v, " ")
+// 		if v != "" {
+// 			rcp.Tags = append(rcp.Tags, toTitle(v))
+// 		}
+// 	}
+// 	sort.Strings(rcp.Tags)
+// 	// Ingredients
+// 	rcp.Ingrs = textToIngrds(req.PostFormValue("Ingrds"))
+// 	// Steps
+// 	rcp.Steps = textToLines(req.PostFormValue("Steps"))
+// 	// Store source and hyperlink
+// 	rcp.Source = req.PostFormValue("Source")
+// 	rcp.SourceLink = req.PostFormValue("SourceLink")
+// 	switch {
+// 	case rcp.SourceLink == "" && isHyperlink(rcp.Source):
+// 		rcp.SourceLink = rcp.Source
+// 	case rcp.Source == "" && isHyperlink(rcp.SourceLink):
+// 		rcp.Source = rcp.SourceLink
+// 	case !isHyperlink(rcp.SourceLink):
+// 		rcp.SourceLink = ""
+// 	}
+// 	/*Store user and datetime. As this func creates a new recipe,
+// 	it sets both AddedBy and UpdatedBy to the same user.
+// 	In "upper" logic the AddedBy is restored to the original creator,
+// 	if it is an update to existing recipe.*/
+// 	if un := currentUser(req); un != "" {
+// 		rcp.Createdby = un
+// 		rcp.Updatedby = un
+// 		t := time.Now()
+// 		rcp.Created = t
+// 		rcp.Updated = t
+// 	}
+// 	return rcp
+// }
 
 /*
 	findRecipe takes a slice of recipes and an id. It looks up the recipe with that

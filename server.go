@@ -1,4 +1,4 @@
-package main
+package gocookbook
 
 import (
 	"fmt"
@@ -448,8 +448,8 @@ func handlerEditRcp(w http.ResponseWriter, req *http.Request) {
 	if req.Method == http.MethodPost {
 		rcpNew := processRcp(req)
 		// Set CreatedBy and Created back to original creator and datetime (if not the same and not empty).
-		if rcp.CreatedBy != "" && rcpNew.CreatedBy != rcp.CreatedBy {
-			rcpNew.CreatedBy = rcp.CreatedBy
+		if rcp.Createdby != "" && rcpNew.Createdby != rcp.Createdby {
+			rcpNew.Createdby = rcp.Createdby
 		}
 		if !rcp.Created.IsZero() {
 			rcpNew.Created = rcp.Created
@@ -572,8 +572,8 @@ func processRcp(req *http.Request) Recipe {
 	In "upper" logic the AddedBy is restored to the original creator,
 	if it is an update to existing recipe.*/
 	if un := currentUser(req); un != "" {
-		rcp.CreatedBy = un
-		rcp.UpdatedBy = un
+		rcp.Createdby = un
+		rcp.Updatedby = un
 		t := time.Now()
 		rcp.Created = t
 		rcp.Updated = t
@@ -624,8 +624,8 @@ func processNewRcp(req *http.Request) Recipe {
 	In "upper" logic the AddedBy is restored to the original creator,
 	if it is an update to existing recipe.*/
 	if un := currentUser(req); un != "" {
-		rcp.CreatedBy = un
-		rcp.UpdatedBy = un
+		rcp.Createdby = un
+		rcp.Updatedby = un
 		t := time.Now()
 		rcp.Created = t
 		rcp.Updated = t
