@@ -6,7 +6,10 @@ import (
 	//"strconv"
 	"strings"
 	"time"
+	"errors"
 )
+
+type Cookbook []Recipe
 
 // Recipe represents an actual recipe for cooking.
 type Recipe struct {
@@ -37,10 +40,14 @@ type Ingrd struct {
 }
 
 var (
-	errorUnknownRecipe = fmt.Errorf("Recipe not found.")
+	errorUnknownRecipe = errors.New("recipe not found") // Not Found Error
 )
 
 var rcps []Recipe // TODO: remove?
+
+func NewCookbook() Cookbook {
+	return Cookbook{}
+}
 
 // // NewRecipe takes all date required for a recipe and returns the recipe
 // func NewRecipe(name string, ingrs []Ingrd, steps, tags []string, portions float64, dur time.Duration, notes, source, sourceLink, createdby string) Recipe {

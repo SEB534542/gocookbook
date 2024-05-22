@@ -2,7 +2,19 @@ package gocookbook
 
 import (
 	"testing"
+	"reflect"
 )
+
+func TestNewCookbook(t *testing.T){
+	ckb := NewCookbook()
+	t.Run("new cookbook", func(t *testing.T){
+		want := Cookbook{}
+		if !reflect.DeepEqual(ckb, want) {
+			t.Errorf("Got: '%v', Want: '%v'", ckb, want)
+		}
+	})
+}
+
 
 func TestFindIngr(t *testing.T) {
 	rcps := []Recipe{
