@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"sort"
 	//"strconv"
+	"errors"
 	"strings"
 	"time"
-	"errors"
 )
 
 type Cookbook []Recipe
@@ -43,99 +43,81 @@ var (
 	errorUnknownRecipe = errors.New("recipe not found") // Not Found Error
 )
 
-var rcps []Recipe // TODO: remove?
-
+// Newcookbook creates a new empty cookbook and returns it.
 func NewCookbook() Cookbook {
 	return Cookbook{}
 }
 
-// // NewRecipe takes all date required for a recipe and returns the recipe
-// func NewRecipe(name string, ingrs []Ingrd, steps, tags []string, portions float64, dur time.Duration, notes, source, sourceLink, createdby string) Recipe {
-// 	rcp := Recipe{}
-// 	if id := req.PostFormValue("Id"); id != "" {
-// 		rcp.Id, _ = strconv.Atoi(id)
-// 	}
-// 	rcp.Name = strings.Trim(req.PostFormValue("Name"), " ")
-// 	rcp.Notes = strings.Trim(req.PostFormValue("Notes"), " ")
-// 	rcp.Dur, _ = time.ParseDuration(fmt.Sprintf("%vm", req.PostFormValue("Dur")))
-// 	rcp.Portions, _ = strconv.ParseFloat(req.PostFormValue("Portions"), 64)
-
-// 	t := stringToSlice(req.PostFormValue("Tags"))
-// 	rcp.Tags = []string{}
-// 	for _, v := range t {
-// 		v = strings.Trim(v, " ")
-// 		if v != "" {
-// 			rcp.Tags = append(rcp.Tags, toTitle(v))
-// 		}
-// 	}
-// 	sort.Strings(rcp.Tags)
-// 	// Ingredients
-// 	rcp.Ingrs = textToIngrds(req.PostFormValue("Ingrds"))
-// 	// Steps
-// 	rcp.Steps = textToLines(req.PostFormValue("Steps"))
-// 	// Store source and hyperlink
-// 	rcp.Source = req.PostFormValue("Source")
-// 	rcp.SourceLink = req.PostFormValue("SourceLink")
-// 	switch {
-// 	case rcp.SourceLink == "" && isHyperlink(rcp.Source):
-// 		rcp.SourceLink = rcp.Source
-// 	case rcp.Source == "" && isHyperlink(rcp.SourceLink):
-// 		rcp.Source = rcp.SourceLink
-// 	case !isHyperlink(rcp.SourceLink):
-// 		rcp.SourceLink = ""
-// 	}
-// 	/*Store user and datetime. As this func creates a new recipe,
-// 	it sets both AddedBy and UpdatedBy to the same user.
-// 	In "upper" logic the AddedBy is restored to the original creator,
-// 	if it is an update to existing recipe.*/
-// 	if un := currentUser(req); un != "" {
-// 		rcp.Createdby = un
-// 		rcp.Updatedby = un
-// 		t := time.Now()
-// 		rcp.Created = t
-// 		rcp.Updated = t
-// 	}
-// 	return rcp
-// }
-
-/*
-	findRecipe takes a slice of recipes and an id. It looks up the recipe with that
-
-id and returns the recipe.
-*/
-func findRecipe(rcps []Recipe, id int) (Recipe, error) {
-	for _, rcp := range rcps {
-		if rcp.Id == id {
-			return rcp, nil
-		}
+// Add takes all parameters for a Recipe, creates a new Recipe with that information and adds it to the Cookbook.
+func (ckb *Cookbook) Add(name string, ingrs []Ingrd, steps, tags []string, portions float64, dur time.Duration, notes, source, sourceLink, createdby string) {
+	rcp := Recipe{
+		Id:         newRcpId(*ckb),
+		Name:       name,
+		Ingrs:      ingrs,
+		Steps:      steps,
+		Tags:       tags,
+		Portions:   portions,
+		Dur:        dur,
+		Notes:      notes,
+		Source:     source,
+		SourceLink: sourceLink,
+		Createdby:  createdby,
+		Created:    time.Now(),
+		Updatedby:  createdby,
+		Updated:    time.Now(),
 	}
-	return Recipe{}, errorUnknownRecipe
+	*ckb = append(*ckb, rcp)
 }
 
-/*
-	newRcpId takes a slice of Recipes, looks up the highest recipe Id and
+// Recipe takes an ID, finds the recipe in the Cookbook with that ID and returns a pointer to the Recipe.
+func (ckb Cookbook) Recipe(id int) (*Recipe, error) {
+	return findRecipe(ckb, id)
+}
 
-returns a new recipe Id.
-*/
-func newRcpId(rcps []Recipe) int {
+// Update takes a recipe ID and all recipe parameters that can be updated. It find the recipe for that ID and updates the Recipe.
+func (ckb *Cookbook) Update (id int, name string, ingrs []Ingrd, steps, tags []string, portions float64, dur time.Duration, notes, source, sourceLink, updatedby string) error {
+	var err error
+	rcp, err := findRecipe(*ckb, id)
+	if err != nil {
+		return err
+	}
+	rcp.Update(name, ingrs, steps, tags, portions, dur, notes, source, sourceLink, updatedby)
+	return err
+}
+
+//newRcpId takes a Cookbook, looks up the highest recipe Id and returns a new recipe Id
+func newRcpId(ckb Cookbook) int {
+	const idSteps = 10 // increment that is used for each new ID. E.g. if idSteps is 10, then IDs will be 10, 20, 30. If it is 12, then: 12, 24, 36
 	var maxId int
-	for _, v := range rcps {
+	for _, v := range ckb {
 		if v.Id > maxId {
 			maxId = v.Id
 		}
 	}
-	return maxId + 10
+	return maxId + idSteps
 }
 
-/*
-	findRecipeP takes a slice of recipes and an id. It looks up the recipe with that
+// Update takes all parameters that can be updated and updates the Recipe pointer.
+func (r *Recipe) Update(name string, ingrs []Ingrd, steps, tags []string, portions float64, dur time.Duration, notes, source, sourceLink, updatedby string){
+	r.Name = name
+	r.Ingrs = ingrs
+	r.Steps = steps
+	r.Tags = tags
+	r.Portions = portions
+	r.Dur = dur
+	r.Notes = notes
+	r.Source = source
+	r.SourceLink = sourceLink
+	r.Updatedby = updatedby
+	r.Updated = time.Now()
+	return
+}
 
-id and returns a pointer to the recipe.
-*/
-func findRecipeP(rcps []Recipe, id int) (*Recipe, error) {
-	for i, _ := range rcps {
-		if rcps[i].Id == id {
-			return &rcps[i], nil
+// findRecipe takes a Cookbook of recipes and an id. It looks up the recipe with that id and returns the recipe. If the recipe does not exist, it returns an empty Recipe and an error.
+func findRecipe(ckb Cookbook, id int) (*Recipe, error) {
+	for i, _ := range ckb {
+		if ckb[i].Id == id {
+			return &ckb[i], nil
 		}
 	}
 	return &Recipe{}, errorUnknownRecipe
