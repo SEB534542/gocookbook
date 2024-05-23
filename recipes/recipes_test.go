@@ -53,35 +53,29 @@ func TestNewCookbook(t *testing.T) {
 			t.Errorf("Got: '%v', Want: '%v'", ckb, want)
 		}
 	})
-	t.Run("Add test recipe", func(t *testing.T) {
-		want := Recipe{
-			Id:         10,
-			Name:       "Test1",
-			Ingrs:      []Ingrd{},
-			Steps:      []string{},
-			Tags:       []string{},
-			Portions:   4,
-			Dur:        0,
-			Notes:      "",
-			Source:     "",
-			SourceLink: "",
-			Createdby:  "Tester1",
-			Created:    time.Time{},
-			Updatedby:  "Tester1",
-			Updated:    time.Time{},
-		}
+	t.Run("Add test recipes", func(t *testing.T) {
+		want := NewRecipe("Test1", []Ingrd{}, []string{}, []string{},4,0,"", "", "", "Tester1")
+		want.Id = 0 + idSteps
 		ckb.Add(want)
-		want.Created = ckb[0].Created
-		want.Updated = ckb[0].Updated
+		want.Created, want.Updated = ckb[0].Created, ckb[0].Updated
 		if !reflect.DeepEqual(ckb[0], want) {
 			t.Errorf("\nGot: '%+v'\n, Want: '%+v'", ckb[0], want)
+		}
+
+		want2 := want
+		want2.Name = "Test2"
+		want2.Id = idSteps * 2
+		ckb.Add(want2)	
+		want2.Created, want2.Updated = ckb[1].Created, ckb[1].Updated
+		if !reflect.DeepEqual(ckb[1], want2) {
+			t.Errorf("\nGot: '%+v'\n, Want: '%+v'", ckb[1], want2)
 		}
 	})
 	t.Run("update existing recipe", func(t *testing.T) {
 		want := ckb[0]
-		want.Name = "test 2"
-		want.Updatedby = "Tester 2"
-		err := ckb.Update(ckb[0].Id, want)
+		want.Update("test1 v2", []Ingrd{}, []string{}, []string{}, 5, 0, "","","","Tester 2")
+		err := ckb.Update(idSteps, want)
+		want.Updated = ckb[0].Updated
 		switch {
 		case errors.Is(err, errorUnknownRecipe):
 			t.Errorf("Recipe ID '%v' does not exist: %v", ckb[0].Id, err)

@@ -40,6 +40,8 @@ type Ingrd struct {
 	AltUnits string  // Alternative UOM and the required amount for that unit.
 }
 
+const idSteps = 10 // increment that is used for each new ID. E.g. if idSteps is 10, then IDs will be 10, 20, 30. If it is 12, then: 12, 24, 36
+
 var (
 	errorUnknownRecipe = errors.New("recipe not found") // Not Found Error
 )
@@ -86,7 +88,7 @@ func NewCookbook() Cookbook {
 
 // Add takes a Recipe and adds it to the Cookbook.
 func (ckb *Cookbook) Add(r Recipe) {
-	r.Id = newRcpId(*ckb)
+	r.Id = newRecipeId(*ckb)
 	*ckb = append(*ckb, r)
 }
 
@@ -94,6 +96,16 @@ func (ckb *Cookbook) Add(r Recipe) {
 func (ckb Cookbook) Recipe(id int) (Recipe, error) {
 	rp, err := findRecipe(ckb, id)
 	return *rp, err
+}
+
+// findRecipe takes a Cookbook of recipes and an id. It looks up the recipe with that id and returns the recipe. If the recipe does not exist, it returns an empty Recipe and an error.
+func findRecipe(ckb Cookbook, id int) (*Recipe, error) {
+	for i := range ckb {
+		if ckb[i].Id == id {
+			return &ckb[i], nil
+		}
+	}
+	return &Recipe{}, errorUnknownRecipe
 }
 
 // Update takes a recipe ID and all recipe parameters that can be updated. It finds the recipe for that ID and updates the Recipe.
@@ -107,9 +119,8 @@ func (ckb *Cookbook) Update (id int, rNew Recipe) error {
 	return err
 }
 
-//newRcpId takes a Cookbook, looks up the highest recipe Id and returns a new recipe Id
-func newRcpId(ckb Cookbook) int {
-	const idSteps = 10 // increment that is used for each new ID. E.g. if idSteps is 10, then IDs will be 10, 20, 30. If it is 12, then: 12, 24, 36
+//newRecipeId takes a Cookbook, looks up the highest recipe Id and returns a new recipe Id
+func newRecipeId(ckb Cookbook) int {
 	var maxId int
 	for _, v := range ckb {
 		if v.Id > maxId {
@@ -117,16 +128,6 @@ func newRcpId(ckb Cookbook) int {
 		}
 	}
 	return maxId + idSteps
-}
-
-// findRecipe takes a Cookbook of recipes and an id. It looks up the recipe with that id and returns the recipe. If the recipe does not exist, it returns an empty Recipe and an error.
-func findRecipe(ckb Cookbook, id int) (*Recipe, error) {
-	for i := range ckb {
-		if ckb[i].Id == id {
-			return &ckb[i], nil
-		}
-	}
-	return &Recipe{}, errorUnknownRecipe
 }
 
 // TODO: remove below?
