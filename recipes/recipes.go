@@ -69,12 +69,13 @@ func (ckb *Cookbook) Add(name string, ingrs []Ingrd, steps, tags []string, porti
 	*ckb = append(*ckb, rcp)
 }
 
-// Recipe takes an ID, finds the recipe in the Cookbook with that ID and returns a pointer to the Recipe.
-func (ckb Cookbook) Recipe(id int) (*Recipe, error) {
-	return findRecipe(ckb, id)
+// Recipe takes an ID, finds the Recipe in the Cookbook with that ID and returns the Recipe.
+func (ckb Cookbook) Recipe(id int) (Recipe, error) {
+	rp, err := findRecipe(ckb, id)
+	return *rp, err
 }
 
-// Update takes a recipe ID and all recipe parameters that can be updated. It find the recipe for that ID and updates the Recipe.
+// Update takes a recipe ID and all recipe parameters that can be updated. It finds the recipe for that ID and updates the Recipe.
 func (ckb *Cookbook) Update (id int, name string, ingrs []Ingrd, steps, tags []string, portions float64, dur time.Duration, notes, source, sourceLink, updatedby string) error {
 	var err error
 	rcp, err := findRecipe(*ckb, id)
@@ -110,12 +111,11 @@ func (r *Recipe) Update(name string, ingrs []Ingrd, steps, tags []string, portio
 	r.SourceLink = sourceLink
 	r.Updatedby = updatedby
 	r.Updated = time.Now()
-	return
 }
 
 // findRecipe takes a Cookbook of recipes and an id. It looks up the recipe with that id and returns the recipe. If the recipe does not exist, it returns an empty Recipe and an error.
 func findRecipe(ckb Cookbook, id int) (*Recipe, error) {
-	for i, _ := range ckb {
+	for i := range ckb {
 		if ckb[i].Id == id {
 			return &ckb[i], nil
 		}
@@ -123,33 +123,30 @@ func findRecipe(ckb Cookbook, id int) (*Recipe, error) {
 	return &Recipe{}, errorUnknownRecipe
 }
 
-// updateRcp adjusts Ingrs in the recipe r to n persons and returns the new recipe.
-func adjustRcp(rcp Recipe, newP float64) Recipe {
-	newIngrs := make([]Ingrd, len(rcp.Ingrs))
-	copy(newIngrs, rcp.Ingrs)
-	newRcp := Recipe{
-		Id:         rcp.Id,
-		Name:       rcp.Name,
-		Ingrs:      newIngrs,
-		Steps:      rcp.Steps,
-		Tags:       rcp.Tags,
-		Portions:   newP,
-		Dur:        rcp.Dur,
-		Source:     rcp.Source,
-		SourceLink: rcp.SourceLink,
-	}
-	x := round(newP / rcp.Portions)
-	for i, v := range newRcp.Ingrs {
-		newRcp.Ingrs[i].Amount = round(v.Amount * x)
-	}
-	return newRcp
-}
+// TODO: remove below?
+// // updateRcp adjusts Ingrs in the recipe r to n persons and returns the new recipe.
+// func adjustRcp(rcp Recipe, newP float64) Recipe {
+// 	newIngrs := make([]Ingrd, len(rcp.Ingrs))
+// 	copy(newIngrs, rcp.Ingrs)
+// 	newRcp := Recipe{
+// 		Id:         rcp.Id,
+// 		Name:       rcp.Name,
+// 		Ingrs:      newIngrs,
+// 		Steps:      rcp.Steps,
+// 		Tags:       rcp.Tags,
+// 		Portions:   newP,
+// 		Dur:        rcp.Dur,
+// 		Source:     rcp.Source,
+// 		SourceLink: rcp.SourceLink,
+// 	}
+// 	x := round(newP / rcp.Portions)
+// 	for i, v := range newRcp.Ingrs {
+// 		newRcp.Ingrs[i].Amount = round(v.Amount * x)
+// 	}
+// 	return newRcp
+// }
 
-/*
-	Print returns the ingredient with all available information
-
-(depending on the type of ingredient) as a string.
-*/
+//Print returns the ingredient with all available information (depending on the type of ingredient) as a string.
 func (i Ingrd) Print() string {
 	i.uoms()
 	var s string
