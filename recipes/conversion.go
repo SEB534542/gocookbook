@@ -34,12 +34,8 @@ var (
 	cuptoMl  = 236.588237 // ml for 1 cup.
 )
 
-/*
-Uoms takes a pointer to an ingredient, determines the amount for two
-pre-determined alternative Unit of Measurements combined into one string,
-and updates this in the 'Alt' of the ingredient i.
-*/
-func (i *Ingredient) uoms() {
+// altUnits takes a pointer to an Ingredient, determines the amount for alternative Unit of Measurements and updates the combined string in the field AltUnites
+func (i *Ingredient) altUnits() {
 	var xs []string
 	switch i.Unit {
 	case gram:

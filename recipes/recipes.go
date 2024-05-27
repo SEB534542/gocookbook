@@ -31,7 +31,7 @@ type Recipe struct {
 	Updated    time.Time     // Datetime when last updated.
 }
 
-// Ingr represents an ingredient for a recipe.
+// Ingrident represents an ingredient for a recipe.
 type Ingredient struct {
 	Amount   float64 // Amount of units.
 	Unit     Unit    // Unit of Measurement (UOM), e.g. grams etc.
@@ -40,12 +40,12 @@ type Ingredient struct {
 	AltUnits string  // Alternative UOM and the required amount for that unit.
 }
 
-type Unit string
+type Unit string // Unit represents a Unit of Measurement.
 
-const idSteps = 10 // increment that is used for each new ID. E.g. if idSteps is 10, then IDs will be 10, 20, 30. If it is 12, then: 12, 24, 36
+const idSteps = 10 // idSteps is the increment that is used for each new ID. E.g. if idSteps is 10, then IDs will be 10, 20, 30. If it is 12, then: 12, 24, 36.
 
 var (
-	errorUnknownRecipe = errors.New("recipe not found") // Not Found Error
+	errorUnknownRecipe = errors.New("recipe not found") // Not Found Error.
 )
 
 // NewIngredient takes all parameters for creating an Ingredient, validates all parameters and returns it as an Ingredient.
@@ -57,7 +57,7 @@ func NewIngredient(amount float64, unit, item, notes string) Ingredient {
 		Notes:    notes,
 		AltUnits: "",
 	}
-	i.uoms()
+	i.altUnits() // Add alt units
 	return i
 }
 
@@ -170,7 +170,7 @@ func newRecipeId(ckb Cookbook) int {
 
 // Print returns the ingredient with all available information (depending on the type of ingredient) as a string.
 func (i Ingredient) Print() string {
-	i.uoms()
+	i.altUnits()
 	var s string
 	if i.Unit == pcs {
 		s = fmt.Sprintf("%v %v", i.Amount, i.Item)
