@@ -3,6 +3,7 @@ package gocookbook
 import (
 	"fmt"
 	"sort"
+
 	//"strconv"
 	"errors"
 	"strings"
@@ -16,7 +17,7 @@ type Cookbook []Recipe
 type Recipe struct {
 	Id         int           // Internal reference number for a recipe
 	Name       string        // Name of recipe.
-	Ingrs      []Ingrd       // Slice containing all ingredients.
+	Ingrs      []Ingredient  // Slice containing all ingredients.
 	Steps      []string      // Steps for cooking the recipe.
 	Tags       []string      // Tags for a recipe.
 	Portions   float64       // Default number of portions for recipe.
@@ -28,17 +29,18 @@ type Recipe struct {
 	Created    time.Time     // Datetime when created.
 	Updatedby  string        // User that last updated the recipe.
 	Updated    time.Time     // Datetime when last updated.
-
 }
 
 // Ingr represents an ingredient for a recipe.
-type Ingrd struct {
+type Ingredient struct {
 	Amount   float64 // Amount of units.
-	Unit     string  // Unit of Measurement (UOM), e.g. grams etc.
+	Unit     Unit    // Unit of Measurement (UOM), e.g. grams etc.
 	Item     string  // Item itself, e.g. a banana.
 	Notes    string  // Instruction for preparation, e.g. cooked.
 	AltUnits string  // Alternative UOM and the required amount for that unit.
 }
+
+type Unit string
 
 const idSteps = 10 // increment that is used for each new ID. E.g. if idSteps is 10, then IDs will be 10, 20, 30. If it is 12, then: 12, 24, 36
 
@@ -46,8 +48,21 @@ var (
 	errorUnknownRecipe = errors.New("recipe not found") // Not Found Error
 )
 
+// NewIngredient takes all parameters for creating an Ingredient, validates all parameters and returns it as an Ingredient.
+func NewIngredient(amount float64, unit, item, notes string) Ingredient {
+	i := Ingredient{
+		Amount:   amount,
+		Unit:     Unit(unit),
+		Item:     item,
+		Notes:    notes,
+		AltUnits: "",
+	}
+	i.uoms()
+	return i
+}
+
 // NewRecipe takes all parameters for a Recipe, creates a new Recipe and returns it.
-func NewRecipe(name string, ingrs []Ingrd, steps, tags []string, portions float64, dur time.Duration, notes, source, sourceLink, createdby string) Recipe {
+func NewRecipe(name string, ingrs []Ingredient, steps, tags []string, portions float64, dur time.Duration, notes, source, sourceLink, createdby string) Recipe {
 	return Recipe{
 		Id:         0,
 		Name:       name,
@@ -67,7 +82,7 @@ func NewRecipe(name string, ingrs []Ingrd, steps, tags []string, portions float6
 }
 
 // Update takes all parameters that can be updated and updates the Recipe pointer.
-func (r *Recipe) Update(name string, ingrs []Ingrd, steps, tags []string, portions float64, dur time.Duration, notes, source, sourceLink, updatedby string){
+func (r *Recipe) Update(name string, ingrs []Ingredient, steps, tags []string, portions float64, dur time.Duration, notes, source, sourceLink, updatedby string) {
 	r.Name = name
 	r.Ingrs = ingrs
 	r.Steps = steps
@@ -109,7 +124,7 @@ func findRecipe(ckb Cookbook, id int) (*Recipe, error) {
 }
 
 // Update takes a recipe ID and all recipe parameters that can be updated. It finds the recipe for that ID and updates the Recipe.
-func (ckb *Cookbook) Update (id int, rNew Recipe) error {
+func (ckb *Cookbook) Update(id int, rNew Recipe) error {
 	var err error
 	r, err := findRecipe(*ckb, id)
 	if err != nil {
@@ -119,7 +134,7 @@ func (ckb *Cookbook) Update (id int, rNew Recipe) error {
 	return err
 }
 
-//newRecipeId takes a Cookbook, looks up the highest recipe Id and returns a new recipe Id
+// newRecipeId takes a Cookbook, looks up the highest recipe Id and returns a new recipe Id
 func newRecipeId(ckb Cookbook) int {
 	var maxId int
 	for _, v := range ckb {
@@ -153,8 +168,8 @@ func newRecipeId(ckb Cookbook) int {
 // 	return newRcp
 // }
 
-//Print returns the ingredient with all available information (depending on the type of ingredient) as a string.
-func (i Ingrd) Print() string {
+// Print returns the ingredient with all available information (depending on the type of ingredient) as a string.
+func (i Ingredient) Print() string {
 	i.uoms()
 	var s string
 	if i.Unit == pcs {

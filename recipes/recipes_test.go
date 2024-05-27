@@ -1,17 +1,56 @@
 package gocookbook
 
 import (
+	"errors"
 	"reflect"
 	"testing"
 	"time"
-	"errors"
 )
 
-func TestNewRecipe(t *testing.T) {
+func TestNewIngr(t *testing.T) {
+	want := Ingredient{
+		Amount: 50,
+		Unit:   ml,
+		Item:   "Banaan",
+		Notes:  "in plakjes",
+		AltUnits: "0.2 cup",
+	}
+	i := NewIngredient(want.Amount, string(want.Unit), want.Item, want.Notes)
+	
+	if b, fields := AssertEqualIngrd(want, i); !b {
+		t.Errorf("fields %v are not equal\nGot:\t'%+v'\nWant:\t'%+v'", fields, i, want)
+	}
+}
+
+func AssertEqualIngrd(i, j Ingredient) (bool, []string) {
+	var b bool
+	var fields []string
+	if i.Amount != j.Amount {
+		fields = append(fields, "Amount")
+	}
+	if i.Unit != j.Unit {
+		fields = append(fields, "Unit")
+	}
+	if i.Item != j.Item {
+		fields = append(fields, "Item")
+	}
+	if i.Notes != j.Notes {
+		fields = append(fields, "Notes")
+	}
+	if i.AltUnits != j.AltUnits {
+		fields = append(fields, "AltUnits")
+	}
+	if len(fields) == 0 {
+		b = true
+	}
+	return b, fields
+}
+
+func TestRecipe(t *testing.T) {
 	want := Recipe{
 		Id:         0,
 		Name:       "Test1",
-		Ingrs:      []Ingrd{},
+		Ingrs:      []Ingredient{},
 		Steps:      []string{},
 		Tags:       []string{},
 		Portions:   4,
@@ -54,7 +93,7 @@ func TestNewCookbook(t *testing.T) {
 		}
 	})
 	t.Run("Add test recipes", func(t *testing.T) {
-		want := NewRecipe("Test1", []Ingrd{}, []string{}, []string{},4,0,"", "", "", "Tester1")
+		want := NewRecipe("Test1", []Ingredient{}, []string{}, []string{}, 4, 0, "", "", "", "Tester1")
 		want.Id = 0 + idSteps
 		ckb.Add(want)
 		want.Created, want.Updated = ckb[0].Created, ckb[0].Updated
@@ -65,7 +104,7 @@ func TestNewCookbook(t *testing.T) {
 		want2 := want
 		want2.Name = "Test2"
 		want2.Id = idSteps * 2
-		ckb.Add(want2)	
+		ckb.Add(want2)
 		want2.Created, want2.Updated = ckb[1].Created, ckb[1].Updated
 		if !reflect.DeepEqual(ckb[1], want2) {
 			t.Errorf("\nGot: '%+v'\n, Want: '%+v'", ckb[1], want2)
@@ -73,7 +112,7 @@ func TestNewCookbook(t *testing.T) {
 	})
 	t.Run("update existing recipe", func(t *testing.T) {
 		want := ckb[0]
-		want.Update("test1 v2", []Ingrd{}, []string{}, []string{}, 5, 0, "","","","Tester 2")
+		want.Update("test1 v2", []Ingredient{}, []string{}, []string{}, 5, 0, "", "", "", "Tester 2")
 		err := ckb.Update(idSteps, want)
 		want.Updated = ckb[0].Updated
 		switch {
@@ -94,21 +133,21 @@ func TestFindIngr(t *testing.T) {
 		{
 			Id:   1,
 			Name: "Test1",
-			Ingrs: []Ingrd{
+			Ingrs: []Ingredient{
 				{Item: "Paddestoelenboullion"},
 			},
 		},
 		{
 			Id:   2,
 			Name: "Test2",
-			Ingrs: []Ingrd{
+			Ingrs: []Ingredient{
 				{Item: "Pasta"},
 			},
 		},
 		{
 			Id:   3,
 			Name: "Test3",
-			Ingrs: []Ingrd{
+			Ingrs: []Ingredient{
 				{Item: "bospaddestoelen"},
 			},
 		},

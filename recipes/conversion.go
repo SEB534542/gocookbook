@@ -39,7 +39,7 @@ Uoms takes a pointer to an ingredient, determines the amount for two
 pre-determined alternative Unit of Measurements combined into one string,
 and updates this in the 'Alt' of the ingredient i.
 */
-func (i *Ingrd) uoms() {
+func (i *Ingredient) uoms() {
 	var xs []string
 	switch i.Unit {
 	case gram:
