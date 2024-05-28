@@ -1,11 +1,9 @@
 package gocookbook
 
 import (
+	"errors"
 	"fmt"
 	"sort"
-
-	//"strconv"
-	"errors"
 	"strings"
 	"time"
 )
@@ -31,35 +29,11 @@ type Recipe struct {
 	Updated    time.Time     // Datetime when last updated.
 }
 
-// Ingrident represents an ingredient for a recipe.
-type Ingredient struct {
-	Amount   float64 // Amount of units.
-	Unit     Unit    // Unit of Measurement (UOM), e.g. grams etc.
-	Item     string  // Item itself, e.g. a banana.
-	Notes    string  // Instruction for preparation, e.g. cooked.
-	AltUnits string  // Alternative UOM and the required amount for that unit.
-}
-
-type Unit string // Unit represents a Unit of Measurement.
-
-const idSteps = 10 // idSteps is the increment that is used for each new ID. E.g. if idSteps is 10, then IDs will be 10, 20, 30. If it is 12, then: 12, 24, 36.
+const idSteps = 10 // idSteps is the increment that is used for each new Recipe ID. E.g. if idSteps is 10, then IDs will be 10, 20, 30. If it is 12, then: 12, 24, 36.
 
 var (
 	errorUnknownRecipe = errors.New("recipe not found") // Not Found Error.
 )
-
-// NewIngredient takes all parameters for creating an Ingredient, validates all parameters and returns it as an Ingredient.
-func NewIngredient(amount float64, unit, item, notes string) Ingredient {
-	i := Ingredient{
-		Amount:   amount,
-		Unit:     Unit(unit),
-		Item:     item,
-		Notes:    notes,
-		AltUnits: "",
-	}
-	i.altUnits() // Add alt units
-	return i
-}
 
 // NewRecipe takes all parameters for a Recipe, creates a new Recipe and returns it.
 func NewRecipe(name string, ingrs []Ingredient, steps, tags []string, portions float64, dur time.Duration, notes, source, sourceLink, createdby string) Recipe {

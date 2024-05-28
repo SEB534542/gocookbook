@@ -6,25 +6,30 @@ import (
 	"strings"
 )
 
-// convTable contains the item conversion from 1 gram to ml.
-var convTable = map[string]float64{}
+type Unit string // Unit represents a Unit of Measurement.
 
-/*
-	different types of volumes and masses used for conversion. Note don't change
+// Ingrident represents an ingredient for a recipe.
+type Ingredient struct {
+	Amount   float64 // Amount of units.
+	Unit     Unit    // Unit of Measurement (UOM), e.g. grams etc.
+	Item     string  // Item itself, e.g. a banana.
+	Notes    string  // Instruction for preparation, e.g. cooked.
+	AltUnits string  // Alternative UOM and the required amount for that unit.
+}
 
-the actual string without changing the existing data and adding it to the var
-units.
-*/
+var convTable = map[string]float64{} // convTable contains the item conversion from 1 gram to ml.
+
+// Different types of volumes and masses used for conversion. Note: don't change the actual string without changing the existing data and adding it to the var units.
 const (
-	gram = "g"
-	cup  = "cup"
-	ml   = "ml"
-	tbsp = "el"
-	tsp  = "tl"
-	pcs  = "stuks"
+	gram = Unit("g")
+	cup  = Unit("cup")
+	ml   = Unit("ml")
+	tbsp = Unit("el")
+	tsp  = Unit("tl")
+	pcs  = Unit("stuks")
 )
 
-var units = []string{
+var units = []Unit{
 	gram, cup, ml, tbsp, tsp, pcs,
 } // all considered volumes and masses that are used in the cookbook.
 
@@ -33,6 +38,19 @@ var (
 	tspToMl  = 4.92892159 // ml for 1 teaspoon.
 	cuptoMl  = 236.588237 // ml for 1 cup.
 )
+
+// NewIngredient takes all parameters for creating an Ingredient, validates all parameters and returns it as an Ingredient.
+func NewIngredient(amount float64, unit, item, notes string) Ingredient {
+	i := Ingredient{
+		Amount:   amount,
+		Unit:     Unit(unit),
+		Item:     item,
+		Notes:    notes,
+		AltUnits: "",
+	}
+	i.altUnits() // Add alt units
+	return i
+}
 
 // altUnits takes a pointer to an Ingredient, determines the amount for alternative Unit of Measurements and updates the combined string in the field AltUnites
 func (i *Ingredient) altUnits() {
