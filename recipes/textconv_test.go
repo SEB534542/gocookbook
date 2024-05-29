@@ -29,7 +29,7 @@ func TestFormat(t *testing.T) {
 ½ cup heavy cream
 
 2 tablespoons chopped fresh parsley`
-	xi := textToIngrds(s)
+	xi := TextToIngrds(s)
 	// for _, v := range xi {
 	// 	t.Logf("'%v', '%v', '%v', '%v'", v.Amount, v.Unit, v.Item, v.Notes)
 	// }

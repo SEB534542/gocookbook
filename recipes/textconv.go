@@ -1,9 +1,10 @@
 package gocookbook
 
 import (
-	"golang.org/x/text/unicode/norm"
 	"strconv"
 	"strings"
+
+	"golang.org/x/text/unicode/norm"
 )
 
 var unitsconv = map[string]func(float64) (Unit, float64){
@@ -69,8 +70,8 @@ func textToLines(s string) []string {
 	return newLines
 }
 
-/* textToIngrds takes a string and returns a slice of ingredients in the text.*/
-func textToIngrds(s string) []Ingredient {
+// TextToIngrds takes a string containing multiple lines of ingredients and returns a slice of ingredients in the text.
+func TextToIngrds(s string) []Ingredient {
 	lines := textToLines(s)
 	xi := []Ingredient{}
 	// Convert each line to an ingredient

@@ -87,6 +87,44 @@ func TestNewCookbook(t *testing.T) {
 			t.Errorf("Want: '%v', Got '%v'", want.Updatedby, ckb[0].Updatedby)
 		}
 	})
+	t.Run("create recipe with ingredients from string", func(t *testing.T){
+		s := `
+		1 tablespoon extra-virgin olive oil
+		
+		1 cup thinly sliced celery
+		
+		1 cup chopped carrots
+		
+		½ cup chopped onions
+		
+		8 ounces button mushrooms, sliced
+		
+		¼ cup all-purpose flour
+		
+		½ teaspoon ground pepper
+		
+		½ teaspoon salt
+		
+		4 cups low-sodium vegetable broth
+		
+		2 cups cooked wild rice
+		
+		½ cup heavy cream
+		
+		2 tablespoons chopped fresh parsley`
+		ckb.Add(NewRecipe(
+			"test3",
+			TextToIngrds(s),
+			[]string{},
+			[]string{},
+			4,
+			0,
+			"",
+			"",
+			"",
+			"Tester 1",
+		))
+	})
 }
 
 func TestFindIngr(t *testing.T) {

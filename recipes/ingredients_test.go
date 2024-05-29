@@ -44,7 +44,11 @@ func AssertEqualIngrd(i, j Ingredient) (bool, []string) {
 }
 
 // func TestAltUnits(t *testing.T){
-// 	xi := []Ingredient{
-// 		NewIngredient(0.5, gram, want.Item, want.Notes)
+// 	type test struct {
+// 		unit Unit
+// 		amount float64
 // 	}
+// 	xc := []test{
+// 		test(gram, 5.0),
+// }
 // }
