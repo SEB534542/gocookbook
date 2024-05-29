@@ -7,7 +7,7 @@ import (
 	"golang.org/x/text/unicode/norm"
 )
 
-var unitsconv = map[string]func(float64) (Unit, float64){
+var UnitsConversion = map[string]func(float64) (Unit, float64){
 	"gram":        func(f float64) (Unit, float64) { return gram, f },
 	"grams":       func(f float64) (Unit, float64) { return gram, f },
 	"gr":          func(f float64) (Unit, float64) { return gram, f },
@@ -66,9 +66,9 @@ func TextToIngrds(s string) []Ingredient {
 				// Check if a unit is included directly behind the float
 				offset := 0
 				unit := pcs // default unit if not identified
-				_, ok := unitsconv[xs[j+1]]
+				_, ok := UnitsConversion[xs[j+1]]
 				if ok {
-					unit, amount = unitsconv[xs[j+1]](amount)
+					unit, amount = UnitsConversion[xs[j+1]](amount)
 					offset += len(xs[j+1])
 				}
 				item := strings.Trim(line[strings.Index(line, s)+len(s)+offset+1:], " ") // assuming item is directly after amount in the text
@@ -88,7 +88,7 @@ func TextToIngrds(s string) []Ingredient {
 			}
 		}
 		if in.Amount == 0 && in.Unit == "" && in.Item == "" {
-			// No amount found
+			// no amount found, put all text in the item and leave rest blank
 			in.Item = line
 		}
 		xi[i] = in
