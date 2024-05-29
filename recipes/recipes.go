@@ -76,9 +76,10 @@ func NewCookbook() Cookbook {
 }
 
 // Add takes a Recipe and adds it to the Cookbook.
-func (ckb *Cookbook) Add(r Recipe) {
+func (ckb *Cookbook) Add(r Recipe) int {
 	r.Id = newRecipeId(*ckb)
 	*ckb = append(*ckb, r)
+	return r.Id
 }
 
 // Recipe takes an ID, finds the Recipe in the Cookbook with that ID and returns the Recipe.

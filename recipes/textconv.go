@@ -57,6 +57,9 @@ func textToLines(s string) []string {
 	s = strings.ReplaceAll(s, "\u202f", " ")
 	s = strings.ReplaceAll(s, "\u00a0", " ")
 
+	// Remove tabs
+	s = strings.ReplaceAll(s, "\t", "")
+
 	// Split string into lines
 	lines := strings.Split(s, "\n")
 

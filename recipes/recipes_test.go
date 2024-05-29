@@ -88,31 +88,8 @@ func TestNewCookbook(t *testing.T) {
 		}
 	})
 	t.Run("create recipe with ingredients from string", func(t *testing.T){
-		s := `
-		1 tablespoon extra-virgin olive oil
-		
-		1 cup thinly sliced celery
-		
-		1 cup chopped carrots
-		
-		½ cup chopped onions
-		
-		8 ounces button mushrooms, sliced
-		
-		¼ cup all-purpose flour
-		
-		½ teaspoon ground pepper
-		
-		½ teaspoon salt
-		
-		4 cups low-sodium vegetable broth
-		
-		2 cups cooked wild rice
-		
-		½ cup heavy cream
-		
-		2 tablespoons chopped fresh parsley`
-		ckb.Add(NewRecipe(
+		s := "\n\t\t1 tablespoon extra-virgin olive oil\n\t\t\n\t\t1 cup thinly sliced celery\n\t\t\n\t\t1 cup chopped carrots\n\t\t\n\t\t½ cup chopped onions\n\t\t\n\t\t8 ounces button mushrooms, sliced\n\t\t\n\t\t¼ cup all-purpose flour\n\t\t\n\t\t½ teaspoon ground pepper\n\t\t\n\t\t½ teaspoon salt\n\t\t\n\t\t4 cups low-sodium vegetable broth\n\t\t\n\t\t2 cups cooked wild rice\n\t\t\n\t\t½ cup heavy cream\n\t\t\n\t\t2 tablespoons chopped fresh parsley"
+		id := ckb.Add(NewRecipe(
 			"test3",
 			TextToIngrds(s),
 			[]string{},
@@ -124,6 +101,15 @@ func TestNewCookbook(t *testing.T) {
 			"",
 			"Tester 1",
 		))
+		_, err := ckb.Recipe(id)
+		switch {
+		case errors.Is(err, errorUnknownRecipe):
+			t.Errorf("Recipe ID '%v' does not exist: %v", id, err)
+		case err != nil:
+			t.Errorf("Unknown error retrieving recipe ID %v: %v", err, id)
+		}
+		//if AssertEqualIngrd()
+		//t.Logf("%+v", r.Ingrs[0])
 	})
 }
 
