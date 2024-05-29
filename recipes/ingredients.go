@@ -40,15 +40,15 @@ var (
 )
 
 // NewIngredient takes all parameters for creating an Ingredient, validates all parameters and returns it as an Ingredient.
-func NewIngredient(amount float64, unit, item, notes string) Ingredient {
+func NewIngredient(amount float64, unit Unit, item, notes string) Ingredient {
 	i := Ingredient{
 		Amount:   amount,
-		Unit:     Unit(unit),
+		Unit:     unit,
 		Item:     item,
 		Notes:    notes,
 		AltUnits: "",
 	}
-	i.altUnits() // Add alt units
+	i.altUnits() // add alternative Units of Measurement
 	return i
 }
 

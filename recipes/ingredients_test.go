@@ -12,7 +12,7 @@ func TestNewIngr(t *testing.T) {
 		Notes:    "in plakjes",
 		AltUnits: "0.2 cup",
 	}
-	i := NewIngredient(want.Amount, string(want.Unit), want.Item, want.Notes)
+	i := NewIngredient(want.Amount, want.Unit, want.Item, want.Notes)
 
 	if b, fields := AssertEqualIngrd(want, i); !b {
 		t.Errorf("fields %v are not equal\nGot:\t'%+v'\nWant:\t'%+v'", fields, i, want)

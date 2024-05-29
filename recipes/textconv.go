@@ -65,18 +65,25 @@ func TextToIngrds(s string) []Ingredient {
 			if err == nil {
 				// Check if a unit is included directly behind the float
 				offset := 0
-				unit := pcs
+				unit := pcs // default unit if not identified
 				_, ok := unitsconv[xs[j+1]]
 				if ok {
 					unit, amount = unitsconv[xs[j+1]](amount)
 					offset += len(xs[j+1])
 				}
-				in = Ingredient{
-					Amount: amount,
-					Unit:   unit,
-					Item:   strings.Trim(line[strings.Index(line, s)+len(s)+offset+1:], " "), // assuming item is directly after amount in the text
-					Notes:  strings.Trim(line[:strings.Index(line, s)], " "),                 // assuming an text before the float is additional notes
+				item := strings.Trim(line[strings.Index(line, s)+len(s)+offset+1:], " ") // assuming item is directly after amount in the text
+				notes := strings.Trim(line[:strings.Index(line, s)], " ")  // assuming an text before the float is additional notes
+				
+				// if notes is empty, check for a comma in the item and use the remainder as a note
+				if notes == "" {
+					if x := strings.Index(item, ","); x != -1 {
+						if x+1 <= len(item) {
+							notes = strings.Trim(item[x+1:], " ")
+						}
+						item = strings.Trim(item[:x], " ")
+					}
 				}
+				in = NewIngredient(amount, unit, item, notes)
 				break
 			}
 		}
