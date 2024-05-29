@@ -42,11 +42,54 @@ var unitsconv = map[string]func(float64) (Unit, float64){
 	"pcs":         func(f float64) (Unit, float64) { return pcs, f },
 }
 
-/*
-	textToLines takes a string, splits the string into a slice for each new line
+// TextToIngrds takes a string containing multiple lines of ingredients and returns a slice of ingredients in the text.
+func TextToIngrds(s string) []Ingredient {
+	lines := textToLines(s)
+	xi := make([]Ingredient, len(lines))
+	// Convert each line to an ingredient
+	for i, line := range lines {
+		var in Ingredient
+		xs := strings.Split(line, " ")
+		// Parse each element of the line to a float to find the amount
+		for j, s := range xs {
+			amount, err := strconv.ParseFloat(s, 64)
+			// check if it is a character for a fractal value
+			switch {
+			case strings.Contains(s, string(uint8(189))): // character for '1/2'
+				amount, err = 0.5, nil
+			case strings.Contains(s, string(uint8(188))): // character for '1/4'
+				amount, err = 0.25, nil
+			case strings.Contains(s, string(uint8(190))): // character '1/3'
+				amount, err = 0.33, nil
+			}
+			if err == nil {
+				// Check if a unit is included directly behind the float
+				offset := 0
+				unit := pcs
+				_, ok := unitsconv[xs[j+1]]
+				if ok {
+					unit, amount = unitsconv[xs[j+1]](amount)
+					offset += len(xs[j+1])
+				}
+				in = Ingredient{
+					Amount: amount,
+					Unit:   unit,
+					Item:   strings.Trim(line[strings.Index(line, s)+len(s)+offset+1:], " "), // assuming item is directly after amount in the text
+					Notes:  strings.Trim(line[:strings.Index(line, s)], " "),                 // assuming an text before the float is additional notes
+				}
+				break
+			}
+		}
+		if in.Amount == 0 && in.Unit == "" && in.Item == "" {
+			// No amount found
+			in.Item = line
+		}
+		xi[i] = in
+	}
+	return xi
+}
 
-and removes all non text characters and empty lines. It returns the slice.
-*/
+// textToLines takes a string, splits the string into a slice for each new line and removes all non text characters and empty lines. It returns the slice.
 func textToLines(s string) []string {
 	s = norm.NFC.String(s)
 
@@ -71,50 +114,4 @@ func textToLines(s string) []string {
 		}
 	}
 	return newLines
-}
-
-// TextToIngrds takes a string containing multiple lines of ingredients and returns a slice of ingredients in the text.
-func TextToIngrds(s string) []Ingredient {
-	lines := textToLines(s)
-	xi := []Ingredient{}
-	// Convert each line to an ingredient
-	for _, line := range lines {
-		var i Ingredient
-		xs := strings.Split(line, " ")
-		// Parse each element of the line to a float to find the amount
-		for j, s := range xs {
-			amount, err := strconv.ParseFloat(s, 64)
-			if strings.Index(s, string(uint8(189))) != -1 {
-				amount = 0.5
-				err = nil
-			}
-			if strings.Index(s, string(uint8(188))) != -1 {
-				amount = 0.25
-				err = nil
-			}
-			if err == nil {
-				// Check if a unit is included directly behind the float
-				offset := 0
-				unit := pcs
-				_, ok := unitsconv[xs[j+1]]
-				if ok {
-					unit, amount = unitsconv[xs[j+1]](amount)
-					offset += len(xs[j+1])
-				}
-				i = Ingredient{
-					Amount: amount,
-					Unit:   unit,
-					Item:   strings.Trim(line[strings.Index(line, s)+len(s)+offset+1:], " "), // assuming item is directly after amount in the text
-					Notes:  strings.Trim(line[:strings.Index(line, s)], " "),                 // assuming an text before the float is additional notes
-				}
-				break
-			}
-		}
-		if i.Amount == 0 && i.Unit == "" && i.Item == "" {
-			// No amount found
-			i.Item = line
-		}
-		xi = append(xi, i)
-	}
-	return xi
 }
