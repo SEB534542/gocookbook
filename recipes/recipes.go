@@ -87,7 +87,8 @@ func (cb Cookbook) Find(id int) (Recipe, error) {
 	return *rp, err
 }
 
-// findRecipe takes a Cookbook of recipes and an id. It looks up the recipe with that id and returns the recipe. If the recipe does not exist, it returns an empty Recipe and an error.
+// findRecipe takes a Cookbook of recipes and an id. It looks up the recipe with that id and returns the recipe.
+// If the recipe does not exist, it returns an empty Recipe and an error.
 func findRecipe(cb Cookbook, id int) (*Recipe, error) {
 	for i := range cb {
 		if cb[i].Id == id {
@@ -119,30 +120,30 @@ func newRecipeId(ckb Cookbook) int {
 	return maxId + idSteps
 }
 
-// TODO: remove below?
-// // updateRcp adjusts Ingrs in the recipe r to n persons and returns the new recipe.
-// func adjustRcp(rcp Recipe, newP float64) Recipe {
-// 	newIngrs := make([]Ingrd, len(rcp.Ingrs))
-// 	copy(newIngrs, rcp.Ingrs)
-// 	newRcp := Recipe{
-// 		Id:         rcp.Id,
-// 		Name:       rcp.Name,
-// 		Ingrs:      newIngrs,
-// 		Steps:      rcp.Steps,
-// 		Tags:       rcp.Tags,
-// 		Portions:   newP,
-// 		Dur:        rcp.Dur,
-// 		Source:     rcp.Source,
-// 		SourceLink: rcp.SourceLink,
-// 	}
-// 	x := round(newP / rcp.Portions)
-// 	for i, v := range newRcp.Ingrs {
-// 		newRcp.Ingrs[i].Amount = round(v.Amount * x)
-// 	}
-// 	return newRcp
-// }
+// updateRcp adjusts Ingrs in the recipe r to n persons and returns the new recipe.
+func adjustRcp(r Recipe, portions float64) Recipe {
+	newIngrs := make([]Ingredient, len(r.Ingrs))
+	copy(newIngrs, r.Ingrs)
+	newRcp := Recipe{
+		Id:         r.Id,
+		Name:       r.Name,
+		Ingrs:      newIngrs,
+		Steps:      r.Steps,
+		Tags:       r.Tags,
+		Portions:   portions,
+		Dur:        r.Dur,
+		Source:     r.Source,
+		SourceLink: r.SourceLink,
+	}
+	x := round(portions / r.Portions)
+	for i, v := range newRcp.Ingrs {
+		newRcp.Ingrs[i].Amount = round(v.Amount * x)
+	}
+	return newRcp
+}
 
-// FindIngredient takes a string and search in the Cookbook if any Recipe contains an Ingredient where the Item contains the string.
+// FindIngredient takes a string and search in the Cookbook if any Recipe contains an Ingredient 
+// where the Item contains the string and returns a Cookbook with alle those recipes.
 func (cb Cookbook) FindIngredient(item string) Cookbook{
 	result := findIngr(cb, item)
 	return result
@@ -168,27 +169,8 @@ func findIngr(rcps Cookbook, item string) Cookbook {
 	return output
 }
 
-// RemoveRecipe takes a slice of recipes and an id. The recipe that matches
-// the id is removed from the slice and slice is returned.
-func removeRecipe(cb Cookbook, id int) Cookbook {
-	var i int
-	var rcp Recipe
-	var b bool
-	for i, rcp = range cb {
-		if rcp.Id == id {
-			b = true
-			break
-		}
-	}
-	if b {
-		cb[i] = cb[len(cb)-1]
-		rcpsNew := cb[:len(cb)-1]
-		sort.Slice(rcpsNew, func(i, j int) bool { return rcpsNew[i].Name < rcpsNew[j].Name })
-		return rcpsNew
-	}
-	return cb
-}
-
+// Remove takes an Recipe id. The recipe that matches the id is removed
+// from the Cookbook and an error is returned (nil if succesful).
 func (cb *Cookbook) Remove(id int) error {
 	cbOld := *cb
 	for i, rcp := range cbOld {

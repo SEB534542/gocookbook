@@ -166,3 +166,26 @@ func TestRemoveRecipe(t *testing.T) {
 		t.Errorf("Recipe %v not deleted from Cookbook: %+v", id, cb)
 	}
 }
+
+func TestAdjustRecipe(t *testing.T) {
+	s := "\n\t\t1 tablespoon extra-virgin olive oil\n\t\t\n\t\t1 cup thinly sliced celery\n\t\t\n\t\t1 cup chopped carrots\n\t\t\n\t\t½ cup chopped onions\n\t\t\n\t\t8 ounces button mushrooms, sliced\n\t\t\n\t\t¼ cup all-purpose flour\n\t\t\n\t\t½ teaspoon ground pepper\n\t\t\n\t\t½ teaspoon salt\n\t\t\n\t\t4 cups low-sodium vegetable broth\n\t\t\n\t\t2 cups cooked wild rice\n\t\t\n\t\t½ cup heavy cream\n\t\t\n\t\t2 tablespoons chopped fresh parsley"
+	r := NewRecipe(
+		"test3",
+		TextToIngrds(s),
+		[]string{},
+		[]string{},
+		4,
+		0,
+		"",
+		"",
+		"",
+		"Tester 1",
+	)
+	portionsNew := 8.0
+	result := adjustRcp(r, portionsNew)
+	for i := range result.Ingrs {
+		if got, want := result.Ingrs[i].Amount, (r.Ingrs[i].Amount * portionsNew / r.Portions); got != want {
+			t.Errorf("Want: %v, Got: %v for %+v ", want, got, result.Ingrs[i])
+		}
+	}
+}
