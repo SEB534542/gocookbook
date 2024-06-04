@@ -12,33 +12,41 @@ func TestNewIngr(t *testing.T) {
 		Notes:    "in plakjes",
 		AltUnits: "0.2 cup",
 	}
-	i := NewIngredient(want.Amount, want.Unit, want.Item, want.Notes)
+	in := NewIngredient(want.Amount, want.Unit, want.Item, want.Notes)
 
-	if b, fields := AssertEqualIngrd(want, i); !b {
-		t.Errorf("fields %v are not equal\nGot:\t'%+v'\nWant:\t'%+v'", fields, i, want)
+	if b, fields := AssertEqualIngrd(want, in); !b {
+		t.Errorf("fields %v are not equal\nGot:\t'%+v'\nWant:\t'%+v'", fields, in, want)
 	}
 }
 
-func AssertEqualIngrd(i, j Ingredient) (bool, []string) {
+func AssertEqualIngrd(x, y Ingredient) (bool, []string) {
 	var b bool
 	var fields []string
-	if i.Amount != j.Amount {
+	if x.Amount != y.Amount {
 		fields = append(fields, "Amount")
 	}
-	if i.Unit != j.Unit {
+	if x.Unit != y.Unit {
 		fields = append(fields, "Unit")
 	}
-	if i.Item != j.Item {
+	if x.Item != y.Item {
 		fields = append(fields, "Item")
 	}
-	if i.Notes != j.Notes {
+	if x.Notes != y.Notes {
 		fields = append(fields, "Notes")
 	}
-	if i.AltUnits != j.AltUnits {
+	if x.AltUnits != y.AltUnits {
 		fields = append(fields, "AltUnits")
 	}
 	if len(fields) == 0 {
 		b = true
 	}
 	return b, fields
+}
+
+func TestPrint(t *testing.T){
+	in := NewIngredient(50, ml, "Banaan", "in plakjes")
+	want := "50 ml Banaan, in plakjes (0.2 cup)"
+	if got := in.Print(); want != got {
+		t.Errorf("Want: '%v', Got: '%v'", want, got)
+	}
 }

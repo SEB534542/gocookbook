@@ -94,10 +94,8 @@ func (i *Ingredient) altUnits() {
 	i.AltUnits = strings.Join(xs, " / ")
 }
 
-/*
-gramToMl takes an item and number of grams, looks up the item in the
-conversion table and returns the number of milliliters for x grams of the item.
-*/
+// gramToMl takes an item and number of grams, looks up the item in the
+// conversion table and returns the number of milliliters for x grams of the item.
 func gramToMl(item string, x float64) float64 {
 	if f, ok := convTable[item]; ok {
 		return x * f
@@ -117,4 +115,22 @@ func mlToGram(item string, x float64) float64 {
 // round takes a float and rounds it to one decimal. E.g. round(0.5555) returns 0.6.
 func round(f float64) float64 {
 	return math.Round(f*10) / 10
+}
+
+// Print returns the Ingredient with all available information (depending on the type of ingredient) as a string.
+func (i Ingredient) Print() string {
+	i.altUnits()
+	var s string
+	if i.Unit == pcs {
+		s = fmt.Sprintf("%v %v", i.Amount, i.Item)
+	} else {
+		s = fmt.Sprintf("%v %v %v", i.Amount, i.Unit, i.Item)
+	}
+	if i.Notes != "" {
+		s = fmt.Sprintf("%v, %v", s, strings.ToLower(i.Notes))
+	}
+	if i.AltUnits != "" {
+		return fmt.Sprintf("%v (%v)", s, i.AltUnits)
+	}
+	return s
 }

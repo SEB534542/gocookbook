@@ -46,50 +46,50 @@ func TestRecipe(t *testing.T) {
 }
 
 func TestNewCookbook(t *testing.T) {
-	ckb := NewCookbook()
+	cb := NewCookbook()
 	t.Run("new cookbook", func(t *testing.T) {
 		want := Cookbook{}
-		if !reflect.DeepEqual(ckb, want) {
-			t.Errorf("Got: '%v', Want: '%v'", ckb, want)
+		if !reflect.DeepEqual(cb, want) {
+			t.Errorf("Got: '%v', Want: '%v'", cb, want)
 		}
 	})
 	t.Run("Add test recipes", func(t *testing.T) {
 		want := NewRecipe("Test1", []Ingredient{}, []string{}, []string{}, 4, 0, "", "", "", "Tester1")
 		want.Id = 0 + idSteps
-		ckb.Add(want)
-		want.Created, want.Updated = ckb[0].Created, ckb[0].Updated
-		if !reflect.DeepEqual(ckb[0], want) {
-			t.Errorf("\nGot: '%+v'\n, Want: '%+v'", ckb[0], want)
+		cb.Add(want)
+		want.Created, want.Updated = cb[0].Created, cb[0].Updated
+		if !reflect.DeepEqual(cb[0], want) {
+			t.Errorf("\nGot: '%+v'\n, Want: '%+v'", cb[0], want)
 		}
 
 		want2 := want
 		want2.Name = "Test2"
 		want2.Id = idSteps * 2
-		ckb.Add(want2)
-		want2.Created, want2.Updated = ckb[1].Created, ckb[1].Updated
-		if !reflect.DeepEqual(ckb[1], want2) {
-			t.Errorf("\nGot: '%+v'\n, Want: '%+v'", ckb[1], want2)
+		cb.Add(want2)
+		want2.Created, want2.Updated = cb[1].Created, cb[1].Updated
+		if !reflect.DeepEqual(cb[1], want2) {
+			t.Errorf("\nGot: '%+v'\n, Want: '%+v'", cb[1], want2)
 		}
 	})
 	t.Run("update existing recipe", func(t *testing.T) {
-		want := ckb[0]
+		want := cb[0]
 		want.Update("test1 v2", []Ingredient{}, []string{}, []string{}, 5, 0, "", "", "", "Tester 2")
-		err := ckb.Update(idSteps, want)
-		want.Updated = ckb[0].Updated
+		err := cb.Update(idSteps, want)
+		want.Updated = cb[0].Updated
 		switch {
 		case errors.Is(err, errorUnknownRecipe):
-			t.Errorf("Recipe ID '%v' does not exist: %v", ckb[0].Id, err)
+			t.Errorf("Recipe ID '%v' does not exist: %v", cb[0].Id, err)
 		case err != nil:
-			t.Errorf("Unknown error during update of ID %v: %v", err, ckb[0].Id)
-		case ckb[0].Name != want.Name:
-			t.Errorf("Want: '%v', Got '%v'", want.Name, ckb[0].Name)
-		case ckb[0].Updatedby != want.Updatedby:
-			t.Errorf("Want: '%v', Got '%v'", want.Updatedby, ckb[0].Updatedby)
+			t.Errorf("Unknown error during update of ID %v: %v", err, cb[0].Id)
+		case cb[0].Name != want.Name:
+			t.Errorf("Want: '%v', Got '%v'", want.Name, cb[0].Name)
+		case cb[0].Updatedby != want.Updatedby:
+			t.Errorf("Want: '%v', Got '%v'", want.Updatedby, cb[0].Updatedby)
 		}
 	})
 	t.Run("create recipe with ingredients from string", func(t *testing.T) {
 		s := "\n\t\t1 tablespoon extra-virgin olive oil\n\t\t\n\t\t1 cup thinly sliced celery\n\t\t\n\t\t1 cup chopped carrots\n\t\t\n\t\t½ cup chopped onions\n\t\t\n\t\t8 ounces button mushrooms, sliced\n\t\t\n\t\t¼ cup all-purpose flour\n\t\t\n\t\t½ teaspoon ground pepper\n\t\t\n\t\t½ teaspoon salt\n\t\t\n\t\t4 cups low-sodium vegetable broth\n\t\t\n\t\t2 cups cooked wild rice\n\t\t\n\t\t½ cup heavy cream\n\t\t\n\t\t2 tablespoons chopped fresh parsley"
-		id := ckb.Add(NewRecipe(
+		id := cb.Add(NewRecipe(
 			"test3",
 			TextToIngrds(s),
 			[]string{},
@@ -101,15 +101,23 @@ func TestNewCookbook(t *testing.T) {
 			"",
 			"Tester 1",
 		))
-		_, err := ckb.Recipe(id)
+		_, err := cb.Find(id)
 		switch {
 		case errors.Is(err, errorUnknownRecipe):
 			t.Errorf("Recipe ID '%v' does not exist: %v", id, err)
 		case err != nil:
-			t.Errorf("Unknown error retrieving recipe ID %v: %v", err, id)
+			t.Errorf("Unknown error retrieving recipe ID %v: %v", id, err)
 		}
 		//if AssertEqualIngrd()
 		//t.Logf("%+v", r.Ingrs[0])
+
+		t.Run("find ingredient", func(t *testing.T) {
+			want := "extra-virgin olive oil"
+			result := cb.FindIngredient(want)
+			if got := result[0].Ingrs[0].Item; got != want {
+				t.Errorf("Want: %v, Got: %v", want, got)
+			}
+		})
 	})
 }
 
@@ -140,7 +148,21 @@ func TestFindIngr(t *testing.T) {
 	if len(findIngr(rcps, "Paddestoel")) != 2 {
 		t.Error("FindIngr no longer works")
 	}
-	if len(removeRecipe(rcps, 2)) != 2 {
-		t.Error("Recipe not removed")
+}
+
+func TestRemoveRecipe(t *testing.T) {
+	cb := NewCookbook()
+	id := idSteps
+	s := "\n\t\t1 tablespoon extra-virgin olive oil\n\t\t\n\t\t1 cup thinly sliced celery\n\t\t\n\t\t1 cup chopped carrots\n\t\t\n\t\t½ cup chopped onions\n\t\t\n\t\t8 ounces button mushrooms, sliced\n\t\t\n\t\t¼ cup all-purpose flour\n\t\t\n\t\t½ teaspoon ground pepper\n\t\t\n\t\t½ teaspoon salt\n\t\t\n\t\t4 cups low-sodium vegetable broth\n\t\t\n\t\t2 cups cooked wild rice\n\t\t\n\t\t½ cup heavy cream\n\t\t\n\t\t2 tablespoons chopped fresh parsley"
+	cb.Add(NewRecipe("Test1", TextToIngrds(s), []string{}, []string{}, 4, 0, "", "", "", "Tester1"))
+	err := cb.Remove(id)
+	switch {
+	case errors.Is(err, errorUnknownRecipe):
+		t.Errorf("Unable to delete Recipe %v: %v", id, err)
+	case err != nil:
+		t.Errorf("Unknown error deleting recipe ID %v: %v", id, err)
+	}
+	if _, err = cb.Find(id); err == nil {
+		t.Errorf("Recipe %v not deleted from Cookbook: %+v", id, cb)
 	}
 }

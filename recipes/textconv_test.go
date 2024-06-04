@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestFormat(t *testing.T) {
+func TestTextToIngrds(t *testing.T) {
 	want := []Ingredient{
 		{
 			Amount:   1,

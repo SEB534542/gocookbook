@@ -2,7 +2,6 @@ package gocookbook
 
 import (
 	"errors"
-	"fmt"
 	"sort"
 	"strings"
 	"time"
@@ -76,32 +75,32 @@ func NewCookbook() Cookbook {
 }
 
 // Add takes a Recipe and adds it to the Cookbook.
-func (ckb *Cookbook) Add(r Recipe) int {
-	r.Id = newRecipeId(*ckb)
-	*ckb = append(*ckb, r)
+func (cb *Cookbook) Add(r Recipe) int {
+	r.Id = newRecipeId(*cb)
+	*cb = append(*cb, r)
 	return r.Id
 }
 
-// Recipe takes an ID, finds the Recipe in the Cookbook with that ID and returns the Recipe.
-func (ckb Cookbook) Recipe(id int) (Recipe, error) {
-	rp, err := findRecipe(ckb, id)
+// Find takes an ID, finds the Find in the Cookbook with that ID and returns the Find.
+func (cb Cookbook) Find(id int) (Recipe, error) {
+	rp, err := findRecipe(cb, id)
 	return *rp, err
 }
 
 // findRecipe takes a Cookbook of recipes and an id. It looks up the recipe with that id and returns the recipe. If the recipe does not exist, it returns an empty Recipe and an error.
-func findRecipe(ckb Cookbook, id int) (*Recipe, error) {
-	for i := range ckb {
-		if ckb[i].Id == id {
-			return &ckb[i], nil
+func findRecipe(cb Cookbook, id int) (*Recipe, error) {
+	for i := range cb {
+		if cb[i].Id == id {
+			return &cb[i], nil
 		}
 	}
 	return &Recipe{}, errorUnknownRecipe
 }
 
 // Update takes a recipe ID and all recipe parameters that can be updated. It finds the recipe for that ID and updates the Recipe.
-func (ckb *Cookbook) Update(id int, rNew Recipe) error {
+func (cb *Cookbook) Update(id int, rNew Recipe) error {
 	var err error
-	r, err := findRecipe(*ckb, id)
+	r, err := findRecipe(*cb, id)
 	if err != nil {
 		return err
 	}
@@ -143,32 +142,17 @@ func newRecipeId(ckb Cookbook) int {
 // 	return newRcp
 // }
 
-// Print returns the ingredient with all available information (depending on the type of ingredient) as a string.
-func (i Ingredient) Print() string {
-	i.altUnits()
-	var s string
-	if i.Unit == pcs {
-		s = fmt.Sprintf("%v %v", i.Amount, i.Item)
-	} else {
-		s = fmt.Sprintf("%v %v %v", i.Amount, i.Unit, i.Item)
-	}
-	if i.Notes != "" {
-		s = fmt.Sprintf("%v, %v", s, strings.ToLower(i.Notes))
-	}
-	if i.AltUnits != "" {
-		return fmt.Sprintf("%v (%v)", s, i.AltUnits)
-	}
-	return s
+// FindIngredient takes a string and search in the Cookbook if any Recipe contains an Ingredient where the Item contains the string.
+func (cb Cookbook) FindIngredient(item string) Cookbook{
+	result := findIngr(cb, item)
+	return result
 }
 
-/*
-	FindIngr takes a slice of recipes and an item. It returns all recipes that
-
-have an ingredient that (partially) matches the item and/or recipe name.
-*/
-func findIngr(rcps []Recipe, item string) []Recipe {
+// FindIngr takes a slice of recipes and an item. It returns all recipes that
+// have an ingredient that (partially) matches the item and/or recipe name.
+func findIngr(rcps Cookbook, item string) Cookbook {
 	item = strings.ToLower(item)
-	var output []Recipe
+	var output Cookbook
 	for _, rcp := range rcps {
 		if strings.Contains(strings.ToLower(rcp.Name), item) {
 			output = append(output, rcp)
@@ -184,26 +168,37 @@ func findIngr(rcps []Recipe, item string) []Recipe {
 	return output
 }
 
-/*
-	RemoveRecipe takes a slice of recipes and an id. The recipe that matches
-
-the id is removed from the slice and slice is returned.
-*/
-func removeRecipe(rcps []Recipe, id int) []Recipe {
+// RemoveRecipe takes a slice of recipes and an id. The recipe that matches
+// the id is removed from the slice and slice is returned.
+func removeRecipe(cb Cookbook, id int) Cookbook {
 	var i int
 	var rcp Recipe
 	var b bool
-	for i, rcp = range rcps {
+	for i, rcp = range cb {
 		if rcp.Id == id {
 			b = true
 			break
 		}
 	}
 	if b {
-		rcps[i] = rcps[len(rcps)-1]
-		rcpsNew := rcps[:len(rcps)-1]
+		cb[i] = cb[len(cb)-1]
+		rcpsNew := cb[:len(cb)-1]
 		sort.Slice(rcpsNew, func(i, j int) bool { return rcpsNew[i].Name < rcpsNew[j].Name })
 		return rcpsNew
 	}
-	return rcps
+	return cb
+}
+
+func (cb *Cookbook) Remove(id int) error {
+	cbOld := *cb
+	for i, rcp := range cbOld {
+		if rcp.Id == id {
+			cbOld[i] = cbOld[len(cbOld)-1] // replace Recipe on index i with the last entry in the Cookbook
+			cbNew := cbOld[:len(cbOld)-1] // Cookbook where the Recipe is removed
+			sort.SliceStable(cbNew, func(i, j int) bool { return cbNew[i].Name < cbNew[j].Name })
+			*cb = cbNew
+			return nil
+		}
+	}
+	return errorUnknownRecipe
 }
