@@ -1,4 +1,4 @@
-package gocookbook
+package main
 
 import (
 	"testing"

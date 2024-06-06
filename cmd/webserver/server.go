@@ -1,4 +1,4 @@
-package gocookbook
+package main
 
 import (
 	"fmt"
@@ -11,7 +11,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
+	
+	"github.com/SEB534542/gocookbook/recipes"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -273,13 +274,14 @@ recipes, ingrediënts or tags.
 */
 func handlerMain(w http.ResponseWriter, req *http.Request) {
 	addVisit(req)
-	var xr []Recipe
+	var cb gocookbook.Cookbook
 	var item string
+	// check if results need to be filtered on an item that is posted
 	if req.Method == http.MethodPost {
 		item = strings.Trim(req.PostFormValue("Item"), " ")
-		xr = findIngr(rcps, item)
+		cb = findIngr(rcps, item)
 	} else {
-		xr = rcps
+		cb = rcps
 	}
 	data := struct {
 		Recipes []Recipe
@@ -288,7 +290,7 @@ func handlerMain(w http.ResponseWriter, req *http.Request) {
 		Admin   bool
 		Item    string
 	}{
-		xr,
+		cb,
 		tags(rcps),
 		alreadyLoggedIn(req),
 		dbUsers.IsAdmin(currentUser(req)),
