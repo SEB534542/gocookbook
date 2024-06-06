@@ -120,7 +120,7 @@ func newRecipeId(ckb Cookbook) int {
 	return maxId + idSteps
 }
 
-// updateRcp adjusts Ingrs in the recipe r to n persons and returns the new recipe.
+// adjustRcp adjusts the amount of all Ingredients in the Recipe r to the desired portions and returns the adjusted Recipe.
 func adjustRcp(r Recipe, portions float64) Recipe {
 	newIngrs := make([]Ingredient, len(r.Ingrs))
 	copy(newIngrs, r.Ingrs)
