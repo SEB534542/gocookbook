@@ -72,8 +72,8 @@ func TextToIngrds(s string) []Ingredient {
 					offset += len(xs[j+1])
 				}
 				item := strings.Trim(line[strings.Index(line, s)+len(s)+offset+1:], " ") // assuming item is directly after amount in the text
-				notes := strings.Trim(line[:strings.Index(line, s)], " ")  // assuming an text before the float is additional notes
-				
+				notes := strings.Trim(line[:strings.Index(line, s)], " ")                // assuming an text before the float is additional notes
+
 				// if notes is empty, check for a comma in the item and use the remainder as a note
 				if notes == "" {
 					if x := strings.Index(item, ","); x != -1 {

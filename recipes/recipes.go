@@ -142,9 +142,9 @@ func adjustRcp(r Recipe, portions float64) Recipe {
 	return newRcp
 }
 
-// FindIngredient takes a string and search in the Cookbook if any Recipe contains an Ingredient 
+// FindIngredient takes a string and search in the Cookbook if any Recipe contains an Ingredient
 // where the Item contains the string and returns a Cookbook with alle those recipes.
-func (cb Cookbook) FindIngredient(item string) Cookbook{
+func (cb Cookbook) FindIngredient(item string) Cookbook {
 	result := findIngr(cb, item)
 	return result
 }
@@ -176,7 +176,7 @@ func (cb *Cookbook) Remove(id int) error {
 	for i, rcp := range cbOld {
 		if rcp.Id == id {
 			cbOld[i] = cbOld[len(cbOld)-1] // replace Recipe on index i with the last entry in the Cookbook
-			cbNew := cbOld[:len(cbOld)-1] // Cookbook where the Recipe is removed
+			cbNew := cbOld[:len(cbOld)-1]  // Cookbook where the Recipe is removed
 			sort.SliceStable(cbNew, func(i, j int) bool { return cbNew[i].Name < cbNew[j].Name })
 			*cb = cbNew
 			return nil

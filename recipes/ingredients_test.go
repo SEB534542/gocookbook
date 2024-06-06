@@ -43,7 +43,7 @@ func AssertEqualIngrd(x, y Ingredient) (bool, []string) {
 	return b, fields
 }
 
-func TestPrint(t *testing.T){
+func TestPrint(t *testing.T) {
 	in := NewIngredient(50, ml, "Banaan", "in plakjes")
 	want := "50 ml Banaan, in plakjes (0.2 cup)"
 	if got := in.Print(); want != got {
