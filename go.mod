@@ -1,4 +1,4 @@
-module go-cookbook
+module github.com/SEB534542/gocookbook
 
 go 1.21
 
